@@ -23,12 +23,6 @@ jobs:
           playwright-browsers-${{ runner.os }}-
     - name: Install dependencies
       run: npm ci
-    - name: Build and start the application
-      run: |
-        npm run build
-        npm run preview &
-        # Wait for the application to be ready
-        sleep 5
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
     - name: Run Playwright tests
