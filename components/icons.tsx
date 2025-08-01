@@ -234,10 +234,18 @@ export const ShieldCheckIcon: React.FC<IconProps> = (props) => (
     stroke="currentColor"
     {...props}
   >
+    {/* Fully closed, centered, and wider shield outline, moved slightly higher */}
     <path
       strokeLinecap="round"
       strokeLinejoin="round"
-      d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622A11.99 11.99 0 0018.402 6a11.959 11.959 0 01-1.043-.736"
+      d="M12 3c-4.5 1.5-8 2.3-8 2.3v6.5c0 6 4.7 10.5 8 11.5 3.3-1 8-5.5 8-11.5V5.3s-3.5-0.8-8-2.3z"
+      fill="none"
+    />
+    {/* Centered checkmark */}
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M9.5 12.5l2 2.25 3-4.25"
     />
   </svg>
 );
