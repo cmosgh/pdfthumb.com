@@ -1,4 +1,3 @@
-
 import React from 'react';
 import type { PricingTier } from '../types';
 import { CheckCircleIcon, InformationCircleIcon } from './icons';
@@ -52,7 +51,7 @@ const PricingCard: React.FC<PricingCardProps> = ({ tier, billingCycle }) => {
 
 
   return (
-    <div className={`${cardBaseClasses} ${featuredClasses}`}>
+    <div className={`${cardBaseClasses} ${featuredClasses} relative`}> {/* Ensure card is relative for absolute badge */}
       {tier.isFeatured && (
         <div className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2">
           <span className={`${featuredBadgeBg} ${featuredBadgeText} text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider`}>
@@ -61,7 +60,7 @@ const PricingCard: React.FC<PricingCardProps> = ({ tier, billingCycle }) => {
         </div>
       )}
       {tier.isComingSoon && (
-         <div className="absolute top-4 right-4">
+         <div className="absolute top-4 right-4 z-20"> {/* Add z-20 to ensure badge is above all */}
           <span className="bg-slate-500 dark:bg-slate-600 text-white text-xs font-semibold px-3 py-1 rounded-full uppercase flex items-center">
             <InformationCircleIcon className="h-4 w-4 mr-1" /> Soon
           </span>
@@ -116,3 +115,4 @@ const PricingCard: React.FC<PricingCardProps> = ({ tier, billingCycle }) => {
 };
 
 export default PricingCard;
+
