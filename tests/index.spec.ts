@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 // Adjust the URL if your dev server runs on a different port
-const BASE_URL = 'http://localhost:5173';
+const BASE_URL = 'http://localhost:4173';
 
 test.describe('index.tsx basic render', () => {
   test('should load the app and display the root element', async ({ page }) => {
