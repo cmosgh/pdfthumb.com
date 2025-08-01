@@ -18,6 +18,8 @@ export const NAV_LINKS = [
   { name: "Docs", href: "#features" }, // Reverted to on-page scroll, e.g. linking to features as a placeholder
 ];
 
+export  const APP_NAME = "PDFThumb";
+
 export const PRICING_TIERS: PricingTier[] = [
   {
     id: "developer",
