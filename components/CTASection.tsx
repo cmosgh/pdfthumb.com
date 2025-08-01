@@ -1,11 +1,10 @@
-
-import React from 'react';
-import Button from './Button.tsx'; // Added .tsx
-import { handleInitiateCheckout } from '../paymentUtils.ts'; // Added .ts
+import React from "react";
+import Button from "./Button.tsx"; // Added .tsx
+import { handleInitiateCheckout } from "../paymentUtils.ts"; // Added .ts
 
 const CTASection: React.FC = () => {
   const handleFreeApiKeyClick = () => {
-    handleInitiateCheckout('developer');
+    handleInitiateCheckout("developer");
   };
 
   return (
@@ -15,13 +14,13 @@ const CTASection: React.FC = () => {
           Ready to Supercharge Your PDF Workflows?
         </h2>
         <p className="mt-4 text-lg text-indigo-100 dark:text-indigo-200 max-w-2xl mx-auto">
-          Integrate our PDF Thumbnail API in minutes and elevate your application.
-          Get your API key today and start building!
+          Integrate our PDF Thumbnail API in minutes and elevate your
+          application. Get your API key today and start building!
         </p>
         <div className="mt-10">
-          <Button 
+          <Button
             href="#signup" // href kept for context
-            variant="outlineWhite" 
+            variant="outlineWhite"
             size="lg"
             onClick={(e) => {
               e.preventDefault(); // Prevent default anchor navigation

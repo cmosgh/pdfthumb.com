@@ -1,4 +1,3 @@
-
 // paymentUtils.ts
 
 /**
@@ -13,22 +12,34 @@ export const handleInitiateCheckout = (planId: string): void => {
   // 2. Call your backend to create a Stripe Checkout Session.
   // 3. Get the session ID from your backend.
   // 4. Redirect to Stripe Checkout using stripe.redirectToCheckout({ sessionId }).
-  
-  alert(`Simulating checkout for plan: ${planId}.\nCheck the console for more details.\nThis would typically redirect to a payment page.`);
+
+  alert(
+    `Simulating checkout for plan: ${planId}.\nCheck the console for more details.\nThis would typically redirect to a payment page.`,
+  );
 
   // Simplified logic for demonstration based on the base plan ID
-  const basePlanId = planId.split('-')[0]; // e.g., 'pro-annual' becomes 'pro'
+  const basePlanId = planId.split("-")[0]; // e.g., 'pro-annual' becomes 'pro'
 
-  if (basePlanId === 'developer') {
-    console.log("This is a free plan. Proceeding to registration/API key generation without payment.");
+  if (basePlanId === "developer") {
+    console.log(
+      "This is a free plan. Proceeding to registration/API key generation without payment.",
+    );
     // Potentially redirect to a sign-up page or trigger an account creation flow directly.
-  } else if (basePlanId === 'basic' || basePlanId === 'pro') {
-    console.log(`This is a paid plan (${planId}). Redirecting to payment provider (e.g., Stripe Checkout).`);
+  } else if (basePlanId === "basic" || basePlanId === "pro") {
+    console.log(
+      `This is a paid plan (${planId}). Redirecting to payment provider (e.g., Stripe Checkout).`,
+    );
     // Add Stripe.js logic here, passing the full planId to backend
-  } else if (basePlanId === 'enterprise') { // 'enterprise' is usually 'Contact Sales' and handled by href.
-      console.log(`Enterprise plan inquiry for: ${planId}. This is typically handled by a 'Contact Sales' flow.`);
-  } else if (planId === 'general_signup') { // Example from Navbar
-    console.log('General signup initiated. User may select a plan after registration.');
+  } else if (basePlanId === "enterprise") {
+    // 'enterprise' is usually 'Contact Sales' and handled by href.
+    console.log(
+      `Enterprise plan inquiry for: ${planId}. This is typically handled by a 'Contact Sales' flow.`,
+    );
+  } else if (planId === "general_signup") {
+    // Example from Navbar
+    console.log(
+      "General signup initiated. User may select a plan after registration.",
+    );
     // Redirect to a generic signup page
   }
 };

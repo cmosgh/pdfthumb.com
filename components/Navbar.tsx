@@ -1,8 +1,8 @@
-import React from 'react'
-import { NAV_LINKS } from '../constants.ts'
-import { DocumentIcon, MoonIcon, SunIcon } from './icons.tsx'
-import type { Theme } from '../hooks/useTheme.ts'
-import { handleInitiateCheckout } from '../paymentUtils.ts'
+import React from "react";
+import { NAV_LINKS } from "../constants.ts";
+import { DocumentIcon, MoonIcon, SunIcon } from "./icons.tsx";
+import type { Theme } from "../hooks/useTheme.ts";
+import { handleInitiateCheckout } from "../paymentUtils.ts";
 
 interface NavbarProps {
   theme: Theme;
@@ -11,7 +11,7 @@ interface NavbarProps {
 
 const Navbar: React.FC<NavbarProps> = ({ theme, toggleTheme }) => {
   const handleGetApiKeyClick = () => {
-    handleInitiateCheckout('pro');
+    handleInitiateCheckout("pro");
   };
 
   return (
@@ -19,9 +19,14 @@ const Navbar: React.FC<NavbarProps> = ({ theme, toggleTheme }) => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
-            <a href="#" className="flex items-center space-x-2 text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-500">
+            <a
+              href="#"
+              className="flex items-center space-x-2 text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-500"
+            >
               <DocumentIcon className="h-8 w-8" />
-              <span className="font-bold text-xl text-slate-800 dark:text-slate-100">PDFThumb.io</span>
+              <span className="font-bold text-xl text-slate-800 dark:text-slate-100">
+                PDFThumb.io
+              </span>
             </a>
           </div>
           <nav className="hidden md:flex space-x-8">
@@ -38,10 +43,14 @@ const Navbar: React.FC<NavbarProps> = ({ theme, toggleTheme }) => {
           <div className="flex items-center space-x-4">
             <button
               onClick={toggleTheme}
-              aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+              aria-label={
+                theme === "light"
+                  ? "Switch to dark mode"
+                  : "Switch to light mode"
+              }
               className="p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
-              {theme === 'light' ? (
+              {theme === "light" ? (
                 <MoonIcon className="h-6 w-6" />
               ) : (
                 <SunIcon className="h-6 w-6" />
@@ -65,9 +74,7 @@ const Navbar: React.FC<NavbarProps> = ({ theme, toggleTheme }) => {
             </a>
           </div>
           {/* Mobile menu button (optional, for simplicity not fully implemented here) */}
-          <div className="md:hidden">
-             {/* Hamburger Icon */}
-          </div>
+          <div className="md:hidden">{/* Hamburger Icon */}</div>
         </div>
       </div>
     </header>

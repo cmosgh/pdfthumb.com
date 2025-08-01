@@ -1,63 +1,65 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <style>
+    <style>
       /* Adding Inter font from Google Fonts as an example */
-      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap");
       /* Custom scrollbar for a more modern look (optional) */
       ::-webkit-scrollbar {
-          width: 8px;
+        width: 8px;
       }
       ::-webkit-scrollbar-track {
-          background: #f1f1f1;
+        background: #f1f1f1;
       }
       .dark ::-webkit-scrollbar-track {
-          background: #2d3748; /* dark:bg-slate-700 */
+        background: #2d3748; /* dark:bg-slate-700 */
       }
       ::-webkit-scrollbar-thumb {
-          background: #888;
-          border-radius: 4px;
+        background: #888;
+        border-radius: 4px;
       }
       .dark ::-webkit-scrollbar-thumb {
-          background: #4a5568; /* dark:bg-slate-600 */
+        background: #4a5568; /* dark:bg-slate-600 */
       }
       ::-webkit-scrollbar-thumb:hover {
-          background: #555;
+        background: #555;
       }
       .dark ::-webkit-scrollbar-thumb:hover {
-          background: #718096; /* dark:bg-slate-500 */
+        background: #718096; /* dark:bg-slate-500 */
       }
       body {
-          font-family: 'Inter', sans-serif; /* A common Tailwind-esque font */
+        font-family: "Inter", sans-serif; /* A common Tailwind-esque font */
       }
-
-  </style>
-  <title>PDF Thumbnail API</title>
-  <script>
-    // Apply theme immediately to prevent FOUC
-    (function() {
-      try {
-        const theme = localStorage.getItem('theme');
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        if (theme === 'dark' || (!theme && prefersDark)) {
-          document.documentElement.classList.add('dark');
-        } else {
-          document.documentElement.classList.remove('dark');
+    </style>
+    <title>PDF Thumbnail API</title>
+    <script>
+      // Apply theme immediately to prevent FOUC
+      (function () {
+        try {
+          const theme = localStorage.getItem("theme");
+          const prefersDark = window.matchMedia(
+            "(prefers-color-scheme: dark)",
+          ).matches;
+          if (theme === "dark" || (!theme && prefersDark)) {
+            document.documentElement.classList.add("dark");
+          } else {
+            document.documentElement.classList.remove("dark");
+          }
+        } catch (e) {
+          // Ignore errors in case localStorage is not available
         }
-      } catch (e) {
-        // Ignore errors in case localStorage is not available
-      }
-    })();
-  </script>
+      })();
+    </script>
 
-
-<link rel="stylesheet" href="/style.css">
-</head>
-<body class="bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-200 antialiased">
-  <div id="root"></div>
-  <script type="module" src="/index.tsx"></script>
-</body>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body
+    class="bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-200 antialiased"
+  >
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
 </html>
