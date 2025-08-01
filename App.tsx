@@ -1,13 +1,12 @@
-
-import React from 'react';
-import Navbar from './components/Navbar.tsx';
-import Footer from './components/Footer.tsx';
-import Hero from './components/Hero.tsx';
-import FeaturesSection from './components/FeaturesSection.tsx';
-import PricingSection from './components/PricingSection.tsx';
-import OveragePricingSection from './components/OveragePricingSection.tsx';
-import CTASection from './components/CTASection.tsx';
-import { useTheme } from './hooks/useTheme.ts';
+import React from "react";
+import Navbar from "./components/Navbar.tsx";
+import Footer from "./components/Footer.tsx";
+import Hero from "./components/Hero.tsx";
+import FeaturesSection from "./components/FeaturesSection.tsx";
+import PricingSection from "./components/PricingSection.tsx";
+import OveragePricingSection from "./components/OveragePricingSection.tsx";
+import CTASection from "./components/CTASection.tsx";
+import { useTheme } from "./hooks/useTheme.ts";
 
 const App: React.FC = () => {
   const [theme, toggleTheme] = useTheme();
