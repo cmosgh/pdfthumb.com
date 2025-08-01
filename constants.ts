@@ -26,6 +26,7 @@ export const PRICING_TIERS: PricingTier[] = [
     name: "Developer",
     price: "0",
     priceFrequency: "/month",
+    currency: "€",
     description: "Perfect for hobby projects and getting started.",
     features: [
       "1,000 thumbnails/month",
@@ -46,6 +47,7 @@ export const PRICING_TIERS: PricingTier[] = [
     priceYearly: "100",
     priceFrequencyYearly: "/year",
     annualDiscountText: "Save $8 annually",
+    currency: "€",
     description: "Ideal for individuals and small projects needing more calls.",
     features: [
       "10,000 thumbnails/month",
@@ -67,6 +69,7 @@ export const PRICING_TIERS: PricingTier[] = [
     priceYearly: "490",
     priceFrequencyYearly: "/year",
     annualDiscountText: "Save $98 annually (2 months free!)",
+    currency: "€",
     description: "For growing businesses and professional use.",
     features: [
       "100,000 thumbnails/month",
