@@ -48,6 +48,44 @@ export const DocumentIcon: React.FC<IconProps> = (props) => (
       strokeLinejoin="round"
       d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"
     />
+    {/* Added a small rectangle as an image placeholder */}
+    <rect
+      x="8"
+      y="6.5"
+      width="4"
+      height="2.2"
+      fill="currentColor"
+      opacity="0.25"
+      rx="0.4"
+    />
+    {/* Moved lines slightly higher to represent text on the document */}
+    <line
+      x1="8"
+      y1="12.2"
+      x2="16"
+      y2="12.2"
+      stroke="currentColor"
+      strokeWidth="1.2"
+      strokeLinecap="round"
+    />
+    <line
+      x1="8"
+      y1="14.4"
+      x2="16"
+      y2="14.4"
+      stroke="currentColor"
+      strokeWidth="1.2"
+      strokeLinecap="round"
+    />
+    <line
+      x1="8"
+      y1="16.6"
+      x2="13"
+      y2="16.6"
+      stroke="currentColor"
+      strokeWidth="1.2"
+      strokeLinecap="round"
+    />
   </svg>
 );
 
@@ -80,7 +118,7 @@ export const ScaleIcon: React.FC<IconProps> = (props) => (
     <path
       strokeLinecap="round"
       strokeLinejoin="round"
-      d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75v4.5m0-4.5h-4.5m4.5 0L15 9M20.25 20.25v-4.5m0 4.5h-4.5m4.5 0L15 15"
+      d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75v4.5m0-4.5h-4.5m4.5 0L15 9m5.25 11.25v-4.5m0 4.5h-4.5m4.5 0L15 15"
     />
   </svg>
 );
