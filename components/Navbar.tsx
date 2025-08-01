@@ -1,5 +1,5 @@
 import React from "react";
-import { NAV_LINKS } from "../constants.ts";
+import { APP_NAME, NAV_LINKS } from "../constants.ts";
 import { DocumentIcon, MoonIcon, SunIcon } from "./icons.tsx";
 import type { Theme } from "../hooks/useTheme.ts";
 import { handleInitiateCheckout } from "../paymentUtils.ts";
@@ -25,7 +25,7 @@ const Navbar: React.FC<NavbarProps> = ({ theme, toggleTheme }) => {
             >
               <DocumentIcon className="h-8 w-8" />
               <span className="font-bold text-xl text-slate-800 dark:text-slate-100">
-                PDFThumb.io
+                {APP_NAME}
               </span>
             </a>
           </div>
