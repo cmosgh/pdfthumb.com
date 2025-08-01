@@ -42,6 +42,13 @@ const PricingCard: React.FC<PricingCardProps> = ({ tier, billingCycle }) => {
   const displayDiscountText =
     isAnnual && tier.annualDiscountText ? tier.annualDiscountText : null;
 
+  // Add currency display logic
+  const currency = tier.currency || "";
+  const priceWithCurrency =
+    displayPrice === "Custom"
+      ? displayPrice
+      : `${currency}${displayPrice}`;
+
   const handleCtaClick = () => {
     if (tier.isComingSoon) return;
 
@@ -64,7 +71,7 @@ const PricingCard: React.FC<PricingCardProps> = ({ tier, billingCycle }) => {
   };
 
   return (
-    <div className={`${cardBaseClasses} ${featuredClasses} relative`}>
+    <div className={`${cardBaseClasses} ${featuredClasses} relative`} data-testid={`pricing-card-${tier.id}`}>
       {" "}
       {/* Ensure card is relative for absolute badge */}
       {tier.isFeatured && (
@@ -99,11 +106,9 @@ const PricingCard: React.FC<PricingCardProps> = ({ tier, billingCycle }) => {
       {!displayDiscountText && tier.id !== "developer" && (
         <div className="h-6 min-h-[1.5rem] mb-4"></div> // Placeholder for consistent spacing
       )}
-      <div className="mb-6">
+      <div className="mb-6" data-testid="pricing-card-price">
         <span className={`text-5xl font-extrabold ${highlightTextColorClass}`}>
-          {displayPrice.startsWith("$") || displayPrice === "Custom"
-            ? displayPrice
-            : `$${displayPrice}`}
+          {priceWithCurrency}
         </span>
         {displayFrequency && (
           <span className="text-slate-500 dark:text-slate-400 text-lg ml-1">
