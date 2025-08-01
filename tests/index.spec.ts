@@ -13,7 +13,7 @@ test.describe('index.tsx basic render', () => {
   test('should render the Hero section', async ({ page }) => {
     await page.goto(BASE_URL);
     // Assuming the Hero section contains a heading with a unique text, e.g., "PDF Thumbnail Pro"
-    await expect(page.getByRole('heading', { name: /pdf thumbnail pro/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Instant PDF Thumbnails/i })).toBeVisible();
   });
 
   test('should render the Navbar and Footer', async ({ page }) => {
