@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "commit": "./node_modules/.bin/git-cz",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"
@@ -16,8 +17,15 @@
     "tailwindcss": "^4.1.11"
   },
   "devDependencies": {
+    "@commitlint/cli": "^19.5.0",
+    "@commitlint/config-conventional": "^19.5.0",
     "@types/node": "^22.14.0",
     "typescript": "~5.8.2",
     "vite": "^6.2.0"
+  },
+  "config": {
+    "commitizen": {
+      "path": "git-cz"
+    }
   }
 }
