@@ -1,0 +1,9 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/" # Location of the `package.json` file
+    schedule:
+      interval: "weekly" # Check for updates weekly
+    commit-message:
+      prefix: "deps"
+    open-pull-requests-limit: 5 # Limit the number of open pull requests
