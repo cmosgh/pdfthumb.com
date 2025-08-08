@@ -9,10 +9,20 @@ export default defineConfig(({ mode }) => {
     define: {
       "process.env.API_KEY": JSON.stringify(env.GEMINI_API_KEY),
       "process.env.GEMINI_API_KEY": JSON.stringify(env.GEMINI_API_KEY),
+      "process.env.API_URL": JSON.stringify(env.API_URL),
     },
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "."),
+      },
+    },
+    server: {
+      proxy: {
+        "/api": {
+          target: "http://localhost:3000",
+          changeOrigin: true,
+          secure: false,
+        },
       },
     },
   };
