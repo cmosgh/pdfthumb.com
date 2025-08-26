@@ -13,9 +13,9 @@ import {
 import React from "react";
 
 export const NAV_LINKS = [
-  { name: "Features", href: "#features" },
-  { name: "Pricing", href: "#pricing" },
-  { name: "Docs", href: "#features" }, // Reverted to on-page scroll, e.g. linking to features as a placeholder
+  { name: "Features", href: "/#features" },
+  { name: "Pricing", href: "/#pricing" },
+  { name: "Docs", href: "/#features" }, // Reverted to on-page scroll, e.g. linking to features as a placeholder
 ];
 
 export const APP_NAME = "PDFThumb";

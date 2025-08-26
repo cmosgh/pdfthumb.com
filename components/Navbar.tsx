@@ -32,13 +32,13 @@ const Navbar: React.FC<NavbarProps> = ({ theme, toggleTheme }) => {
           </div>
           <nav className="hidden md:flex space-x-8">
             {NAV_LINKS.map((link) => (
-              <a
+              <Link
                 key={link.name}
-                href={link.href}
+                to={link.href}
                 className="font-medium text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
               >
                 {link.name}
-              </a>
+              </Link>
             ))}
           </nav>
           <div className="flex items-center space-x-4">
