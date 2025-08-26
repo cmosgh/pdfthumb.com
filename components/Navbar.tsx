@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "@tanstack/react-router";
 import { APP_NAME, NAV_LINKS } from "../constants.ts";
 import { DocumentIcon, MoonIcon, SunIcon } from "./icons.tsx";
 import type { Theme } from "../hooks/useTheme.ts";
@@ -56,12 +57,12 @@ const Navbar: React.FC<NavbarProps> = ({ theme, toggleTheme }) => {
                 <SunIcon className="h-6 w-6" />
               )}
             </button>
-            <a
-              href="#login" // Placeholder for actual login link/modal
+            <Link
+              to="/login"
               className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 mr-2 hidden sm:block"
             >
               Log In
-            </a>
+            </Link>
             <a
               href="#signup" // Placeholder for actual signup link/modal
               onClick={(e) => {

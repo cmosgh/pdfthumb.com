@@ -4,29 +4,29 @@ This repository contains the source code for PDFThumb.io, a web application for 
 
 ## Features
 
-*   **Lightning Fast Generation:** Our API processes PDFs and returns thumbnails in milliseconds.
-*   **Scalable Infrastructure:** Built to handle millions of requests, our infrastructure scales with your needs.
-*   **Easy Integration:** Simple REST API with clear documentation and client libraries for popular languages.
-*   **Privacy First:** Your PDF files are processed in memory and never stored on our servers.
-*   **AI-Powered Integration (Coming Soon):** We're enabling AI agents to intelligently interact with our API.
-*   **Reliable Platform:** We ensure high uptime and secure processing.
-*   **Developer Friendly:** Clear documentation, fair pricing, and responsive support.
-*   **High Quality Thumbnails:** Generate crisp, clear thumbnails perfect for previews, galleries, and document management systems.
+- **Lightning Fast Generation:** Our API processes PDFs and returns thumbnails in milliseconds.
+- **Scalable Infrastructure:** Built to handle millions of requests, our infrastructure scales with your needs.
+- **Easy Integration:** Simple REST API with clear documentation and client libraries for popular languages.
+- **Privacy First:** Your PDF files are processed in memory and never stored on our servers.
+- **AI-Powered Integration (Coming Soon):** We're enabling AI agents to intelligently interact with our API.
+- **Reliable Platform:** We ensure high uptime and secure processing.
+- **Developer Friendly:** Clear documentation, fair pricing, and responsive support.
+- **High Quality Thumbnails:** Generate crisp, clear thumbnails perfect for previews, galleries, and document management systems.
 
 ## Technology Stack
 
-*   **Frontend:** React, TypeScript, Tailwind CSS
-*   **Build Tool:** Vite
-*   **Routing:** TanStack Router
-*   **Testing:** Playwright
-*   **CI/CD:** GitHub Actions
+- **Frontend:** React, TypeScript, Tailwind CSS
+- **Build Tool:** Vite
+- **Routing:** TanStack Router
+- **Testing:** Playwright
+- **CI/CD:** GitHub Actions
 
 ## Getting Started
 
 ### Prerequisites
 
-*   Node.js (v22 or higher)
-*   npm
+- Node.js (v22 or higher)
+- npm
 
 ### Installation
 
