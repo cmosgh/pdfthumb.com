@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => {
     plugins: [
       tailwindcss(),
       tanstackRouter({
-        routesDirectory: "./routes",
+        routesDirectory: "./src/routes",
         generatedRouteTree: "./src/routeTree.gen.ts",
       }),
     ],
