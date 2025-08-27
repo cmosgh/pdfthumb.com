@@ -8,8 +8,8 @@ This project is a React application using Vite as the build tool and TypeScript 
 
 - React 19
 - TypeScript
-- Vite 6
-- Tailwind CSS 4
+- Vite 7
+- Tailwind CSS
 - @tanstack/react-router
 - Commitlint (Conventional Commits)
 - Commitizen
@@ -67,19 +67,7 @@ hooks/
   useMyHook.ts
 ```
 
-feat(router): add support for dynamic routes
 
-```
-
-## Example Component Structure
-```
-
-components/
-MyComponent.tsx
-hooks/
-useMyHook.ts
-
-```
 
 ---
 
