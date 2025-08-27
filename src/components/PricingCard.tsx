@@ -45,9 +45,7 @@ const PricingCard: React.FC<PricingCardProps> = ({ tier, billingCycle }) => {
   // Add currency display logic
   const currency = tier.currency || "";
   const priceWithCurrency =
-    displayPrice === "Custom"
-      ? displayPrice
-      : `${currency}${displayPrice}`;
+    displayPrice === "Custom" ? displayPrice : `${currency}${displayPrice}`;
 
   const handleCtaClick = () => {
     if (tier.isComingSoon) return;
@@ -71,7 +69,10 @@ const PricingCard: React.FC<PricingCardProps> = ({ tier, billingCycle }) => {
   };
 
   return (
-    <div className={`${cardBaseClasses} ${featuredClasses} relative`} data-testid={`pricing-card-${tier.id}`}>
+    <div
+      className={`${cardBaseClasses} ${featuredClasses} relative`}
+      data-testid={`pricing-card-${tier.id}`}
+    >
       {" "}
       {/* Ensure card is relative for absolute badge */}
       {tier.isFeatured && (
