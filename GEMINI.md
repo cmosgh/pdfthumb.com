@@ -8,8 +8,8 @@ This project is a React application using Vite as the build tool and TypeScript 
 
 - React 19
 - TypeScript
-- Vite 6
-- Tailwind CSS 4
+- Vite 7
+- Tailwind CSS
 - @tanstack/react-router
 - Commitlint (Conventional Commits)
 - Commitizen
@@ -66,16 +66,8 @@ components/
 hooks/
   useMyHook.ts
 ```
-feat(router): add support for dynamic routes
-```
 
-## Example Component Structure
-```
-components/
-MyComponent.tsx
-hooks/
-useMyHook.ts
-```
+
 
 ---
 
@@ -83,3 +75,4 @@ useMyHook.ts
 - Use the latest Node.js LTS version (currently 22) for all development and CI tasks.
 - Keep dependencies up to date and use exact versions as specified in `package.json`.
 
+```
