@@ -30,6 +30,7 @@ const Navbar: React.FC<NavbarProps> = ({ theme, toggleTheme }) => {
             <Link
               to="/"
               className="md:hidden flex items-center space-x-2 text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-500"
+              data-testid="header-mobile-link"
             >
               <DocumentIcon className="h-8 w-8" />
               <span className="font-bold text-xl text-slate-800 dark:text-slate-100">
@@ -39,6 +40,7 @@ const Navbar: React.FC<NavbarProps> = ({ theme, toggleTheme }) => {
             <Link
               to="/"
               className="hidden md:flex items-center space-x-2 text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-500"
+              data-testid="header-desktop-link"
             >
               <DocumentIcon className="h-8 w-8" />
               <span className="font-bold text-xl text-slate-800 dark:text-slate-100">
