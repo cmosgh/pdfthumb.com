@@ -9,20 +9,28 @@ test.describe("Branding Consistency", () => {
       await page.evaluate(() => window.scrollTo(0, 0)); // Ensure we're at the top of the page
     });
 
-    test("should display correct brand name on different view widths", async ({
+    test("should display correct brand name on mobile viewport", async ({
       page,
     }) => {
-      if (page.viewportSize()?.width && page.viewportSize()!.width < 768) {
-        const mobileBrand = page.getByTestId("brand-name-mobile");
-        await expect(mobileBrand).toBeVisible();
-        await expect(mobileBrand).toContainText(APP_NAME.replace(".com", ""));
-      } else {
-        const desktopBrandWrapper = page.getByTestId("brand-name-wrapper");
-        expect(desktopBrandWrapper).not.toBeNull();
-        const desktopBrand = desktopBrandWrapper.getByTestId("brand-name-desktop");
-        await expect(desktopBrand).toBeVisible();
-        await expect(desktopBrand).toContainText(APP_NAME);
-      }
+      await page.setViewportSize({ width: 375, height: 667 }); // Mobile viewport
+      await page.reload(); // Reload to trigger responsive changes
+      
+      const mobileBrand = page.getByTestId("brand-name-mobile");
+      await expect(mobileBrand).toBeVisible();
+      await expect(mobileBrand).toContainText(APP_NAME.replace(".com", ""));
+    });
+
+    test("should display correct brand name on desktop viewport", async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width: 1200, height: 800 }); // Desktop viewport
+      await page.reload(); // Reload to trigger responsive changes
+      
+      const desktopBrandWrapper = page.getByTestId("brand-name-wrapper");
+      expect(desktopBrandWrapper).not.toBeNull();
+      const desktopBrand = desktopBrandWrapper.getByTestId("brand-name-desktop");
+      await expect(desktopBrand).toBeVisible();
+      await expect(desktopBrand).toContainText(APP_NAME);
     });
   });
 
@@ -48,24 +56,41 @@ test.describe("Branding Consistency", () => {
     });
   });
 
-  test("brand consistency across all pages", async ({ page }) => {
+  test("brand consistency across all pages - mobile viewport", async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 667 }); // Mobile viewport
     const pages = ["/", "/features", "/pricing"];
 
     for (const pagePath of pages) {
       await page.goto(pagePath);
 
-      // Check header based on viewport width
-      if (page.viewportSize()?.width && page.viewportSize()!.width < 768) {
-        const headerBrand = page.getByTestId("brand-name-mobile");
-        await expect(headerBrand).toBeVisible();
-        await expect(headerBrand).toContainText(APP_NAME.replace(".com", ""));
-      } else {
-        const desktopBrandWrapper = page.getByTestId("brand-name-wrapper");
-        expect(desktopBrandWrapper).not.toBeNull();
-        const desktopBrand = desktopBrandWrapper.getByTestId("brand-name-desktop");
-        await expect(desktopBrand).toBeVisible();
-        await expect(desktopBrand).toContainText(APP_NAME);
-      }
+      // Check mobile header
+      const headerBrand = page.getByTestId("brand-name-mobile");
+      await expect(headerBrand).toBeVisible();
+      await expect(headerBrand).toContainText(APP_NAME.replace(".com", ""));
+
+      // Check footer
+      await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+      const footerBrand = page
+        .locator("footer")
+        .getByText(APP_NAME, { exact: true });
+      await expect(footerBrand).toBeVisible();
+      await expect(footerBrand).toHaveText(APP_NAME);
+    }
+  });
+
+  test("brand consistency across all pages - desktop viewport", async ({ page }) => {
+    await page.setViewportSize({ width: 1200, height: 800 }); // Desktop viewport
+    const pages = ["/", "/features", "/pricing"];
+
+    for (const pagePath of pages) {
+      await page.goto(pagePath);
+
+      // Check desktop header
+      const desktopBrandWrapper = page.getByTestId("brand-name-wrapper");
+      expect(desktopBrandWrapper).not.toBeNull();
+      const desktopBrand = desktopBrandWrapper.getByTestId("brand-name-desktop");
+      await expect(desktopBrand).toBeVisible();
+      await expect(desktopBrand).toContainText(APP_NAME);
 
       // Check footer
       await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
