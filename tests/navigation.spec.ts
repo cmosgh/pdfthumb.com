@@ -6,20 +6,35 @@ test.describe('Navigation', () => {
       await page.goto('/');
     });
 
-    test('should navigate to features section', async ({ page }) => {
-      await page.click('text=Features');
+    test('should navigate to features section', async ({ page, isMobile }) => {
+      if (isMobile) {
+        await page.getByLabel('Toggle mobile menu').click();
+        await page.getByLabel('Mobile Menu').getByRole('link', { name: 'Features' }).click();
+      } else {
+        await page.getByRole('navigation').getByRole('link', { name: 'Features' }).click();
+      }
       await expect(page).toHaveURL('/#features');
       await expect(page.locator('#features')).toBeVisible();
     });
 
-    test('should navigate to pricing section', async ({ page }) => {
-      await page.click('text=Pricing');
+    test('should navigate to pricing section', async ({ page, isMobile }) => {
+      if (isMobile) {
+        await page.getByLabel('Toggle mobile menu').click();
+        await page.getByLabel('Mobile Menu').getByRole('link', { name: 'Pricing' }).click();
+      } else {
+        await page.getByRole('navigation').getByRole('link', { name: 'Pricing' }).click();
+      }
       await expect(page).toHaveURL('/#pricing');
       await expect(page.locator('#pricing')).toBeVisible();
     });
 
-    test('should navigate to docs section', async ({ page }) => {
-      await page.click('text=Docs');
+    test('should navigate to docs section', async ({ page, isMobile }) => {
+      if (isMobile) {
+        await page.getByLabel('Toggle mobile menu').click();
+        await page.getByLabel('Mobile Menu').getByRole('link', { name: 'Docs' }).click();
+      } else {
+        await page.getByRole('navigation').getByRole('link', { name: 'Docs' }).click();
+      }
       await expect(page).toHaveURL('/#features');
       await expect(page.locator('#features')).toBeVisible();
     });
@@ -30,20 +45,35 @@ test.describe('Navigation', () => {
       await page.goto('/login');
     });
 
-    test('should navigate to features section', async ({ page }) => {
-      await page.click('text=Features');
+    test('should navigate to features section', async ({ page, isMobile }) => {
+      if (isMobile) {
+        await page.getByLabel('Toggle mobile menu').click();
+        await page.getByLabel('Mobile Menu').getByRole('link', { name: 'Features' }).click();
+      } else {
+        await page.getByRole('navigation').getByRole('link', { name: 'Features' }).click();
+      }
       await expect(page).toHaveURL('/#features');
       await expect(page.locator('#features')).toBeVisible();
     });
 
-    test('should navigate to pricing section', async ({ page }) => {
-      await page.click('text=Pricing');
+    test('should navigate to pricing section', async ({ page, isMobile }) => {
+      if (isMobile) {
+        await page.getByLabel('Toggle mobile menu').click();
+        await page.getByLabel('Mobile Menu').getByRole('link', { name: 'Pricing' }).click();
+      } else {
+        await page.getByRole('navigation').getByRole('link', { name: 'Pricing' }).click();
+      }
       await expect(page).toHaveURL('/#pricing');
       await expect(page.locator('#pricing')).toBeVisible();
     });
 
-    test('should navigate to docs section', async ({ page }) => {
-      await page.click('text=Docs');
+    test('should navigate to docs section', async ({ page, isMobile }) => {
+      if (isMobile) {
+        await page.getByLabel('Toggle mobile menu').click();
+        await page.getByLabel('Mobile Menu').getByRole('link', { name: 'Docs' }).click();
+      } else {
+        await page.getByRole('navigation').getByRole('link', { name: 'Docs' }).click();
+      }
       await expect(page).toHaveURL('/#features');
       await expect(page.locator('#features')).toBeVisible();
     });

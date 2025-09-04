@@ -19,10 +19,18 @@ test.describe("index.tsx basic render", () => {
     ).toBeVisible();
   });
 
-  test("should render the Navbar and Footer", async ({ page }) => {
+  test("should render the Navbar and Footer", async ({ page, isMobile }) => {
     await page.goto(BASE_URL);
-    // Check for Navbar (assume it has a nav role)
-    await expect(page.getByRole("navigation")).toBeVisible();
+
+    if (isMobile) {
+      // Click the mobile menu button
+      await page.getByLabel('Toggle mobile menu').click();
+      // Check for Mobile Navbar
+      await expect(page.locator('nav[aria-label="Mobile Menu"]')).toBeVisible();
+    } else {
+      // Check for Desktop Navbar
+      await expect(page.getByRole("navigation")).toBeVisible();
+    }
     // Check for Footer (assume it has a contentinfo role)
     await expect(page.getByRole("contentinfo")).toBeVisible();
   });
