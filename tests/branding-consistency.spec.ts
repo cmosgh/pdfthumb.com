@@ -5,7 +5,14 @@ test.describe("Branding Consistency", () => {
   test.describe("Header Branding", () => {
     test.beforeEach(async ({ page }) => {
       await page.goto("/");
-      await new Promise((r) => setTimeout(r, 500)); // Wait for potential animations
+      // Wait for header brand name to be visible instead of fixed delay
+      const mobileBrand = page.getByTestId("brand-name-mobile");
+      const desktopBrand = page.getByTestId("brand-name-desktop");
+      if (await mobileBrand.isVisible()) {
+        await expect(mobileBrand).toBeVisible();
+      } else {
+        await expect(desktopBrand).toBeVisible();
+      }
       await page.evaluate(() => window.scrollTo(0, 0)); // Ensure we're at the top of the page
     });
 
