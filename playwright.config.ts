@@ -76,11 +76,10 @@ export default defineConfig({
       tags: ["@mobile"],
     },
     {
-            name: "Mobile Safari",
+      name: "Mobile Safari",
       use: {
         ...devices["iPhone 12"],
-        viewport: { width: 320, height: 480 },
-        isMobile: true,
+        viewport: { width: MOBILE_WIDTH, height: MOBILE_HEIGHT },
       },
       tags: ["@mobile"],
     },
@@ -98,7 +97,7 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: "npm run dev",
+    command: "npm run build && npm run preview",
     url: "http://localhost:4173",
     reuseExistingServer: !process.env.CI,
   },
