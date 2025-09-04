@@ -1,54 +1,76 @@
 import { test, expect } from '@playwright/test';
-import { APP_NAME } from '../src/constants';
+import { APP_NAME } from "@/constants.ts";
 
 test.describe('Branding Consistency', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/');
+
+  test.describe('Header Branding', () => {
+    test.beforeEach(async ({ page }) => {
+      await page.goto('/');
+    });
+
+    test('should display correct brand name on mobile', async ({ page, isMobile }) => {
+      if (isMobile) {
+        const headerBrand = page.getByTestId('header-mobile-link');
+        await expect(headerBrand).toBeVisible();
+        await expect(headerBrand).toContainText(APP_NAME.replace('.com', ''));
+      } else {
+        test.skip(true, 'This test is for mobile only');
+      }
+    });
+
+    test('should display correct brand name on desktop', async ({ page, isMobile }) => {
+      if (!isMobile) {
+        const headerBrand = page.getByTestId('header-desktop-link');
+        await expect(headerBrand).toBeVisible();
+        await expect(headerBrand).toContainText(APP_NAME);
+      } else {
+        test.skip(true, 'This test is for desktop only');
+      }
+    });
   });
 
-  test('header and footer should display consistent brand name', async ({ page }) => {
-    // Check header brand name
-    const headerBrand = await page.locator('header').getByText(/PDFThumb/i).first();
-    const headerText = await headerBrand.textContent();
+  test.describe('Footer Branding', () => {
+    test.beforeEach(async ({ page }) => {
+      await page.goto('/');
+      await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    });
 
-    // Check footer brand name
-    const footerBrand = await page.locator('footer').getByText(/PDFThumb/i).first();
-    const footerText = await footerBrand.textContent();
+    test('should display correct brand name', async ({ page }) => {
+      const footerBrand = page.locator('footer').getByText(APP_NAME, { exact: true, visible: true });
+      await expect(footerBrand).toBeVisible();
+      await expect(footerBrand).toHaveText(APP_NAME);
+    });
 
-    // Both should contain the same brand name
-    expect(headerText?.trim()).toBe(footerText?.trim());
+    test(`copyright notice should include ${APP_NAME}`, async ({ page }) => {
+      const currentYear = new Date().getFullYear();
+      const copyrightText = `© ${currentYear} ${APP_NAME}. All rights reserved.`;
+      const footer = page.locator('footer');
+      await expect(footer).toContainText(copyrightText);
+    });
   });
 
-  test(`header should display ${APP_NAME}`, async ({ page }) => {
-    const headerBrand = await page.locator('header').getByText(APP_NAME);
-    await expect(headerBrand).toBeVisible();
-  });
-
-  test(`footer should display ${APP_NAME}`, async ({ page }) => {
-    const footerBrand = await page.locator('footer span').getByText(APP_NAME);
-    await expect(footerBrand).toBeVisible();
-  });
-
-  test(`copyright notice should include ${APP_NAME}`, async ({ page }) => {
-    const currentYear = new Date().getFullYear();
-    const copyrightText = `© ${currentYear} ${APP_NAME}. All rights reserved.`;
-    const footer = page.locator('footer');
-    await expect(footer).toContainText(copyrightText);
-  });
-
-  test('brand consistency across all pages', async ({ page }) => {
+  test('brand consistency across all pages', async ({ page, isMobile }) => {
     const pages = ['/', '/features', '/pricing'];
 
     for (const pagePath of pages) {
       await page.goto(pagePath);
 
       // Check header
-      const headerBrand = await page.locator('header').getByText(APP_NAME);
-      await expect(headerBrand).toBeVisible();
+      if (isMobile) {
+        const headerBrand = page.getByTestId('header-mobile-link');
+        await expect(headerBrand).toBeVisible();
+        await expect(headerBrand).toContainText(APP_NAME.replace('.com', ''));
+      } else {
+        const headerBrand = page.getByTestId('header-desktop-link');
+        await expect(headerBrand).toBeVisible();
+        await expect(headerBrand).toContainText(APP_NAME);
+      }
 
       // Check footer
-      const footerBrand = await page.locator('footer span').getByText(APP_NAME);
+      await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+      const footerBrand = page.locator('footer').getByText(APP_NAME, { exact: true, visible: true });
       await expect(footerBrand).toBeVisible();
+      await expect(footerBrand).toHaveText(APP_NAME);
     }
   });
 });
