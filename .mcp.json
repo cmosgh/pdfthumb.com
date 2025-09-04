@@ -1,19 +1,11 @@
 {
   "mcpServers": {
-    "sequential-thinking": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
-    },
     "Сontext7": {
       "description": "Context7 MCP Server - use it for looking up documentation of different libraries",
       "autoApprove": [],
       "disabled": false,
       "command": "npx",
       "args": ["-y", "@upstash/context7-mcp"]
-    },
-    "Jetbrains": {
-      "type": "sse",
-      "url": "http://127.0.0.1:64342/sse"
     },
     "puppeteer": {
       "command": "npx",
