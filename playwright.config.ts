@@ -50,19 +50,27 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      use: { 
+        ...devices["Desktop Chrome"],
+        viewport: { width: DESKTOP_WIDTH, height: DESKTOP_HEIGHT },
+      },
     },
 
     {
       name: "firefox",
-      use: { ...devices["Desktop Firefox"],
+      use: { 
+        ...devices["Desktop Firefox"],
         timeout: 10 * 1000,
+        viewport: { width: DESKTOP_WIDTH, height: DESKTOP_HEIGHT },
       },
     },
 
     {
       name: "webkit",
-      use: { ...devices["Desktop Safari"] },
+      use: { 
+        ...devices["Desktop Safari"],
+        viewport: { width: DESKTOP_WIDTH, height: DESKTOP_HEIGHT },
+      },
     },
 
     /* Test against mobile viewports. */
