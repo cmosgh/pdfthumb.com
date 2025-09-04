@@ -15,7 +15,8 @@
       "mcp__Jetbrains__search_in_files_by_text",
       "mcp__Jetbrains__get_file_text_by_path",
       "Bash(npx playwright:*)",
-      "Bash(npm test)"
+      "Bash(npm test)",
+      "Bash(git log:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

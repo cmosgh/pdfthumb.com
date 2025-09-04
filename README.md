@@ -64,9 +64,11 @@ This will create a `dist` directory with the optimized and minified assets.
 
 ## Testing
 
-This project uses Playwright for end-to-end testing. To run the tests, use the following command:
+This project uses Playwright for end-to-end testing. To run the tests, use either of the following commands:
 
 ```bash
+npm test
+# or
 npx playwright test
 ```
 
