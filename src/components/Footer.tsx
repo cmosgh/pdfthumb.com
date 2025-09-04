@@ -1,6 +1,7 @@
 import React from "react";
 // Removed: import { Link } from '@tanstack/react-router';
 import { DocumentIcon } from "./icons.tsx";
+import { APP_NAME } from "../constants.ts";
 
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
@@ -18,7 +19,7 @@ const Footer: React.FC = () => {
             >
               <DocumentIcon className="h-8 w-8" />
               <span className="font-bold text-xl text-slate-700 dark:text-slate-200">
-                PDFThumb.io
+                {APP_NAME}
               </span>
             </a>
             <p className="text-slate-500 dark:text-slate-400 text-sm">
@@ -77,7 +78,7 @@ const Footer: React.FC = () => {
         </div>
         <div className="mt-12 border-t border-slate-200 dark:border-slate-700 pt-8 text-center">
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            &copy; {currentYear} PDFThumb.io. All rights reserved.
+            &copy; {currentYear} {APP_NAME}. All rights reserved.
           </p>
         </div>
       </div>

@@ -81,7 +81,7 @@ dist
 dist-ssr
 
 # Vite cache
-.vite
+.vite/ide
 
 # IDE directories
 .idea/
@@ -95,3 +95,4 @@ dist-ssr
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+test-results.json

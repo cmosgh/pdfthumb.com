@@ -1,6 +1,6 @@
-# PDFThumb.io - PDF Thumbnail API
+# PDFThumb.com - PDF Thumbnail API
 
-This repository contains the source code for PDFThumb.io, a web application for a PDF Thumbnail API service. It provides a simple and efficient way to generate thumbnails from your PDF documents.
+This repository contains the source code for PDFThumb.com, a web application for a PDF Thumbnail API service. It provides a simple and efficient way to generate thumbnails from your PDF documents.
 
 ## Features
 
