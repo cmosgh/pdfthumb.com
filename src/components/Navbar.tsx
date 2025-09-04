@@ -29,22 +29,25 @@ const Navbar: React.FC<NavbarProps> = ({ theme, toggleTheme }) => {
           <div className="flex-none">
             <Link
               to="/"
-              className="md:hidden flex items-center space-x-2 text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-500"
-              data-testid="header-mobile-link"
+              className="flex items-center space-x-2 text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-500"
             >
               <DocumentIcon className="h-8 w-8" />
-              <span className="font-bold text-xl text-slate-800 dark:text-slate-100">
-                {APP_NAME.replace(".com", "")}
-              </span>
-            </Link>
-            <Link
-              to="/"
-              className="hidden md:flex items-center space-x-2 text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-500"
-              data-testid="header-desktop-link"
-            >
-              <DocumentIcon className="h-8 w-8" />
-              <span className="font-bold text-xl text-slate-800 dark:text-slate-100">
-                {APP_NAME}
+              <span
+                className="font-bold text-xl text-slate-800 dark:text-slate-100"
+                data-testid="brand-name-wrapper"
+              >
+                <span
+                  className="block md:hidden"
+                  data-testid="brand-name-mobile"
+                >
+                  {APP_NAME.replace(".com", "")}
+                </span>
+                <span
+                  className="hidden md:block"
+                  data-testid="brand-name-desktop"
+                >
+                  {APP_NAME}
+                </span>
               </span>
             </Link>
           </div>
