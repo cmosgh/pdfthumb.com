@@ -53,10 +53,8 @@ function OverviewComponent() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate API call delay
+    // Simulate API call delay - data is already set in initial state
     const timer = setTimeout(() => {
-      setSummary(mockDashboardSummary);
-      setUsageData(mockUsageTrends);
       setLoading(false);
     }, 500);
 

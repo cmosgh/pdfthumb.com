@@ -9,23 +9,13 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-import type { ChartDataPoint } from "../../types";
+import type { ChartDataPoint, TooltipProps } from "../../types";
 
 interface UsageChartProps {
   data: ChartDataPoint[];
   title: string;
   dataKeys?: string[];
   colors?: string[];
-}
-
-interface CustomTooltipProps {
-  active?: boolean;
-  payload?: Array<{
-    name: string;
-    value: number;
-    color: string;
-  }>;
-  label?: string;
 }
 
 export const UsageChart: React.FC<UsageChartProps> = ({
@@ -49,7 +39,7 @@ export const UsageChart: React.FC<UsageChartProps> = ({
     });
   };
 
-  const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
+  const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
