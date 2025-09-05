@@ -9,7 +9,7 @@ export const Route = createRootRoute({
 
     return (
       <div className="min-h-screen flex flex-col">
-        <Navbar theme={theme} toggleTheme={toggleTheme} dataTestId="navbar-wrapper"/>
+        <Navbar theme={theme} toggleTheme={toggleTheme} />
         <main className="flex-grow">
           <Outlet />
         </main>
