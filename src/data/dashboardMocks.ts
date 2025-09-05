@@ -1,16 +1,4 @@
-export interface DashboardSummary {
-  totalPdfsProcessed: number;
-  totalThumbnailsGenerated: number;
-  totalApiCalls: number;
-  monthlyGrowth: number;
-}
-
-export interface UsageTrendData {
-  date: string;
-  pdfsProcessed: number;
-  thumbnailsGenerated: number;
-  apiCalls: number;
-}
+import type { DashboardSummary, UsageTrendData } from "../types";
 
 export const mockDashboardSummary: DashboardSummary = {
   totalPdfsProcessed: 125847,

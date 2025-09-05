@@ -25,3 +25,32 @@ export interface FeatureItem {
   title: string;
   description: string;
 }
+
+export interface ChartDataPoint {
+  [key: string]: string | number;
+  date: string;
+}
+
+export interface DashboardSummary {
+  totalPdfsProcessed: number;
+  totalThumbnailsGenerated: number;
+  totalApiCalls: number;
+  monthlyGrowth: number;
+}
+
+export interface UsageTrendData extends ChartDataPoint {
+  date: string;
+  pdfsProcessed: number;
+  thumbnailsGenerated: number;
+  apiCalls: number;
+}
+
+export interface TooltipProps {
+  active?: boolean;
+  payload?: Array<{
+    name: string;
+    value: number;
+    color: string;
+  }>;
+  label?: string;
+}

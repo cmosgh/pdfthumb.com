@@ -9,9 +9,10 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
+import type { ChartDataPoint } from "../../types";
 
 interface UsageChartProps {
-  data: any[];
+  data: ChartDataPoint[];
   title: string;
   dataKeys?: string[];
   colors?: string[];
@@ -43,17 +44,22 @@ export const UsageChart: React.FC<UsageChartProps> = ({
       return (
         <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
           <p className="text-sm font-medium text-gray-900 mb-2">
-            {formatTooltipLabel(label)}
+            {formatTooltipLabel(label as string)}
           </p>
-          {payload.map((entry: any, index: number) => (
-            <p key={index} className="text-sm text-gray-600">
-              <span
-                className="inline-block w-3 h-3 rounded-full mr-2"
-                style={{ backgroundColor: entry.color }}
-              />
-              {entry.name}: {entry.value.toLocaleString()}
-            </p>
-          ))}
+          {payload.map(
+            (
+              entry: { name: string; value: number; color: string },
+              index: number,
+            ) => (
+              <p key={index} className="text-sm text-gray-600">
+                <span
+                  className="inline-block w-3 h-3 rounded-full mr-2"
+                  style={{ backgroundColor: entry.color }}
+                />
+                {entry.name}: {entry.value.toLocaleString()}
+              </p>
+            ),
+          )}
         </div>
       );
     }
