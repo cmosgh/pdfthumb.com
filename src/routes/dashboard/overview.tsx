@@ -33,8 +33,8 @@ function OverviewComponent() {
         <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100">
           Dashboard Overview
         </h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1, 2, 3].map((i) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
               className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 animate-pulse"
@@ -60,8 +60,8 @@ function OverviewComponent() {
           title="Total PDFs Processed"
           value={summary.totalPdfsProcessed}
           unit="PDFs"
-          trend="up"
-          trendValue={`+${summary.monthlyGrowth}% last month`}
+          trend={summary.monthlyGrowth >= 0 ? "up" : "down"}
+          trendValue={`${summary.monthlyGrowth >= 0 ? "+" : ""}${summary.monthlyGrowth}% last month`}
         />
         <MetricCard
           title="Total Thumbnails Generated"

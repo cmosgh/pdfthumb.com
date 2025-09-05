@@ -4,7 +4,7 @@ export const mockDashboardSummary: DashboardSummary = {
   totalPdfsProcessed: 125847,
   totalThumbnailsGenerated: 251694,
   totalApiCalls: 892341,
-  monthlyGrowth: 15.3,
+  monthlyGrowth: -5.2, // Test with negative growth to ensure proper display
 };
 
 export const mockUsageTrends: UsageTrendData[] = [
