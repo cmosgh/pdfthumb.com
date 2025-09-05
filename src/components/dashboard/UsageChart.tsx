@@ -18,6 +18,16 @@ interface UsageChartProps {
   colors?: string[];
 }
 
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: Array<{
+    name: string;
+    value: number;
+    color: string;
+  }>;
+  label?: string;
+}
+
 export const UsageChart: React.FC<UsageChartProps> = ({
   data,
   title,
@@ -39,27 +49,22 @@ export const UsageChart: React.FC<UsageChartProps> = ({
     });
   };
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
           <p className="text-sm font-medium text-gray-900 mb-2">
-            {formatTooltipLabel(label as string)}
+            {formatTooltipLabel(label || "")}
           </p>
-          {payload.map(
-            (
-              entry: { name: string; value: number; color: string },
-              index: number,
-            ) => (
-              <p key={index} className="text-sm text-gray-600">
-                <span
-                  className="inline-block w-3 h-3 rounded-full mr-2"
-                  style={{ backgroundColor: entry.color }}
-                />
-                {entry.name}: {entry.value.toLocaleString()}
-              </p>
-            ),
-          )}
+          {payload.map((entry, index) => (
+            <p key={index} className="text-sm text-gray-600">
+              <span
+                className="inline-block w-3 h-3 rounded-full mr-2"
+                style={{ backgroundColor: entry.color }}
+              />
+              {entry.name}: {entry.value.toLocaleString()}
+            </p>
+          ))}
         </div>
       );
     }

@@ -7,6 +7,42 @@ import {
   mockUsageTrends,
 } from "../../data/dashboardMocks";
 
+// Helper function to calculate trend based on growth percentage
+const calculateTrend = (
+  growth: number,
+): { trend: "up" | "down" | "neutral"; trendValue: string } => {
+  if (growth > 0) {
+    return { trend: "up", trendValue: `+${growth}% last month` };
+  } else if (growth < 0) {
+    return { trend: "down", trendValue: `${growth}% last month` };
+  } else {
+    return { trend: "neutral", trendValue: "No change" };
+  }
+};
+
+// Helper function to calculate derived trends from base metrics
+const calculateDerivedTrend = (
+  baseGrowth: number,
+): { trend: "up" | "down" | "neutral"; trendValue: string } => {
+  // Simulate derived trends based on the main growth rate with some variation
+  const variation = Math.random() * 0.4 - 0.2; // -0.2 to +0.2 variation
+  const derivedGrowth = baseGrowth + variation;
+
+  if (derivedGrowth > 0) {
+    return {
+      trend: "up",
+      trendValue: `+${Math.abs(derivedGrowth).toFixed(1)}% last month`,
+    };
+  } else if (derivedGrowth < 0) {
+    return {
+      trend: "down",
+      trendValue: `${derivedGrowth.toFixed(1)}% last month`,
+    };
+  } else {
+    return { trend: "neutral", trendValue: "Stable" };
+  }
+};
+
 export const Route = createFileRoute("/dashboard/overview")({
   component: OverviewComponent,
 });
@@ -60,29 +96,25 @@ function OverviewComponent() {
           title="Total PDFs Processed"
           value={summary.totalPdfsProcessed}
           unit="PDFs"
-          trend={summary.monthlyGrowth >= 0 ? "up" : "down"}
-          trendValue={`${summary.monthlyGrowth >= 0 ? "+" : ""}${summary.monthlyGrowth}% last month`}
+          {...calculateTrend(summary.monthlyGrowth)}
         />
         <MetricCard
           title="Total Thumbnails Generated"
           value={summary.totalThumbnailsGenerated}
           unit="thumbnails"
-          trend="up"
-          trendValue="+12% last month"
+          {...calculateDerivedTrend(summary.monthlyGrowth)}
         />
         <MetricCard
           title="Total API Calls"
           value={summary.totalApiCalls}
           unit="calls"
-          trend="up"
-          trendValue="+8% last month"
+          {...calculateDerivedTrend(summary.monthlyGrowth)}
         />
         <MetricCard
           title="Monthly Growth"
           value={summary.monthlyGrowth}
           unit="%"
-          trend="up"
-          trendValue="Consistent growth"
+          {...calculateTrend(summary.monthlyGrowth)}
         />
       </div>
 
