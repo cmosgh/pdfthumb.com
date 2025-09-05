@@ -85,9 +85,17 @@ export const UsageChart: React.FC<UsageChartProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">{title}</h3>
-      <div className="h-80">
+    <div
+      className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+      data-testid="usage-chart"
+    >
+      <h3
+        className="text-lg font-semibold text-gray-900 mb-4"
+        data-testid="chart-title"
+      >
+        {title}
+      </h3>
+      <div className="h-80" data-testid="chart-container">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
             data={data}

@@ -78,23 +78,44 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <div
+      className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+      data-testid="metric-card"
+    >
       <div className="flex items-center justify-between">
         <div className="flex-1">
-          <p className="text-sm font-medium text-gray-600 mb-2">{title}</p>
+          <p
+            className="text-sm font-medium text-gray-600 mb-2"
+            data-testid="metric-title"
+          >
+            {title}
+          </p>
           <div className="flex items-baseline">
-            <p className="text-2xl font-semibold text-gray-900">
+            <p
+              className="text-2xl font-semibold text-gray-900"
+              data-testid="metric-value"
+            >
               {typeof value === "number" ? value.toLocaleString() : value}
             </p>
-            {unit && <span className="ml-2 text-sm text-gray-500">{unit}</span>}
+            {unit && (
+              <span
+                className="ml-2 text-sm text-gray-500"
+                data-testid="metric-unit"
+              >
+                {unit}
+              </span>
+            )}
           </div>
         </div>
       </div>
 
       {trend && trendValue && (
-        <div className="mt-4 flex items-center">
+        <div className="mt-4 flex items-center" data-testid="metric-trend">
           {getTrendIcon()}
-          <span className={`ml-1 text-sm font-medium ${getTrendColor()}`}>
+          <span
+            className={`ml-1 text-sm font-medium ${getTrendColor()}`}
+            data-testid="metric-trend-value"
+          >
             {trendValue}
           </span>
         </div>
