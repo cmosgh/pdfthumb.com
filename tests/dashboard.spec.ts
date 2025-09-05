@@ -32,10 +32,36 @@ test.describe("Dashboard Navigation", () => {
   test("should display overview metrics", async ({ page }) => {
     await page.goto("/dashboard/overview");
 
-    // Check if metric cards are displayed
-    await expect(page.locator('h3:text("Total API Calls")')).toBeVisible();
-    await expect(page.locator('h3:text("Active Projects")')).toBeVisible();
-    await expect(page.locator('h3:text("Storage Used")')).toBeVisible();
+    // Check if new metric cards are displayed with proper titles
+    await expect(page.locator('text="Total PDFs Processed"')).toBeVisible();
+    await expect(
+      page.locator('text="Total Thumbnails Generated"'),
+    ).toBeVisible();
+    await expect(page.locator('text="Total API Calls"')).toBeVisible();
+    await expect(page.locator('text="Monthly Growth"')).toBeVisible();
+
+    // Check if metric values are displayed
+    await expect(page.locator('text="125,847"')).toBeVisible();
+    await expect(page.locator('text="251,694"')).toBeVisible();
+    await expect(page.locator('text="892,341"')).toBeVisible();
+    await expect(page.locator('text="15.3"')).toBeVisible();
+  });
+
+  test("should display usage trends chart", async ({ page }) => {
+    await page.goto("/dashboard/overview");
+
+    // Check if chart title is visible
+    await expect(
+      page.locator('text="Usage Trends - Last 15 Days"'),
+    ).toBeVisible();
+
+    // Check if chart container is present
+    await expect(page.locator(".recharts-responsive-container")).toBeVisible();
+
+    // Check if chart legend is present
+    await expect(page.locator('text="pdfsProcessed"')).toBeVisible();
+    await expect(page.locator('text="thumbnailsGenerated"')).toBeVisible();
+    await expect(page.locator('text="apiCalls"')).toBeVisible();
   });
 
   test("should be responsive on mobile", async ({ page }) => {
