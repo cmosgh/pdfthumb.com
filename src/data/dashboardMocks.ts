@@ -1,4 +1,111 @@
-import type { DashboardSummary, UsageTrendData } from "../types";
+import type {
+  DashboardSummary,
+  UsageTrendData,
+  FileTypeData,
+  ErrorLogData,
+  GeographicData,
+  UserProfile,
+  ApiKey,
+  DetailedAnalytics,
+} from "../types";
+
+const generatePastDays = (days: number) => {
+  const result = [];
+  for (let i = days - 1; i >= 0; i--) {
+    const date = new Date();
+    date.setDate(date.getDate() - i);
+    result.push(date.toISOString().split("T")[0]);
+  }
+  return result;
+};
+
+const past7Days = generatePastDays(7);
+const past15Days = generatePastDays(15);
+
+// Mock data for detailed analytics
+export const mockFileTypeData: FileTypeData[] = past7Days.map((date) => ({
+  date,
+  pdf: Math.floor(Math.random() * 500) + 700,
+  png: Math.floor(Math.random() * 200) + 250,
+  jpg: Math.floor(Math.random() * 150) + 200,
+  other: Math.floor(Math.random() * 50) + 30,
+}));
+
+export const mockErrorLogs: ErrorLogData[] = past7Days
+  .slice(0, 4)
+  .map((date, index) => ({
+    id: `${index + 1}`,
+    timestamp: new Date(date).toISOString(),
+    errorType: [
+      "File Processing",
+      "API Rate Limit",
+      "Authentication",
+      "Corrupted file",
+    ][index],
+    message: [
+      "Invalid PDF format",
+      "Rate limit exceeded",
+      "Invalid API key",
+      "Corrupted file",
+    ][index],
+    fileName: `document-${index}.pdf`,
+    userId: `user${123 + index}`,
+  }));
+
+export const mockGeographicData: GeographicData[] = [
+  { country: "United States", requests: 45000, percentage: 35.2 },
+  { country: "United Kingdom", requests: 25000, percentage: 19.6 },
+  { country: "Germany", requests: 18000, percentage: 14.1 },
+  { country: "France", requests: 12000, percentage: 9.4 },
+  { country: "Canada", requests: 10000, percentage: 7.8 },
+  { country: "Australia", requests: 8000, percentage: 6.3 },
+  { country: "Japan", requests: 6000, percentage: 4.7 },
+  { country: "Other", requests: 4000, percentage: 3.1 },
+];
+
+// Mock user settings data
+export const mockUserProfile: UserProfile = {
+  id: "user123",
+  name: "John Doe",
+  email: "john.doe@example.com",
+  company: "Acme Corp",
+  createdAt: "2023-06-15T10:30:00Z",
+  updatedAt: new Date().toISOString(),
+};
+
+export const mockApiKeys: ApiKey[] = [
+  {
+    id: "1",
+    name: "Production API Key",
+    key: "ptk_live_1234567890abcdef",
+    createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+    lastUsed: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    isActive: true,
+  },
+  {
+    id: "2",
+    name: "Development API Key",
+    key: "ptk_test_abcdef1234567890",
+    createdAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
+    lastUsed: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+    isActive: true,
+  },
+  {
+    id: "3",
+    name: "Old API Key",
+    key: "ptk_live_oldkey123456789",
+    createdAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
+    isActive: false,
+  },
+];
+
+export const mockDetailedAnalytics: DetailedAnalytics = {
+  usageByFileType: mockFileTypeData,
+  errorLogs: mockErrorLogs,
+  geographicDistribution: mockGeographicData,
+  totalErrors: mockErrorLogs.length,
+  errorRate: 0.8,
+};
 
 export const mockDashboardSummary: DashboardSummary = {
   totalPdfsProcessed: 125847,
@@ -7,95 +114,9 @@ export const mockDashboardSummary: DashboardSummary = {
   monthlyGrowth: -5.2, // Test with negative growth to ensure proper display
 };
 
-export const mockUsageTrends: UsageTrendData[] = [
-  {
-    date: "2024-01-01",
-    pdfsProcessed: 1200,
-    thumbnailsGenerated: 2400,
-    apiCalls: 3600,
-  },
-  {
-    date: "2024-01-02",
-    pdfsProcessed: 1350,
-    thumbnailsGenerated: 2700,
-    apiCalls: 4050,
-  },
-  {
-    date: "2024-01-03",
-    pdfsProcessed: 1100,
-    thumbnailsGenerated: 2200,
-    apiCalls: 3300,
-  },
-  {
-    date: "2024-01-04",
-    pdfsProcessed: 1450,
-    thumbnailsGenerated: 2900,
-    apiCalls: 4350,
-  },
-  {
-    date: "2024-01-05",
-    pdfsProcessed: 1600,
-    thumbnailsGenerated: 3200,
-    apiCalls: 4800,
-  },
-  {
-    date: "2024-01-06",
-    pdfsProcessed: 1300,
-    thumbnailsGenerated: 2600,
-    apiCalls: 3900,
-  },
-  {
-    date: "2024-01-07",
-    pdfsProcessed: 1750,
-    thumbnailsGenerated: 3500,
-    apiCalls: 5250,
-  },
-  {
-    date: "2024-01-08",
-    pdfsProcessed: 1400,
-    thumbnailsGenerated: 2800,
-    apiCalls: 4200,
-  },
-  {
-    date: "2024-01-09",
-    pdfsProcessed: 1550,
-    thumbnailsGenerated: 3100,
-    apiCalls: 4650,
-  },
-  {
-    date: "2024-01-10",
-    pdfsProcessed: 1650,
-    thumbnailsGenerated: 3300,
-    apiCalls: 4950,
-  },
-  {
-    date: "2024-01-11",
-    pdfsProcessed: 1250,
-    thumbnailsGenerated: 2500,
-    apiCalls: 3750,
-  },
-  {
-    date: "2024-01-12",
-    pdfsProcessed: 1800,
-    thumbnailsGenerated: 3600,
-    apiCalls: 5400,
-  },
-  {
-    date: "2024-01-13",
-    pdfsProcessed: 1500,
-    thumbnailsGenerated: 3000,
-    apiCalls: 4500,
-  },
-  {
-    date: "2024-01-14",
-    pdfsProcessed: 1700,
-    thumbnailsGenerated: 3400,
-    apiCalls: 5100,
-  },
-  {
-    date: "2024-01-15",
-    pdfsProcessed: 1350,
-    thumbnailsGenerated: 2700,
-    apiCalls: 4050,
-  },
-];
+export const mockUsageTrends: UsageTrendData[] = past15Days.map((date) => ({
+  date,
+  pdfsProcessed: Math.floor(Math.random() * 600) + 1000,
+  thumbnailsGenerated: Math.floor(Math.random() * 1200) + 2000,
+  apiCalls: Math.floor(Math.random() * 1800) + 3000,
+}));

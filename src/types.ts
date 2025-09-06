@@ -54,3 +54,59 @@ export interface TooltipProps {
   }>;
   label?: string;
 }
+
+// Detailed Analytics Types
+export interface FileTypeData extends ChartDataPoint {
+  date: string;
+  pdf: number;
+  png: number;
+  jpg: number;
+  other: number;
+}
+
+export interface ErrorLogData {
+  id: string;
+  timestamp: string;
+  errorType: string;
+  message: string;
+  fileName?: string;
+  userId?: string;
+}
+
+export interface GeographicData {
+  country: string;
+  requests: number;
+  percentage: number;
+}
+
+export interface DateRange {
+  start: Date;
+  end: Date;
+}
+
+// User Settings Types
+export interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  company?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ApiKey {
+  id: string;
+  name: string;
+  key: string; // Will be masked when displayed
+  createdAt: string;
+  lastUsed?: string;
+  isActive: boolean;
+}
+
+export interface DetailedAnalytics {
+  usageByFileType: FileTypeData[];
+  errorLogs: ErrorLogData[];
+  geographicDistribution: GeographicData[];
+  totalErrors: number;
+  errorRate: number;
+}
