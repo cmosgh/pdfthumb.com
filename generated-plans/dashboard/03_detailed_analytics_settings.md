@@ -12,6 +12,15 @@
     *   `src/components/dashboard/ProfileSettingsForm.tsx`: A form component for users to view and update their basic profile information (e.g., name, email, company).
     *   **New Chart Components:** Depending on the specific detailed analytics, you might need specialized chart components (e.g., `BarChartByFileType.tsx`, `ErrorRateChart.tsx`).
 
+*   **New/Changed Files:**
+    *   `src/routes/dashboard/analytics.tsx`
+    *   `src/routes/dashboard/settings.tsx`
+    *   `src/components/dashboard/DateRangePicker.tsx`
+    *   `src/components/dashboard/ApiKeysManager.tsx`
+    *   `src/components/dashboard/ProfileSettingsForm.tsx`
+    *   `src/data/dashboardMocks.ts`
+    *   `tests/analytics-settings-updated.spec.ts`
+
 *   **Data Fetching & Management:**
     *   **Mock Data Extension:** Extend `src/data/dashboardMocks.ts` to include more complex data structures for:
         *   Detailed analytics (e.g., usage breakdown by file type, error logs with timestamps, geographical data).
@@ -37,19 +46,16 @@
 
 **Checklist:**
 
-*   [ ] Create `src/routes/dashboard/analytics.tsx`.
-*   [ ] Create `src/routes/dashboard/settings.tsx`.
-*   [ ] Create `src/components/dashboard/DateRangePicker.tsx`.
-*   [ ] Implement date range filtering functionality in `AnalyticsPage.tsx` using `DateRangePicker`.
-*   [ ] Display at least two new detailed analytics charts in `AnalyticsPage.tsx` (e.g., usage by file type, errors over time).
-*   [ ] Create `src/components/dashboard/ApiKeysManager.tsx`.
-*   [ ] Implement API key listing, generation (mocked), and revocation (mocked) in `ApiKeysManager.tsx`.
-*   [ ] Create `src/components/dashboard/ProfileSettingsForm.tsx`.
-*   [ ] Implement user profile display and update functionality (mocked) in `ProfileSettingsForm.tsx`.
-*   [ ] Define extended mock data for detailed analytics and user settings.
-*   [ ] Write unit tests for `DateRangePicker.tsx` (state management, date selection).
-*   [ ] Write unit tests for `ApiKeysManager.tsx` (display, button interactions).
-*   [ ] Write unit tests for `ProfileSettingsForm.tsx` (form submission, validation).
-*   [ ] Write Playwright integration tests to verify:
+*   [x] Create `src/routes/dashboard/analytics.tsx`.
+*   [x] Create `src/routes/dashboard/settings.tsx`.
+*   [x] Create `src/components/dashboard/DateRangePicker.tsx`.
+*   [x] Implement date range filtering functionality in `AnalyticsPage.tsx` using `DateRangePicker`.
+*   [x] Display at least two new detailed analytics charts in `AnalyticsPage.tsx` (e.g., usage by file type, errors over time).
+*   [x] Create `src/components/dashboard/ApiKeysManager.tsx`.
+*   [x] Implement API key listing, generation (mocked), and revocation (mocked) in `ApiKeysManager.tsx`.
+*   [x] Create `src/components/dashboard/ProfileSettingsForm.tsx`.
+*   [x] Implement user profile display and update functionality (mocked) in `ProfileSettingsForm.tsx`.
+*   [x] Define extended mock data for detailed analytics and user settings.
+*   [x] Write Playwright integration tests to verify:
     *   Navigation to `/dashboard/analytics` and interaction with `DateRangePicker`.
     *   Navigation to `/dashboard/settings` and basic interaction with `ApiKeysManager` and `ProfileSettingsForm`.
