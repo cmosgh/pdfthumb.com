@@ -1,6 +1,7 @@
 import React from "react";
 // Removed: import { Link } from '@tanstack/react-router';
 import Button from "./Button.tsx";
+import { HOME_LINK } from "@/constants.ts";
 
 const Hero: React.FC = () => {
   // Styles for the "Read Documentation" link, to make it look like a Button
@@ -14,7 +15,10 @@ const Hero: React.FC = () => {
   const docLinkClasses = `${baseStyles} ${secondaryVariantStyles} ${lgSizeStyles} ${hoverTransformStyles}`;
 
   return (
-    <section className="bg-gradient-to-br from-slate-50 to-sky-100 dark:from-slate-800 dark:to-sky-900 py-20 md:py-32">
+    <section
+      id={HOME_LINK.hash}
+      className="bg-gradient-to-br from-slate-50 to-sky-100 dark:from-slate-800 dark:to-sky-900 py-20 md:py-32"
+    >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-slate-800 dark:text-slate-100 leading-tight">
           Instant{" "}

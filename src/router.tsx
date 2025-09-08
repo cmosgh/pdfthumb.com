@@ -3,6 +3,8 @@ import { routeTree } from "./routeTree.gen";
 
 export const router = createRouter({
   routeTree,
+  scrollRestorationBehavior: "smooth",
+  defaultHashScrollIntoView: true,
 });
 
 declare module "@tanstack/react-router" {

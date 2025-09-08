@@ -12,8 +12,13 @@
     "allowJs": true,
     "jsx": "react-jsx",
     "strict": true,
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@components/*": ["./src/components/*"],
+      "@hooks/*": ["./src/hooks/*"],
+      "@utils/*": ["./src/utils/*"],
+      "@routes/*": ["./src/routes/*"]
     },
     "allowImportingTsExtensions": true,
     "noEmit": true

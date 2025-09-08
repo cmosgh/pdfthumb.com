@@ -11,12 +11,25 @@ import {
   SparklesIcon,
 } from "./components/icons.tsx"; // Added .tsx
 import React from "react";
+import { linkOptions } from "@tanstack/react-router";
 
+// Type-safe navigation links using TanStack Router's linkOptions
 export const NAV_LINKS = [
-  { name: "Features", href: "/#features" },
-  { name: "Pricing", href: "/#pricing" },
-  { name: "Docs", href: "/#features" }, // Reverted to on-page scroll, e.g. linking to features as a placeholder
+  {
+    name: "Features",
+    linkOptions: linkOptions({ to: "/", hash: "features" }),
+  },
+  {
+    name: "Pricing",
+    linkOptions: linkOptions({ to: "/", hash: "pricing" }),
+  },
+  // {
+  //   name: "Docs",
+  //   linkOptions: linkOptions({ to: "/", hash: "features" }), // Placeholder
+  // },
 ];
+
+export const HOME_LINK = linkOptions({ to: "/", resetScroll: true, hash:'instant-thumbnails' });
 
 export const APP_NAME = "PDFThumb.com";
 

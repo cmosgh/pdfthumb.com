@@ -1,0 +1,20 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "moonshotai/kimi-k2-0905-preview",
+  "provider": {
+    "moonshotai": {
+      "options": {
+        "headers": {
+          "Moonshot-Cache-Control": "max-age=3600",
+          "Moonshot-Cache-Enabled": "true"
+        }
+      },
+      "models": {
+        "cache": {
+          "id": "pdfthumbnailcom-kimi",
+          "name": "ca"
+        }
+      }
+    }
+  }
+}

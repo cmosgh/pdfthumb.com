@@ -16,7 +16,10 @@
       "mcp__Jetbrains__get_file_text_by_path",
       "Bash(npx playwright:*)",
       "Bash(npm test)",
-      "Bash(git log:*)"
+      "Bash(git log:*)",
+      "mcp___ontext7__resolve-library-id",
+      "mcp___ontext7__get-library-docs",
+      "Bash(npm run test:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

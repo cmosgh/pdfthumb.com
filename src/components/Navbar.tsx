@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { APP_NAME, NAV_LINKS } from "../constants.ts";
+import { APP_NAME, HOME_LINK, NAV_LINKS } from "@/constants.ts";
 import { DocumentIcon, MoonIcon, SunIcon } from "./icons.tsx";
 import type { Theme } from "../hooks/useTheme.ts";
 import { handleInitiateCheckout } from "../paymentUtils.ts";
@@ -28,7 +28,7 @@ const Navbar: React.FC<NavbarProps> = ({ theme, toggleTheme }) => {
           {/* Brand logo and name */}
           <div className="flex-none">
             <Link
-              to="/"
+              {...HOME_LINK}
               className="flex items-center space-x-2 text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-500"
             >
               <DocumentIcon className="h-8 w-8" />
@@ -54,8 +54,7 @@ const Navbar: React.FC<NavbarProps> = ({ theme, toggleTheme }) => {
           <nav className="hidden md:flex space-x-8">
             {NAV_LINKS.map((link) => (
               <Link
-                key={link.name}
-                to={link.href}
+                {...link.linkOptions}
                 className="font-medium text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
               >
                 {link.name}
@@ -145,8 +144,7 @@ const Navbar: React.FC<NavbarProps> = ({ theme, toggleTheme }) => {
           >
             {NAV_LINKS.map((link) => (
               <Link
-                key={link.name}
-                to={link.href}
+                {...link.linkOptions}
                 className="font-medium text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
                 onClick={toggleMobileMenu} // Close menu on link click
               >
