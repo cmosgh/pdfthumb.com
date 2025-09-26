@@ -38,6 +38,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           <button
             onClick={toggleSidebar}
             className="p-2 rounded-md text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-700"
+            data-testid="sidebar-toggle"
+            aria-label="Open sidebar"
           >
             <svg
               className="h-6 w-6"

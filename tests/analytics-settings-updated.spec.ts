@@ -4,22 +4,30 @@ test.describe("Detailed Analytics & Settings", () => {
   test.beforeEach(async ({ page }) => {
     // Navigate to the dashboard before each test
     await page.goto("/dashboard");
+
+    // Open the sidebar on mobile
+    const sidebarToggle = page.getByTestId("sidebar-toggle");
+    if (await sidebarToggle.isVisible()) {
+      await sidebarToggle.click();
+    }
   });
 
   test.describe("Analytics Page", () => {
     test("should display detailed analytics charts and data", async ({
       page,
     }) => {
-      await page.click('aside a:has-text("Analytics")');
-      await expect(
-        page.locator('h1:text("Detailed Analytics")'),
-      ).toBeVisible();
+      await page.goto("/dashboard/analytics");
+      await expect(page.locator('h1:text("Detailed Analytics")')).toBeVisible();
 
       // Check for DateRangePicker
-      await expect(page.locator('[data-testid="date-range-picker"]')).toBeVisible();
+      await expect(
+        page.locator('[data-testid="date-range-picker"]'),
+      ).toBeVisible();
 
       // Check for charts
-      await expect(page.locator('[data-testid="error-rate-chart"]')).toBeVisible();
+      await expect(
+        page.locator('[data-testid="error-rate-chart"]'),
+      ).toBeVisible();
       await expect(
         page.locator('[data-testid="usage-by-file-type-chart"]'),
       ).toBeVisible();
@@ -28,7 +36,9 @@ test.describe("Detailed Analytics & Settings", () => {
       ).toBeVisible();
 
       // Check for error logs table
-      await expect(page.locator('[data-testid="error-logs-table"]')).toBeVisible();
+      await expect(
+        page.locator('[data-testid="error-logs-table"]'),
+      ).toBeVisible();
     });
 
     test("should filter data when a quick date range is selected", async ({
@@ -53,9 +63,9 @@ test.describe("Detailed Analytics & Settings", () => {
       const expectedStartDate = thirtyDaysAgo.toISOString().split("T")[0];
       const expectedEndDate = today.toISOString().split("T")[0];
 
-      await expect(page.locator('[data-testid="date-start-input"]')).toHaveValue(
-        expectedStartDate,
-      );
+      await expect(
+        page.locator('[data-testid="date-start-input"]'),
+      ).toHaveValue(expectedStartDate);
       await expect(page.locator('[data-testid="date-end-input"]')).toHaveValue(
         expectedEndDate,
       );
@@ -73,7 +83,9 @@ test.describe("Detailed Analytics & Settings", () => {
       ).toBeVisible();
 
       // Check for API Keys Manager
-      await expect(page.locator('[data-testid="api-keys-section"]')).toBeVisible();
+      await expect(
+        page.locator('[data-testid="api-keys-section"]'),
+      ).toBeVisible();
     });
 
     test("should allow editing and saving profile information", async ({
@@ -85,8 +97,8 @@ test.describe("Detailed Analytics & Settings", () => {
       await page.click('[data-testid="edit-profile-button"]');
 
       // Edit form fields
-      const nameInput = page.getByLabel('Full Name');
-      const companyInput = page.getByLabel('Company (Optional)');
+      const nameInput = page.getByLabel("Full Name");
+      const companyInput = page.getByLabel("Company (Optional)");
 
       await nameInput.fill("John Doe Updated");
       await companyInput.fill("Updated Inc.");
@@ -108,18 +120,14 @@ test.describe("Detailed Analytics & Settings", () => {
 
       // Generate new key
       await page.click('[data-testid="generate-api-key-button"]');
-      await page
-        .locator('[data-testid="api-key-name-input"]')
-        .fill("Test Key");
+      await page.locator('[data-testid="api-key-name-input"]').fill("Test Key");
       await page.click('[data-testid="generate-api-key-submit"]');
 
       // Verify new key is added
       await expect(apiKeysTable.locator("tbody tr")).toHaveCount(
         initialKeyCount + 1,
       );
-      await expect(
-        page.locator('td:text("Test Key")'),
-      ).toBeVisible();
+      await expect(page.locator('td:text("Test Key")')).toBeVisible();
 
       // Accept confirmation dialog
       page.on("dialog", (dialog) => dialog.accept());
@@ -128,9 +136,12 @@ test.describe("Detailed Analytics & Settings", () => {
       const newKeyRow = page.locator('tr:has-text("Test Key")');
       await newKeyRow.locator('button:text("Revoke")').click();
 
-      // Verify key is marked as revoked
+      // Verify key is marked as revoked in the status column
       await expect(
-        newKeyRow.locator('span.rounded-full:text("Revoked")'),
+        newKeyRow
+          .locator("td")
+          .nth(2)
+          .locator('span.rounded-full:text("Revoked")'),
       ).toBeVisible();
     });
   });

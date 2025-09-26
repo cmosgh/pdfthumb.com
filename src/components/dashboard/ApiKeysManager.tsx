@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import type { ApiKey } from "../../types";
+import type { ApiKey } from "@/types.ts";
 
 interface ApiKeysManagerProps {
   apiKeys: ApiKey[];
@@ -207,11 +207,12 @@ export const ApiKeysManager: React.FC<ApiKeysManagerProps> = ({
                     <button
                       onClick={() => handleRevokeKey(key.id)}
                       className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                      data-testid="revoke-api-key-button"
                     >
                       Revoke
                     </button>
                   ) : (
-                    <span className="text-gray-400 dark:text-slate-500">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
                       Revoked
                     </span>
                   )}
