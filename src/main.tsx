@@ -1,8 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider } from "@tanstack/react-router";
 import { router } from "./router";
 import { dbHelpers } from "./db";
+import { queryClient } from "./queryClient";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 
 const rootElement = document.getElementById("root");
@@ -18,10 +20,12 @@ dbHelpers
   .then(() => {
     root.render(
       <React.StrictMode>
-        <RouterProvider router={router} />
-        {process.env.NODE_ENV === "development" && (
-          <TanStackRouterDevtools router={router} />
-        )}
+        <QueryClientProvider client={queryClient}>
+          <RouterProvider router={router} />
+          {process.env.NODE_ENV === "development" && (
+            <TanStackRouterDevtools router={router} />
+          )}
+        </QueryClientProvider>
       </React.StrictMode>,
     );
   })

@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
 import { ApiKeysManager } from "@components/dashboard/ApiKeysManager.tsx";
 import { ProfileSettingsForm } from "@components/dashboard/ProfileSettingsForm.tsx";
+import { useLiveQuery } from "@tanstack/react-db";
 import { collections } from "@/db.ts";
 import type { ApiKey, UserProfile } from "@/types.ts";
 
@@ -10,12 +10,19 @@ export const Route = createFileRoute("/dashboard/settings")({
 });
 
 function SettingsComponent() {
-  const [userProfile, setUserProfile] = useState<UserProfile>(
-    () => collections.userProfile.get("user123")!,
+  // Use TanStack DB's reactive queries
+  const { data: userProfileData } = useLiveQuery((q) =>
+    q.from({ profile: collections.userProfile }),
   );
-  const [apiKeys, setApiKeys] = useState<ApiKey[]>(() =>
-    Array.from(collections.apiKeys.values()),
+
+  const { data: apiKeysData } = useLiveQuery((q) =>
+    q.from({ keys: collections.apiKeys }),
   );
+
+  const apiKeys = apiKeysData as unknown as ApiKey[];
+
+  // Get the first (and only) user profile
+  const userProfile = userProfileData?.[0];
 
   const handleUpdateProfile = async (updatedData: Partial<UserProfile>) => {
     if (!userProfile) return;
@@ -27,7 +34,7 @@ function SettingsComponent() {
         updatedAt: new Date().toISOString(),
       };
       await collections.userProfile.insert(updatedProfile);
-      setUserProfile(updatedProfile);
+      // useLiveQuery will automatically update the UI
     } catch (error) {
       console.error("Error updating profile:", error);
     }
@@ -35,15 +42,17 @@ function SettingsComponent() {
 
   const handleGenerateKey = async (keyName: string) => {
     try {
+      // Create the API key data
       const newKey: ApiKey = {
-        id: Date.now().toString(),
+        id: Date.now().toString(), // Temporary ID, will be replaced by server
         name: keyName,
-        key: `ptk_live_${Math.random().toString(36).substring(2, 18)}`,
+        key: `ptk_live_${Math.random().toString(36).substring(2, 18)}`, // Temporary key, will be replaced by server
         createdAt: new Date().toISOString(),
         isActive: true,
       };
+
+      // Insert into collection
       await collections.apiKeys.insert(newKey);
-      setApiKeys((prev) => [newKey, ...prev]);
     } catch (error) {
       console.error("Error generating API key:", error);
     }
@@ -51,18 +60,33 @@ function SettingsComponent() {
 
   const handleRevokeKey = async (keyId: string) => {
     try {
-      const keyToUpdate = apiKeys.find((key) => key.id === keyId);
+      // Find the key to update
+      const keyToUpdate = apiKeys?.find((key) => key.id === keyId);
       if (keyToUpdate) {
+        // Delete the old key and insert the updated one
+        await collections.apiKeys.delete(keyId);
         const updatedKey = { ...keyToUpdate, isActive: false };
         await collections.apiKeys.insert(updatedKey);
-        setApiKeys((prev) =>
-          prev.map((key) => (key.id === keyId ? updatedKey : key)),
-        );
       }
     } catch (error) {
       console.error("Error revoking API key:", error);
     }
   };
+
+  if (!userProfile) {
+    return (
+      <div className="space-y-6" data-testid="settings-page">
+        <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100">
+          Settings
+        </h1>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-lg text-slate-600 dark:text-slate-400">
+            Loading settings...
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6" data-testid="settings-page">
@@ -78,7 +102,7 @@ function SettingsComponent() {
 
       {/* API Keys Management */}
       <ApiKeysManager
-        apiKeys={apiKeys}
+        apiKeys={apiKeys || []}
         onGenerateKey={handleGenerateKey}
         onRevokeKey={handleRevokeKey}
       />

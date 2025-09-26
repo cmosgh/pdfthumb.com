@@ -1,9 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
 import { MetricCard } from "@components/dashboard/MetricCard.tsx";
 import { UsageChart } from "@components/dashboard/UsageChart.tsx";
+import { useLiveQuery } from "@tanstack/react-db";
 import { collections } from "@/db.ts";
-import type { DashboardSummary, UsageTrendData } from "@/types.ts";
 
 // Helper function to calculate trend based on growth percentage
 const calculateTrend = (
@@ -46,12 +45,46 @@ export const Route = createFileRoute("/dashboard/overview")({
 });
 
 function OverviewComponent() {
-  const [summary] = useState<DashboardSummary>(
-    () => collections.dashboardSummary.get("main")!,
+  // Use TanStack DB's built-in reactive queries - much simpler!
+  const { data: summaryData, isLoading: summaryLoading } = useLiveQuery((q) =>
+    q.from({ summary: collections.dashboardSummary }),
   );
-  const [usageData] = useState<UsageTrendData[]>(() =>
-    Array.from(collections.usageTrends.values()),
+
+  const { data: usageData, isLoading: usageLoading } = useLiveQuery((q) =>
+    q.from({ trends: collections.usageTrends }),
   );
+
+  if (summaryLoading || usageLoading) {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100">
+          Dashboard Overview
+        </h1>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-lg text-slate-600 dark:text-slate-400">
+            Loading dashboard data...
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Get the first (and only) summary item
+  const summary = summaryData?.[0];
+  if (!summary || !usageData) {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100">
+          Dashboard Overview
+        </h1>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-lg text-red-600 dark:text-red-400">
+            Error loading dashboard data. Using offline data if available.
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

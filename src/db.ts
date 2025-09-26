@@ -1,4 +1,5 @@
 import { createCollection, localOnlyCollectionOptions } from "@tanstack/db";
+import { mockApiKeys } from "./data/dashboardMocks";
 import type {
   ApiKey,
   DashboardSummary,
