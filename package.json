@@ -11,7 +11,10 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.12",
+    "@tanstack/db": "^0.4.1",
+    "@tanstack/react-db": "^0.1.23",
     "@tanstack/react-router": "^1.131.35",
+    "@tanstack/router-devtools": "^1.132.7",
     "@tanstack/router-vite-plugin": "^1.131.36",
     "dotenv": "^17.2.2",
     "react": "^19.1.0",
@@ -28,7 +31,7 @@
     "@types/react-dom": "^19.1.8",
     "prettier": "3.6.2",
     "typescript": "^5.9.2",
-    "vite": "^7.1.4",
+    "vite": "^7.1.5",
     "vite-tsconfig-paths": "^5.1.4"
   },
   "config": {

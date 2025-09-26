@@ -4,13 +4,14 @@ import { UsageChart } from "@components/dashboard/UsageChart.tsx";
 import { BarChartComponent } from "@components/dashboard/BarChart.tsx";
 import { PieChartComponent } from "@components/dashboard/PieChart.tsx";
 import { DateRangePicker } from "@components/dashboard/DateRangePicker.tsx";
-import {
-  mockUsageTrends,
-  mockFileTypeData,
-  mockGeographicData,
-  mockErrorLogs,
-} from "@/data/dashboardMocks.ts";
-import type { DateRange, FileTypeData, ErrorLogData } from "@/types.ts";
+import { collections } from "@/db.ts";
+import type {
+  DateRange,
+  FileTypeData,
+  ErrorLogData,
+  UsageTrendData,
+  GeographicData,
+} from "@/types.ts";
 
 export const Route = createFileRoute("/dashboard/analytics")({
   component: AnalyticsComponent,
@@ -23,10 +24,24 @@ function AnalyticsComponent() {
     end: new Date(),
   });
 
-  const [filteredUsageData, setFilteredUsageData] = useState(mockUsageTrends);
-  const [filteredFileTypeData, setFilteredFileTypeData] =
-    useState<FileTypeData[]>(mockFileTypeData);
-  const [errorLogs] = useState<ErrorLogData[]>(mockErrorLogs);
+  const [usageData] = useState<UsageTrendData[]>(() =>
+    Array.from(collections.usageTrends.values()),
+  );
+  const [fileTypeData] = useState<FileTypeData[]>(() =>
+    Array.from(collections.fileTypeData.values()),
+  );
+  const [geographicData] = useState<GeographicData[]>(() =>
+    Array.from(collections.geographicData.values()),
+  );
+  const [errorLogs] = useState<ErrorLogData[]>(() =>
+    Array.from(collections.errorLogs.values()),
+  );
+  const [filteredUsageData, setFilteredUsageData] = useState<UsageTrendData[]>(
+    () => Array.from(collections.usageTrends.values()),
+  );
+  const [filteredFileTypeData, setFilteredFileTypeData] = useState<
+    FileTypeData[]
+  >(() => Array.from(collections.fileTypeData.values()));
 
   useEffect(() => {
     // Filter data based on date range
@@ -37,15 +52,15 @@ function AnalyticsComponent() {
       });
     };
 
-    setFilteredUsageData(filterDataByDateRange(mockUsageTrends));
-    setFilteredFileTypeData(filterDataByDateRange(mockFileTypeData));
-  }, [dateRange]);
+    setFilteredUsageData(filterDataByDateRange(usageData));
+    setFilteredFileTypeData(filterDataByDateRange(fileTypeData));
+  }, [dateRange, usageData, fileTypeData]);
 
   const handleDateRangeChange = (newRange: DateRange) => {
     setDateRange(newRange);
   };
 
-  const geographicChartData = mockGeographicData.map((item) => ({
+  const geographicChartData = geographicData.map((item) => ({
     name: item.country,
     value: item.requests,
     percentage: item.percentage,

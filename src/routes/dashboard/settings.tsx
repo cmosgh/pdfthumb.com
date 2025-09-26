@@ -1,44 +1,67 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { ApiKeysManager } from "../../components/dashboard/ApiKeysManager";
-import { ProfileSettingsForm } from "../../components/dashboard/ProfileSettingsForm";
-import { mockUserProfile, mockApiKeys } from "../../data/dashboardMocks";
-import type { UserProfile, ApiKey } from "../../types";
+import { ApiKeysManager } from "@components/dashboard/ApiKeysManager.tsx";
+import { ProfileSettingsForm } from "@components/dashboard/ProfileSettingsForm.tsx";
+import { collections } from "@/db.ts";
+import type { ApiKey, UserProfile } from "@/types.ts";
 
 export const Route = createFileRoute("/dashboard/settings")({
   component: SettingsComponent,
 });
 
 function SettingsComponent() {
-  const [userProfile, setUserProfile] = useState<UserProfile>(mockUserProfile);
-  const [apiKeys, setApiKeys] = useState<ApiKey[]>(mockApiKeys);
+  const [userProfile, setUserProfile] = useState<UserProfile>(
+    () => collections.userProfile.get("user123")!,
+  );
+  const [apiKeys, setApiKeys] = useState<ApiKey[]>(() =>
+    Array.from(collections.apiKeys.values()),
+  );
 
-  const handleUpdateProfile = (updatedData: Partial<UserProfile>) => {
-    // Simulate API call
-    setUserProfile((prev) => ({
-      ...prev,
-      ...updatedData,
-      updatedAt: new Date().toISOString(),
-    }));
+  const handleUpdateProfile = async (updatedData: Partial<UserProfile>) => {
+    if (!userProfile) return;
+
+    try {
+      const updatedProfile = {
+        ...userProfile,
+        ...updatedData,
+        updatedAt: new Date().toISOString(),
+      };
+      await collections.userProfile.insert(updatedProfile);
+      setUserProfile(updatedProfile);
+    } catch (error) {
+      console.error("Error updating profile:", error);
+    }
   };
 
-  const handleGenerateKey = (keyName: string) => {
-    // Simulate API call to generate new key
-    const newKey: ApiKey = {
-      id: Date.now().toString(),
-      name: keyName,
-      key: `ptk_live_${Math.random().toString(36).substring(2, 18)}`,
-      createdAt: new Date().toISOString(),
-      isActive: true,
-    };
-    setApiKeys((prev) => [newKey, ...prev]);
+  const handleGenerateKey = async (keyName: string) => {
+    try {
+      const newKey: ApiKey = {
+        id: Date.now().toString(),
+        name: keyName,
+        key: `ptk_live_${Math.random().toString(36).substring(2, 18)}`,
+        createdAt: new Date().toISOString(),
+        isActive: true,
+      };
+      await collections.apiKeys.insert(newKey);
+      setApiKeys((prev) => [newKey, ...prev]);
+    } catch (error) {
+      console.error("Error generating API key:", error);
+    }
   };
 
-  const handleRevokeKey = (keyId: string) => {
-    // Simulate API call to revoke key
-    setApiKeys((prev) =>
-      prev.map((key) => (key.id === keyId ? { ...key, isActive: false } : key)),
-    );
+  const handleRevokeKey = async (keyId: string) => {
+    try {
+      const keyToUpdate = apiKeys.find((key) => key.id === keyId);
+      if (keyToUpdate) {
+        const updatedKey = { ...keyToUpdate, isActive: false };
+        await collections.apiKeys.insert(updatedKey);
+        setApiKeys((prev) =>
+          prev.map((key) => (key.id === keyId ? updatedKey : key)),
+        );
+      }
+    } catch (error) {
+      console.error("Error revoking API key:", error);
+    }
   };
 
   return (
