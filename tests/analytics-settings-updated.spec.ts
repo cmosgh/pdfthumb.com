@@ -115,7 +115,35 @@ test.describe("Detailed Analytics & Settings", () => {
     test("should generate and revoke an API key", async ({ page }) => {
       await page.goto("/dashboard/settings");
 
-      // Mock API calls for key generation and revocation
+      // Mock initial API key listing
+      await page.route("**/api/api-key", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify([
+            {
+              id: "existing-key-1",
+              name: "Existing Key",
+              identifier: "ptk_test_****1234",
+              createdAt: new Date(Date.now() - 86400000).toISOString(),
+              expiresAt: null,
+              lastUsedAt: new Date(Date.now() - 3600000).toISOString(),
+              enabled: true,
+            },
+          ]),
+        });
+      });
+
+      // Reload the page to trigger initial data load
+      await page.reload();
+
+      const apiKeysTable = page.locator('[data-testid="api-keys-table"]');
+
+      // Wait for initial keys to load
+      await expect(page.locator('td:text("Existing Key")')).toBeVisible();
+      const initialKeyCount = await apiKeysTable.locator("tbody tr").count();
+
+      // Mock API calls for key generation
       await page.route("**/api/api-key/generate", async (route) => {
         await route.fulfill({
           status: 200,
@@ -132,6 +160,7 @@ test.describe("Detailed Analytics & Settings", () => {
         });
       });
 
+      // Mock API call for key revocation
       await page.route("**/api/api-key/test-key-123", async (route) => {
         await route.fulfill({
           status: 200,
@@ -140,13 +169,42 @@ test.describe("Detailed Analytics & Settings", () => {
         });
       });
 
-      const apiKeysTable = page.locator('[data-testid="api-keys-table"]');
-      const initialKeyCount = await apiKeysTable.locator("tbody tr").count();
-
       // Generate new key
       await page.click('[data-testid="generate-api-key-button"]');
       await page.locator('[data-testid="api-key-name-input"]').fill("Test Key");
       await page.click('[data-testid="generate-api-key-submit"]');
+
+      // Mock the sync call that happens after key generation
+      await page.route(
+        "**/api/api-key",
+        async (route) => {
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify([
+              {
+                id: "existing-key-1",
+                name: "Existing Key",
+                identifier: "ptk_test_****1234",
+                createdAt: new Date(Date.now() - 86400000).toISOString(),
+                expiresAt: null,
+                lastUsedAt: new Date(Date.now() - 3600000).toISOString(),
+                enabled: true,
+              },
+              {
+                id: "test-key-123",
+                name: "Test Key",
+                identifier: "ptk_test_****test",
+                createdAt: new Date().toISOString(),
+                expiresAt: null,
+                lastUsedAt: null,
+                enabled: true,
+              },
+            ]),
+          });
+        },
+        { times: 1 },
+      );
 
       // Verify new key is added
       await expect(apiKeysTable.locator("tbody tr")).toHaveCount(
@@ -154,19 +212,56 @@ test.describe("Detailed Analytics & Settings", () => {
       );
       await expect(page.locator('td:text("Test Key")')).toBeVisible();
 
-      // Delete the newly created key
+      // Revoke the newly created key
       const newKeyRow = page.locator('tr:has-text("Test Key")');
-      await newKeyRow.locator('button:text("Revoke")').click();
+      await newKeyRow.locator('[data-testid="revoke-api-key-button"]').click();
 
       // Accept confirmation dialog
       await page.click('button:text("Revoke Key")');
+
+      // Mock the sync call that happens after key revocation
+      await page.route(
+        "**/api/api-key",
+        async (route) => {
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify([
+              {
+                id: "existing-key-1",
+                name: "Existing Key",
+                identifier: "ptk_test_****1234",
+                createdAt: new Date(Date.now() - 86400000).toISOString(),
+                expiresAt: null,
+                lastUsedAt: new Date(Date.now() - 3600000).toISOString(),
+                enabled: true,
+              },
+              {
+                id: "test-key-123",
+                name: "Test Key",
+                identifier: "ptk_test_****test",
+                createdAt: new Date().toISOString(),
+                expiresAt: null,
+                lastUsedAt: null,
+                enabled: false, // Now revoked
+              },
+            ]),
+          });
+        },
+        { times: 1 },
+      );
 
       // Verify key is marked as revoked in the status column
       await expect(apiKeysTable.locator("tbody tr")).toHaveCount(
         initialKeyCount + 1,
       );
       await expect(page.locator('td:text("Test Key")')).toBeVisible();
-      await expect(page.locator('span:text("Revoked")')).toBeVisible();
+
+      // Check that the Test Key row specifically shows "Revoked" status in the status column
+      const testKeyRow = page.locator('tr:has-text("Test Key")');
+      await expect(
+        testKeyRow.locator("td").nth(2).locator('span:text("Revoked")'),
+      ).toBeVisible();
     });
   });
 });
