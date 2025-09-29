@@ -2,14 +2,19 @@ import { createFileRoute } from "@tanstack/react-router";
 import { ApiKeysManager } from "@components/dashboard/ApiKeysManager.tsx";
 import { ProfileSettingsForm } from "@components/dashboard/ProfileSettingsForm.tsx";
 import { useLiveQuery } from "@tanstack/react-db";
-import { collections } from "@/db.ts";
+import { collections, dbHelpers } from "@/db.ts";
+import { apiKeysApi } from "@/api.ts";
 import type { ApiKey, UserProfile } from "@/types.ts";
+import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/dashboard/settings")({
   component: SettingsComponent,
 });
 
 function SettingsComponent() {
+  const [isLoadingApiKeys, setIsLoadingApiKeys] = useState(false);
+  const [apiKeysError, setApiKeysError] = useState<string | null>(null);
+
   // Use TanStack DB's reactive queries
   const { data: userProfileData } = useLiveQuery((q) =>
     q.from({ profile: collections.userProfile }),
@@ -23,6 +28,24 @@ function SettingsComponent() {
 
   // Get the first (and only) user profile
   const userProfile = userProfileData?.[0];
+
+  // Sync API keys on component mount
+  useEffect(() => {
+    const syncApiKeys = async () => {
+      setIsLoadingApiKeys(true);
+      setApiKeysError(null);
+      try {
+        await dbHelpers.syncApiKeys();
+      } catch (error) {
+        console.error("Failed to sync API keys:", error);
+        setApiKeysError("Failed to load API keys from server");
+      } finally {
+        setIsLoadingApiKeys(false);
+      }
+    };
+
+    syncApiKeys();
+  }, []);
 
   const handleUpdateProfile = async (updatedData: Partial<UserProfile>) => {
     if (!userProfile) return;
@@ -42,34 +65,32 @@ function SettingsComponent() {
 
   const handleGenerateKey = async (keyName: string) => {
     try {
-      // Create the API key data
-      const newKey: ApiKey = {
-        id: Date.now().toString(), // Temporary ID, will be replaced by server
-        name: keyName,
-        key: `ptk_live_${Math.random().toString(36).substring(2, 18)}`, // Temporary key, will be replaced by server
-        createdAt: new Date().toISOString(),
-        isActive: true,
-      };
+      setApiKeysError(null);
+      // Call the API to create the key
+      const newKey = await apiKeysApi.createApiKey({ name: keyName });
 
       // Insert into collection
       await collections.apiKeys.insert(newKey);
+
+      // Re-sync to ensure consistency
+      await dbHelpers.syncApiKeys();
     } catch (error) {
       console.error("Error generating API key:", error);
+      setApiKeysError("Failed to create API key");
     }
   };
 
   const handleRevokeKey = async (keyId: string) => {
     try {
-      // Find the key to update
-      const keyToUpdate = apiKeys?.find((key) => key.id === keyId);
-      if (keyToUpdate) {
-        // Delete the old key and insert the updated one
-        await collections.apiKeys.delete(keyId);
-        const updatedKey = { ...keyToUpdate, isActive: false };
-        await collections.apiKeys.insert(updatedKey);
-      }
+      setApiKeysError(null);
+      // Call the API to revoke the key
+      await apiKeysApi.revokeApiKey(keyId);
+
+      // Re-sync to get the latest state from the server
+      await dbHelpers.syncApiKeys();
     } catch (error) {
       console.error("Error revoking API key:", error);
+      setApiKeysError("Failed to revoke API key");
     }
   };
 
@@ -101,11 +122,30 @@ function SettingsComponent() {
       />
 
       {/* API Keys Management */}
-      <ApiKeysManager
-        apiKeys={apiKeys || []}
-        onGenerateKey={handleGenerateKey}
-        onRevokeKey={handleRevokeKey}
-      />
+      <div>
+        {apiKeysError && (
+          <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+            <p className="text-sm text-red-700 dark:text-red-300">
+              {apiKeysError}
+            </p>
+          </div>
+        )}
+        {isLoadingApiKeys ? (
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700 p-6">
+            <div className="flex items-center justify-center h-32">
+              <div className="text-lg text-slate-600 dark:text-slate-400">
+                Loading API keys...
+              </div>
+            </div>
+          </div>
+        ) : (
+          <ApiKeysManager
+            apiKeys={apiKeys || []}
+            onGenerateKey={handleGenerateKey}
+            onRevokeKey={handleRevokeKey}
+          />
+        )}
+      </div>
 
       {/* Additional Settings Sections */}
       <div

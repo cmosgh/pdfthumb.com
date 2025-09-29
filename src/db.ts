@@ -1,4 +1,7 @@
 import { createCollection, localOnlyCollectionOptions } from "@tanstack/db";
+import { queryCollectionOptions } from "@tanstack/query-db-collection";
+import { apiKeysApi } from "./api";
+import { queryClient } from "./queryClient";
 import { mockApiKeys } from "./data/dashboardMocks";
 import type {
   ApiKey,
@@ -130,6 +133,36 @@ export const dbHelpers = {
       await collections.apiKeys.insert(item);
     }
     await collections.detailedAnalytics.insert(detailedAnalyticsWithId);
+  },
+
+  // Sync API keys from the API
+  async syncApiKeys() {
+    try {
+      const apiKeys = await apiKeysApi.getApiKeys();
+
+      // Note: In a production app, you'd want to properly clear existing keys
+      // For now, we'll assume the API is the source of truth and insert new keys
+      // Duplicate keys with same IDs will be handled by the DB
+
+      for (const key of apiKeys) {
+        try {
+          await collections.apiKeys.insert(key);
+        } catch (e) {
+          // If key already exists, try to update it (delete and re-insert)
+          try {
+            await collections.apiKeys.delete(key.id);
+            await collections.apiKeys.insert(key);
+          } catch (updateError) {
+            console.warn(`Failed to update API key ${key.id}:`, updateError);
+          }
+        }
+      }
+
+      return apiKeys;
+    } catch (error) {
+      console.error("Error syncing API keys:", error);
+      throw error;
+    }
   },
 
   // Clear all data - placeholder for now

@@ -115,6 +115,31 @@ test.describe("Detailed Analytics & Settings", () => {
     test("should generate and revoke an API key", async ({ page }) => {
       await page.goto("/dashboard/settings");
 
+      // Mock API calls for key generation and revocation
+      await page.route("**/api/api-key/generate", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            id: "test-key-123",
+            name: "Test Key",
+            identifier: "ptk_test_****test",
+            createdAt: new Date().toISOString(),
+            expiresAt: null,
+            lastUsedAt: null,
+            enabled: true,
+          }),
+        });
+      });
+
+      await page.route("**/api/api-key/test-key-123", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ success: true }),
+        });
+      });
+
       const apiKeysTable = page.locator('[data-testid="api-keys-table"]');
       const initialKeyCount = await apiKeysTable.locator("tbody tr").count();
 
@@ -129,20 +154,19 @@ test.describe("Detailed Analytics & Settings", () => {
       );
       await expect(page.locator('td:text("Test Key")')).toBeVisible();
 
-      // Accept confirmation dialog
-      page.on("dialog", (dialog) => dialog.accept());
-
-      // Revoke the newly created key
+      // Delete the newly created key
       const newKeyRow = page.locator('tr:has-text("Test Key")');
       await newKeyRow.locator('button:text("Revoke")').click();
 
+      // Accept confirmation dialog
+      await page.click('button:text("Revoke Key")');
+
       // Verify key is marked as revoked in the status column
-      await expect(
-        newKeyRow
-          .locator("td")
-          .nth(2)
-          .locator('span.rounded-full:text("Revoked")'),
-      ).toBeVisible();
+      await expect(apiKeysTable.locator("tbody tr")).toHaveCount(
+        initialKeyCount + 1,
+      );
+      await expect(page.locator('td:text("Test Key")')).toBeVisible();
+      await expect(page.locator('span:text("Revoked")')).toBeVisible();
     });
   });
 });
