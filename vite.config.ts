@@ -1,4 +1,3 @@
-import path from "path";
 import { defineConfig, loadEnv } from "vite";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackRouter } from "@tanstack/router-vite-plugin";
@@ -35,7 +34,7 @@ export default defineConfig(({ mode }) => {
           warn(warning);
         },
       },
-      chunkSizeWarningLimit: 1000,
+      chunkSizeWarningLimit: 500,
     },
     server: {
       proxy: {
