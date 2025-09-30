@@ -124,7 +124,7 @@ test.describe("Detailed Analytics & Settings", () => {
             {
               id: "existing-key-1",
               name: "Existing Key",
-              identifier: "ptk_test_****1234",
+              identifier: "ptk_********1234",
               createdAt: new Date(Date.now() - 86400000).toISOString(),
               expiresAt: null,
               lastUsedAt: new Date(Date.now() - 3600000).toISOString(),
@@ -151,22 +151,21 @@ test.describe("Detailed Analytics & Settings", () => {
           body: JSON.stringify({
             id: "test-key-123",
             name: "Test Key",
-            identifier: "ptk_test_****test",
+            apiKey: "ptk_test_full_key_example",
             createdAt: new Date().toISOString(),
-            expiresAt: null,
-            lastUsedAt: null,
-            enabled: true,
           }),
         });
       });
 
       // Mock API call for key revocation
       await page.route("**/api/api-key/test-key-123", async (route) => {
-        await route.fulfill({
-          status: 200,
-          contentType: "application/json",
-          body: JSON.stringify({ success: true }),
-        });
+        if (route.request().method() === "DELETE") {
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({ success: true }),
+          });
+        }
       });
 
       // Generate new key
@@ -174,7 +173,24 @@ test.describe("Detailed Analytics & Settings", () => {
       await page.locator('[data-testid="api-key-name-input"]').fill("Test Key");
       await page.click('[data-testid="generate-api-key-submit"]');
 
-      // Mock the sync call that happens after key generation
+      // Verify the API key generated dialog appears
+      await expect(
+        page.locator('[data-testid="api-key-generated-dialog"]'),
+      ).toBeVisible();
+      await expect(
+        page.locator('h3:text("API Key Generated Successfully")'),
+      ).toBeVisible();
+      await expect(
+        page.locator('[data-testid="api-key-generated-dialog"] code'),
+      ).toContainText("ptk_********mple");
+
+      // Test copy functionality (basic test - just click the button)
+      await page.click('button:text("Copy to Clipboard")');
+
+      // Close the dialog
+      await page.click('button:text("Close")');
+
+      // Mock the sync call that happens after dialog closes and key is added
       await page.route(
         "**/api/api-key",
         async (route) => {
@@ -185,7 +201,7 @@ test.describe("Detailed Analytics & Settings", () => {
               {
                 id: "existing-key-1",
                 name: "Existing Key",
-                identifier: "ptk_test_****1234",
+                identifier: "ptk_********1234",
                 createdAt: new Date(Date.now() - 86400000).toISOString(),
                 expiresAt: null,
                 lastUsedAt: new Date(Date.now() - 3600000).toISOString(),
@@ -194,7 +210,7 @@ test.describe("Detailed Analytics & Settings", () => {
               {
                 id: "test-key-123",
                 name: "Test Key",
-                identifier: "ptk_test_****test",
+                identifier: "ptk_********test",
                 createdAt: new Date().toISOString(),
                 expiresAt: null,
                 lastUsedAt: null,
@@ -206,11 +222,39 @@ test.describe("Detailed Analytics & Settings", () => {
         { times: 1 },
       );
 
-      // Verify new key is added
+      // Verify new key is added to the table
       await expect(apiKeysTable.locator("tbody tr")).toHaveCount(
         initialKeyCount + 1,
       );
       await expect(page.locator('td:text("Test Key")')).toBeVisible();
+
+      // Mock the sync call that happens after key revocation
+      await page.route("**/api/api-key", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify([
+            {
+              id: "existing-key-1",
+              name: "Existing Key",
+              identifier: "ptk_********1234",
+              createdAt: new Date(Date.now() - 86400000).toISOString(),
+              expiresAt: null,
+              lastUsedAt: new Date(Date.now() - 3600000).toISOString(),
+              enabled: true,
+            },
+            {
+              id: "test-key-123",
+              name: "Test Key",
+              identifier: "ptk_********test",
+              createdAt: new Date().toISOString(),
+              expiresAt: null,
+              lastUsedAt: null,
+              enabled: false, // Now revoked
+            },
+          ]),
+        });
+      });
 
       // Revoke the newly created key
       const newKeyRow = page.locator('tr:has-text("Test Key")');
@@ -219,39 +263,7 @@ test.describe("Detailed Analytics & Settings", () => {
       // Accept confirmation dialog
       await page.click('button:text("Revoke Key")');
 
-      // Mock the sync call that happens after key revocation
-      await page.route(
-        "**/api/api-key",
-        async (route) => {
-          await route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            body: JSON.stringify([
-              {
-                id: "existing-key-1",
-                name: "Existing Key",
-                identifier: "ptk_test_****1234",
-                createdAt: new Date(Date.now() - 86400000).toISOString(),
-                expiresAt: null,
-                lastUsedAt: new Date(Date.now() - 3600000).toISOString(),
-                enabled: true,
-              },
-              {
-                id: "test-key-123",
-                name: "Test Key",
-                identifier: "ptk_test_****test",
-                createdAt: new Date().toISOString(),
-                expiresAt: null,
-                lastUsedAt: null,
-                enabled: false, // Now revoked
-              },
-            ]),
-          });
-        },
-        { times: 1 },
-      );
-
-      // Verify key is marked as revoked in the status column
+      // Wait for the table to update with the revoked key
       await expect(apiKeysTable.locator("tbody tr")).toHaveCount(
         initialKeyCount + 1,
       );

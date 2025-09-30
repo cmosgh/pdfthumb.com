@@ -77,7 +77,7 @@ export const mockApiKeys: ApiKey[] = [
   {
     id: "1",
     name: "Production API Key",
-    identifier: "ptk_live_****abcd", // Masked identifier
+    identifier: "ptk_********abcd", // Masked identifier
     createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
     expiresAt: null,
     lastUsedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
@@ -86,7 +86,7 @@ export const mockApiKeys: ApiKey[] = [
   {
     id: "2",
     name: "Development API Key",
-    identifier: "ptk_test_****ef12", // Masked identifier
+    identifier: "ptk_********ef12", // Masked identifier
     createdAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
     expiresAt: null,
     lastUsedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
@@ -95,10 +95,10 @@ export const mockApiKeys: ApiKey[] = [
   {
     id: "3",
     name: "Old API Key",
-    identifier: "ptk_live_****6789", // Masked identifier
+    identifier: "ptk_********6789", // Masked identifier
     createdAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
     expiresAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(), // Expired
-    lastUsedAt: null,
+    lastUsedAt: undefined,
     enabled: false,
   },
 ];

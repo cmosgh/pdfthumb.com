@@ -1,10 +1,15 @@
 import React, { useState } from "react";
 import type { ApiKey } from "@/types.ts";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog.tsx";
+import { ApiKeyGeneratedDialog } from "@/components/dashboard/ApiKeyGeneratedDialog.tsx";
+import { maskApiKey } from "@/utils/apiKey";
 
 interface ApiKeysManagerProps {
   apiKeys: ApiKey[];
-  onGenerateKey: (keyName: string) => void;
+  onGenerateKey: (
+    keyName: string,
+    onKeyGenerated?: (fullKey: string) => void,
+  ) => void;
   onRevokeKey: (keyId: string) => void;
 }
 
@@ -21,14 +26,21 @@ export const ApiKeysManager: React.FC<ApiKeysManagerProps> = ({
     null,
   );
   const [isRevoking, setIsRevoking] = useState(false);
+  const [generatedKey, setGeneratedKey] = useState<string | null>(null);
+  const [generatedKeyName, setGeneratedKeyName] = useState<string>("");
+  const [showGeneratedKeyDialog, setShowGeneratedKeyDialog] = useState(false);
 
   const isDevelopment = import.meta.env.MODE === "development";
 
   const handleGenerateKey = () => {
     if (newKeyName.trim()) {
-      onGenerateKey(newKeyName.trim());
-      setNewKeyName("");
-      setShowGenerateForm(false);
+      onGenerateKey(newKeyName.trim(), (fullKey: string) => {
+        setGeneratedKey(fullKey);
+        setGeneratedKeyName(newKeyName.trim());
+        setShowGeneratedKeyDialog(true);
+        setNewKeyName("");
+        setShowGenerateForm(false);
+      });
     }
   };
 
@@ -55,12 +67,10 @@ export const ApiKeysManager: React.FC<ApiKeysManagerProps> = ({
     setPendingRevokeKeyId(null);
   };
 
-  const maskApiKey = (key: string) => {
-    // In development mode, show the full key
-    if (isDevelopment) return key;
-    // In production, mask the key
-    if (key.length <= 12) return key;
-    return `${key.substring(0, 8)}...${key.substring(key.length - 4)}`;
+  const handleCloseGeneratedKeyDialog = () => {
+    setShowGeneratedKeyDialog(false);
+    setGeneratedKey(null);
+    setGeneratedKeyName("");
   };
 
   const copyToClipboard = (key: string) => {
@@ -169,7 +179,9 @@ export const ApiKeysManager: React.FC<ApiKeysManagerProps> = ({
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-slate-300">
                   <div className="flex items-center space-x-2">
                     <code className="text-xs bg-gray-100 dark:bg-slate-700 px-2 py-1 rounded">
-                      {maskApiKey(key.identifier)}
+                      {isDevelopment
+                        ? key.identifier
+                        : maskApiKey(key.identifier)}
                     </code>
                     {isDevelopment && (
                       <button
@@ -282,6 +294,13 @@ export const ApiKeysManager: React.FC<ApiKeysManagerProps> = ({
         onConfirm={handleConfirmRevoke}
         onCancel={handleCancelRevoke}
         isLoading={isRevoking}
+      />
+
+      <ApiKeyGeneratedDialog
+        isOpen={showGeneratedKeyDialog}
+        apiKey={generatedKey || ""}
+        keyName={generatedKeyName}
+        onClose={handleCloseGeneratedKeyDialog}
       />
     </div>
   );
