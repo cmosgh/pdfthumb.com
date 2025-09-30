@@ -13,6 +13,7 @@ export default defineConfig(({ mode }) => {
       tanstackRouter({
         routesDirectory: "./src/routes",
         generatedRouteTree: "./src/routeTree.gen.ts",
+        autoCodeSplitting: true,
       }),
     ],
     define: {
@@ -20,6 +21,21 @@ export default defineConfig(({ mode }) => {
       "process.env.GEMINI_API_KEY": JSON.stringify(env.GEMINI_API_KEY),
       "process.env.API_URL": JSON.stringify(env.API_URL),
       "import.meta.env.TEST_API_KEY": JSON.stringify(env.TEST_API_KEY),
+    },
+    build: {
+      rollupOptions: {
+        onwarn(warning, warn) {
+          if (
+            warning.message.includes(
+              'Module level directives cause errors when bundled, "use client"',
+            )
+          ) {
+            return;
+          }
+          warn(warning);
+        },
+      },
+      chunkSizeWarningLimit: 1000,
     },
     server: {
       proxy: {
