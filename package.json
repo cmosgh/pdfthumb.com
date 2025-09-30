@@ -10,7 +10,7 @@
     "test": "npx playwright test"
   },
   "dependencies": {
-    "@tailwindcss/vite": "^4.1.12",
+    "@tailwindcss/vite": "^4.1.13",
     "@tanstack/db": "^0.4.1",
     "@tanstack/query-core": "^5.90.2",
     "@tanstack/query-db-collection": "^0.2.22",
