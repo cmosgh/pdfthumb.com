@@ -151,7 +151,7 @@ test.describe("Detailed Analytics & Settings", () => {
           body: JSON.stringify({
             id: "test-key-123",
             name: "Test Key",
-            apiKey: "ptk_test_****test",
+            apiKey: "ptk_test_full_key_example",
             createdAt: new Date().toISOString(),
           }),
         });
@@ -182,7 +182,7 @@ test.describe("Detailed Analytics & Settings", () => {
       ).toBeVisible();
       await expect(
         page.locator('[data-testid="api-key-generated-dialog"] code'),
-      ).toContainText("ptk_********test");
+      ).toContainText("ptk_********mple");
 
       // Test copy functionality (basic test - just click the button)
       await page.click('button:text("Copy to Clipboard")');
