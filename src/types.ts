@@ -97,10 +97,11 @@ export interface UserProfile {
 export interface ApiKey {
   id: string;
   name: string;
-  key: string; // Will be masked when displayed
+  identifier: string; // Masked key identifier
   createdAt: string;
-  lastUsed?: string;
-  isActive: boolean;
+  expiresAt: string | null;
+  lastUsedAt?: string;
+  enabled: boolean;
 }
 
 export interface DetailedAnalytics {

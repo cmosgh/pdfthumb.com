@@ -1,45 +1,113 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { ApiKeysManager } from "../../components/dashboard/ApiKeysManager";
-import { ProfileSettingsForm } from "../../components/dashboard/ProfileSettingsForm";
-import { mockUserProfile, mockApiKeys } from "../../data/dashboardMocks";
-import type { UserProfile, ApiKey } from "../../types";
+import { ApiKeysManager } from "@components/dashboard/ApiKeysManager.tsx";
+import { ProfileSettingsForm } from "@components/dashboard/ProfileSettingsForm.tsx";
+import { useLiveQuery } from "@tanstack/react-db";
+import { collections, dbHelpers } from "@/db.ts";
+import { apiKeysApi } from "@/api.ts";
+import type { ApiKey, UserProfile } from "@/types.ts";
+import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/dashboard/settings")({
   component: SettingsComponent,
 });
 
 function SettingsComponent() {
-  const [userProfile, setUserProfile] = useState<UserProfile>(mockUserProfile);
-  const [apiKeys, setApiKeys] = useState<ApiKey[]>(mockApiKeys);
+  const [isLoadingApiKeys, setIsLoadingApiKeys] = useState(false);
+  const [apiKeysError, setApiKeysError] = useState<string | null>(null);
 
-  const handleUpdateProfile = (updatedData: Partial<UserProfile>) => {
-    // Simulate API call
-    setUserProfile((prev) => ({
-      ...prev,
-      ...updatedData,
-      updatedAt: new Date().toISOString(),
-    }));
-  };
+  // Use TanStack DB's reactive queries
+  const { data: userProfileData } = useLiveQuery((q) =>
+    q.from({ profile: collections.userProfile }),
+  );
 
-  const handleGenerateKey = (keyName: string) => {
-    // Simulate API call to generate new key
-    const newKey: ApiKey = {
-      id: Date.now().toString(),
-      name: keyName,
-      key: `ptk_live_${Math.random().toString(36).substring(2, 18)}`,
-      createdAt: new Date().toISOString(),
-      isActive: true,
+  const { data: apiKeysData } = useLiveQuery((q) =>
+    q.from({ keys: collections.apiKeys }),
+  );
+
+  const apiKeys = apiKeysData as unknown as ApiKey[];
+
+  // Get the first (and only) user profile
+  const userProfile = userProfileData?.[0];
+
+  // Sync API keys on component mount
+  useEffect(() => {
+    const syncApiKeys = async () => {
+      setIsLoadingApiKeys(true);
+      setApiKeysError(null);
+      try {
+        await dbHelpers.syncApiKeys();
+      } catch (error) {
+        console.error("Failed to sync API keys:", error);
+        setApiKeysError("Failed to load API keys from server");
+      } finally {
+        setIsLoadingApiKeys(false);
+      }
     };
-    setApiKeys((prev) => [newKey, ...prev]);
+
+    syncApiKeys();
+  }, []);
+
+  const handleUpdateProfile = async (updatedData: Partial<UserProfile>) => {
+    if (!userProfile) return;
+
+    try {
+      const updatedProfile = {
+        ...userProfile,
+        ...updatedData,
+        updatedAt: new Date().toISOString(),
+      };
+      await collections.userProfile.insert(updatedProfile);
+      // useLiveQuery will automatically update the UI
+    } catch (error) {
+      console.error("Error updating profile:", error);
+    }
   };
 
-  const handleRevokeKey = (keyId: string) => {
-    // Simulate API call to revoke key
-    setApiKeys((prev) =>
-      prev.map((key) => (key.id === keyId ? { ...key, isActive: false } : key)),
-    );
+  const handleGenerateKey = async (keyName: string) => {
+    try {
+      setApiKeysError(null);
+      // Call the API to create the key
+      const newKey = await apiKeysApi.createApiKey({ name: keyName });
+
+      // Insert into collection
+      await collections.apiKeys.insert(newKey);
+
+      // Re-sync to ensure consistency
+      await dbHelpers.syncApiKeys();
+    } catch (error) {
+      console.error("Error generating API key:", error);
+      setApiKeysError("Failed to create API key");
+    }
   };
+
+  const handleRevokeKey = async (keyId: string) => {
+    try {
+      setApiKeysError(null);
+      // Call the API to revoke the key
+      await apiKeysApi.revokeApiKey(keyId);
+
+      // Re-sync to get the latest state from the server
+      await dbHelpers.syncApiKeys();
+    } catch (error) {
+      console.error("Error revoking API key:", error);
+      setApiKeysError("Failed to revoke API key");
+    }
+  };
+
+  if (!userProfile) {
+    return (
+      <div className="space-y-6" data-testid="settings-page">
+        <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100">
+          Settings
+        </h1>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-lg text-slate-600 dark:text-slate-400">
+            Loading settings...
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6" data-testid="settings-page">
@@ -54,11 +122,30 @@ function SettingsComponent() {
       />
 
       {/* API Keys Management */}
-      <ApiKeysManager
-        apiKeys={apiKeys}
-        onGenerateKey={handleGenerateKey}
-        onRevokeKey={handleRevokeKey}
-      />
+      <div>
+        {apiKeysError && (
+          <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+            <p className="text-sm text-red-700 dark:text-red-300">
+              {apiKeysError}
+            </p>
+          </div>
+        )}
+        {isLoadingApiKeys ? (
+          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700 p-6">
+            <div className="flex items-center justify-center h-32">
+              <div className="text-lg text-slate-600 dark:text-slate-400">
+                Loading API keys...
+              </div>
+            </div>
+          </div>
+        ) : (
+          <ApiKeysManager
+            apiKeys={apiKeys || []}
+            onGenerateKey={handleGenerateKey}
+            onRevokeKey={handleRevokeKey}
+          />
+        )}
+      </div>
 
       {/* Additional Settings Sections */}
       <div

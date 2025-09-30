@@ -96,3 +96,6 @@ dist-ssr
 /blob-report/
 /playwright/.cache/
 test-results.json
+
+# repomix generated files
+repomix-output.md

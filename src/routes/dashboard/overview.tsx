@@ -1,11 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
-import { MetricCard } from "../../components/dashboard/MetricCard";
-import { UsageChart } from "../../components/dashboard/UsageChart";
-import {
-  mockDashboardSummary,
-  mockUsageTrends,
-} from "../../data/dashboardMocks";
+import { MetricCard } from "@components/dashboard/MetricCard.tsx";
+import { UsageChart } from "@components/dashboard/UsageChart.tsx";
+import { useLiveQuery } from "@tanstack/react-db";
+import { collections } from "@/db.ts";
 
 // Helper function to calculate trend based on growth percentage
 const calculateTrend = (
@@ -48,35 +45,42 @@ export const Route = createFileRoute("/dashboard/overview")({
 });
 
 function OverviewComponent() {
-  const [summary, setSummary] = useState(mockDashboardSummary);
-  const [usageData, setUsageData] = useState(mockUsageTrends);
-  const [loading, setLoading] = useState(true);
+  // Use TanStack DB's built-in reactive queries - much simpler!
+  const { data: summaryData, isLoading: summaryLoading } = useLiveQuery((q) =>
+    q.from({ summary: collections.dashboardSummary }),
+  );
 
-  useEffect(() => {
-    // Simulate API call delay - data is already set in initial state
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 500);
+  const { data: usageData, isLoading: usageLoading } = useLiveQuery((q) =>
+    q.from({ trends: collections.usageTrends }),
+  );
 
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (loading) {
+  if (summaryLoading || usageLoading) {
     return (
       <div className="space-y-6">
         <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100">
           Dashboard Overview
         </h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[1, 2, 3, 4].map((i) => (
-            <div
-              key={i}
-              className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 animate-pulse"
-            >
-              <div className="h-4 bg-gray-200 rounded mb-2"></div>
-              <div className="h-8 bg-gray-200 rounded w-3/4"></div>
-            </div>
-          ))}
+        <div className="flex items-center justify-center h-64">
+          <div className="text-lg text-slate-600 dark:text-slate-400">
+            Loading dashboard data...
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Get the first (and only) summary item
+  const summary = summaryData?.[0];
+  if (!summary || !usageData) {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100">
+          Dashboard Overview
+        </h1>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-lg text-red-600 dark:text-red-400">
+            Error loading dashboard data. Using offline data if available.
+          </div>
         </div>
       </div>
     );
