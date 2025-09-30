@@ -1,4 +1,3 @@
-import path from "path";
 import { defineConfig, loadEnv } from "vite";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackRouter } from "@tanstack/router-vite-plugin";
@@ -13,6 +12,7 @@ export default defineConfig(({ mode }) => {
       tanstackRouter({
         routesDirectory: "./src/routes",
         generatedRouteTree: "./src/routeTree.gen.ts",
+        autoCodeSplitting: true,
       }),
     ],
     define: {
@@ -20,6 +20,21 @@ export default defineConfig(({ mode }) => {
       "process.env.GEMINI_API_KEY": JSON.stringify(env.GEMINI_API_KEY),
       "process.env.API_URL": JSON.stringify(env.API_URL),
       "import.meta.env.TEST_API_KEY": JSON.stringify(env.TEST_API_KEY),
+    },
+    build: {
+      rollupOptions: {
+        onwarn(warning, warn) {
+          if (
+            warning.message.includes(
+              'Module level directives cause errors when bundled, "use client"',
+            )
+          ) {
+            return;
+          }
+          warn(warning);
+        },
+      },
+      chunkSizeWarningLimit: 500,
     },
     server: {
       proxy: {
