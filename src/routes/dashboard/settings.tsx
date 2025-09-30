@@ -4,6 +4,7 @@ import { ProfileSettingsForm } from "@components/dashboard/ProfileSettingsForm.t
 import { useLiveQuery } from "@tanstack/react-db";
 import { collections, dbHelpers } from "@/db.ts";
 import { apiKeysApi } from "@/api.ts";
+import { maskApiKey } from "@/utils/apiKey";
 import type { ApiKey, UserProfile } from "@/types.ts";
 import { useEffect, useState } from "react";
 
@@ -63,14 +64,33 @@ function SettingsComponent() {
     }
   };
 
-  const handleGenerateKey = async (keyName: string) => {
+  const handleGenerateKey = async (
+    keyName: string,
+    onKeyGenerated?: (fullKey: string) => void,
+  ) => {
     try {
       setApiKeysError(null);
       // Call the API to create the key
       const newKey = await apiKeysApi.createApiKey({ name: keyName });
 
+      // Call the callback with the full key before inserting (so user can copy it)
+      if (onKeyGenerated) {
+        onKeyGenerated(newKey.apiKey);
+      }
+
+      // Create the key object with masked identifier for storage
+      const keyForStorage: ApiKey = {
+        id: newKey.id,
+        name: newKey.name,
+        identifier: maskApiKey(newKey.apiKey), // Masked version for display
+        createdAt: newKey.createdAt,
+        expiresAt: null,
+        lastUsedAt: undefined,
+        enabled: true,
+      };
+
       // Insert into collection
-      await collections.apiKeys.insert(newKey);
+      await collections.apiKeys.insert(keyForStorage);
 
       // Re-sync to ensure consistency
       await dbHelpers.syncApiKeys();
