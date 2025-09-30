@@ -6,13 +6,17 @@ test.describe("Login Page", () => {
 
     if (isMobile) {
       // Click the mobile menu button
-      await page.getByLabel('Toggle mobile menu').click();
+      await page.getByLabel("Toggle mobile menu").click();
       // Click the Log In link within the mobile menu
-      await page.locator('nav[aria-label="Mobile Menu"]').getByText('Log In').click();
+      await page
+        .locator('nav[aria-label="Mobile Menu"]')
+        .getByText("Log In")
+        .click();
     } else {
       await page.click("text=Log In");
     }
     await expect(page).toHaveURL("/login");
+    await page.waitForSelector('h2:has-text("Sign in to your account")');
     await expect(page.locator("h2")).toContainText("Sign in to your account");
   });
 
