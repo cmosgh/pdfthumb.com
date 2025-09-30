@@ -46,6 +46,9 @@ test.describe("Detailed Analytics & Settings", () => {
     }) => {
       await page.goto("/dashboard/analytics");
 
+      // Wait for the table to load
+      await page.waitForSelector('[data-testid="error-logs-table"] tbody tr');
+
       // Initial state check (assuming some data is present)
       const initialRowCount = await page
         .locator('[data-testid="error-logs-table"] tbody tr')
