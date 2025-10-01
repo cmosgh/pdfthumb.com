@@ -44,17 +44,21 @@ class ApiKeySyncManager {
     try {
       const apiKeys = await apiKeysApi.getApiKeys(token);
 
-      // Use bulk operations: delete all existing keys and insert new ones
-      // This prevents race conditions from individual delete-then-insert operations
+      // Smart sync: update existing keys, add new ones, remove deleted ones
+      // This preserves locally created keys that haven't been synced to server yet
+      const apiKeyMap = new Map(apiKeys.map(key => [key.id, key]));
       const existingKeys = Array.from(collections.apiKeys.keys());
-      for (const keyId of existingKeys) {
-        await collections.apiKeys.delete(keyId);
+
+      // Delete keys that no longer exist in API
+      for (const localKeyId of existingKeys) {
+        if (!apiKeyMap.has(localKeyId)) {
+          await collections.apiKeys.delete(localKeyId);
+        }
       }
-      for (const key of apiKeys) {
-        await collections.apiKeys.insert(key);
-      }
-      for (const key of apiKeys) {
-        await collections.apiKeys.insert(key);
+
+      // Insert or update keys from API
+      for (const apiKey of apiKeys) {
+        await collections.apiKeys.insert(apiKey);
       }
 
       return apiKeys;
