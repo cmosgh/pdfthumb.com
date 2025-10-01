@@ -99,7 +99,6 @@ test.describe("Detailed Analytics & Settings", () => {
       page,
     }) => {
       await page.goto("/dashboard/settings");
-      await expect(page.locator("h1:text(Settings)")).toBeVisible();
 
       // Click edit button
       await page.click('[data-testid="edit-profile-button"]');

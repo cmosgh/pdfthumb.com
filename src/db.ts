@@ -44,9 +44,15 @@ class ApiKeySyncManager {
     try {
       const apiKeys = await apiKeysApi.getApiKeys(token);
 
-      // Use bulk operations: clear all existing keys and insert new ones
+      // Use bulk operations: delete all existing keys and insert new ones
       // This prevents race conditions from individual delete-then-insert operations
-      await collections.apiKeys.clear();
+      const existingKeys = Array.from(collections.apiKeys.keys());
+      for (const keyId of existingKeys) {
+        await collections.apiKeys.delete(keyId);
+      }
+      for (const key of apiKeys) {
+        await collections.apiKeys.insert(key);
+      }
       for (const key of apiKeys) {
         await collections.apiKeys.insert(key);
       }
@@ -73,7 +79,6 @@ class ApiKeySyncManager {
       });
   }
 }
-
 
 // Define collections for different data types
 export const dashboardSummaryCollection = createCollection(
