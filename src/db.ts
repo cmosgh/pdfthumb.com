@@ -130,15 +130,18 @@ export const dbHelpers = {
     }
     await collections.userProfile.insert(mockUserProfile);
     for (const item of mockApiKeys) {
-      await collections.apiKeys.insert(item);
+      // only adding in tests
+      if (import.meta.env.MODE === "test") {
+        await collections.apiKeys.insert(item);
+      }
     }
     await collections.detailedAnalytics.insert(detailedAnalyticsWithId);
   },
 
   // Sync API keys from the API
-  async syncApiKeys() {
+  async syncApiKeys(token?: string) {
     try {
-      const apiKeys = await apiKeysApi.getApiKeys();
+      const apiKeys = await apiKeysApi.getApiKeys(token);
 
       // Note: In a production app, you'd want to properly clear existing keys
       // For now, we'll assume the API is the source of truth and insert new keys

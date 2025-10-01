@@ -1,6 +1,12 @@
 import { test, expect } from "@playwright/test";
+import { mockAuthentication } from "./auth-helper";
 
 test.describe("Dashboard Navigation", () => {
+  test.beforeEach(async ({ page }) => {
+    // Mock authentication before each test
+    await mockAuthentication(page);
+  });
+
   test("should navigate to dashboard and display layout", async ({ page }) => {
     await page.goto("/dashboard");
 

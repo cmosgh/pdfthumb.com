@@ -111,3 +111,26 @@ export interface DetailedAnalytics {
   totalErrors: number;
   errorRate: number;
 }
+
+// Authentication Types
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  picture?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AuthTokens {
+  accessToken: string;
+  refreshToken: string;
+  expiresAt: number; // timestamp when access token expires
+}
+
+export interface AuthState {
+  user: User | null;
+  tokens: AuthTokens | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+}

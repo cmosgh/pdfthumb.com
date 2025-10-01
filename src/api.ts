@@ -2,31 +2,54 @@ const API_BASE_URL = "/api";
 
 export default API_BASE_URL;
 
-// Helper function to get headers with API key in development mode
-const getHeaders = (additionalHeaders?: Record<string, string>) => {
+// Helper function to get headers with auth token or API key
+const getHeaders = (token?: string, additionalHeaders?: Record<string, string>) => {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     ...additionalHeaders,
   };
 
-  // In development mode, add the test API key
-  if (import.meta.env.MODE === "development" && import.meta.env.TEST_API_KEY) {
+  // If user is authenticated, use Bearer token
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+  // Otherwise, in development mode, add the test API key
+  else if (import.meta.env.MODE === "development" && import.meta.env.TEST_API_KEY) {
     headers["x-api-key"] = import.meta.env.TEST_API_KEY;
   }
 
   return headers;
 };
 
+// API functions for authentication
+export const authApi = {
+  // Logout - this would typically call the backend to invalidate the session
+  async logout(token?: string) {
+    try {
+      const response = await fetch("/api/auth/logout", {
+        method: "POST",
+        headers: getHeaders(token),
+      });
+      // Even if the request fails, we should clear local state
+      return response.ok || response.status === 401;
+    } catch (error) {
+      console.error("Logout API error:", error);
+      // Return true to allow local logout even if API call fails
+      return true;
+    }
+  },
+};
+
 // API functions for API keys
 export const apiKeysApi = {
   // Get all API keys
-  async getApiKeys() {
+  async getApiKeys(token?: string) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 2000); // 2 second timeout
 
     try {
       const response = await fetch(`${API_BASE_URL}/api-key`, {
-        headers: getHeaders(),
+        headers: getHeaders(token),
         signal: controller.signal,
       });
       clearTimeout(timeoutId);
@@ -42,10 +65,10 @@ export const apiKeysApi = {
   },
 
   // Create a new API key
-  async createApiKey(keyData: { name: string }) {
+  async createApiKey(keyData: { name: string }, token?: string) {
     const response = await fetch(`${API_BASE_URL}/api-key/generate`, {
       method: "POST",
-      headers: getHeaders(),
+      headers: getHeaders(token),
       body: JSON.stringify(keyData),
     });
     if (!response.ok) throw new Error("Failed to create API key");
@@ -53,10 +76,10 @@ export const apiKeysApi = {
   },
 
   // Revoke an API key
-  async revokeApiKey(keyId: string) {
+  async revokeApiKey(keyId: string, token?: string) {
     const response = await fetch(`${API_BASE_URL}/api-key/${keyId}`, {
       method: "DELETE",
-      headers: getHeaders(),
+      headers: getHeaders(token),
     });
     if (!response.ok) throw new Error("Failed to revoke API key");
     return response.json();

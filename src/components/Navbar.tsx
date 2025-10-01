@@ -4,6 +4,7 @@ import { APP_NAME, HOME_LINK, NAV_LINKS } from "@/constants.ts";
 import { DocumentIcon, MoonIcon, SunIcon } from "./icons.tsx";
 import type { Theme } from "../hooks/useTheme.ts";
 import { handleInitiateCheckout } from "../paymentUtils.ts";
+import { useAuth } from "../hooks/AuthContext";
 
 interface NavbarProps {
   theme: Theme;
@@ -12,6 +13,7 @@ interface NavbarProps {
 
 const Navbar: React.FC<NavbarProps> = ({ theme, toggleTheme }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { isAuthenticated, user, logout } = useAuth();
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -19,6 +21,10 @@ const Navbar: React.FC<NavbarProps> = ({ theme, toggleTheme }) => {
 
   const handleGetApiKeyClick = () => {
     handleInitiateCheckout("pro");
+  };
+
+  const handleLogout = () => {
+    logout();
   };
 
   return (
@@ -54,6 +60,7 @@ const Navbar: React.FC<NavbarProps> = ({ theme, toggleTheme }) => {
           <nav className="hidden md:flex space-x-8">
             {NAV_LINKS.map((link) => (
               <Link
+                key={link.name}
                 {...link.linkOptions}
                 className="font-medium text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
               >
@@ -77,22 +84,47 @@ const Navbar: React.FC<NavbarProps> = ({ theme, toggleTheme }) => {
                 <SunIcon className="h-6 w-6" />
               )}
             </button>
-            <Link
-              to="/login"
-              className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 mr-2 hidden sm:block"
-            >
-              Log In
-            </Link>
-            <a
-              href="#signup" // Placeholder for actual signup link/modal
-              onClick={(e) => {
-                e.preventDefault();
-                handleGetApiKeyClick();
-              }}
-              className="cursor-pointer bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-md shadow-md transition-transform transform hover:scale-105 text-sm"
-            >
-              Get API Key
-            </a>
+
+            {isAuthenticated ? (
+              <>
+                <Link
+                  to="/dashboard"
+                  className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 mr-2 hidden sm:block"
+                >
+                  Dashboard
+                </Link>
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm text-slate-600 dark:text-slate-300 hidden sm:block">
+                    {user?.name || user?.email}
+                  </span>
+                  <button
+                    onClick={handleLogout}
+                    className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 mr-2"
+                  >
+                    Logout
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 mr-2 hidden sm:block"
+                >
+                  Log In
+                </Link>
+                <a
+                  href="#signup" // Placeholder for actual signup link/modal
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleGetApiKeyClick();
+                  }}
+                  className="cursor-pointer bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-md shadow-md transition-transform transform hover:scale-105 text-sm"
+                >
+                  Get API Key
+                </a>
+              </>
+            )}
           </div>
           {/* Mobile menu button */}
           <div className="md:hidden flex items-center">
@@ -144,6 +176,7 @@ const Navbar: React.FC<NavbarProps> = ({ theme, toggleTheme }) => {
           >
             {NAV_LINKS.map((link) => (
               <Link
+                key={link.name}
                 {...link.linkOptions}
                 className="font-medium text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
                 onClick={toggleMobileMenu} // Close menu on link click
@@ -151,6 +184,40 @@ const Navbar: React.FC<NavbarProps> = ({ theme, toggleTheme }) => {
                 {link.name}
               </Link>
             ))}
+
+            {isAuthenticated ? (
+              <>
+                <Link
+                  to="/dashboard"
+                  className="font-medium text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                  onClick={toggleMobileMenu}
+                >
+                  Dashboard
+                </Link>
+                <div className="text-center">
+                  <span className="block text-sm text-slate-600 dark:text-slate-300 mb-2">
+                    {user?.name || user?.email}
+                  </span>
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      toggleMobileMenu();
+                    }}
+                    className="font-medium text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                  >
+                    Logout
+                  </button>
+                </div>
+              </>
+            ) : (
+              <Link
+                to="/login"
+                className="font-medium text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                onClick={toggleMobileMenu}
+              >
+                Log In
+              </Link>
+            )}
           </nav>
         </div>
       )}

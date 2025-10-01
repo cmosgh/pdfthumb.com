@@ -7,6 +7,7 @@ import { apiKeysApi } from "@/api.ts";
 import { maskApiKey } from "@/utils/apiKey";
 import type { ApiKey, UserProfile } from "@/types.ts";
 import { useEffect, useState } from "react";
+import { useAuth } from "@/hooks/AuthContext";
 
 export const Route = createFileRoute("/dashboard/settings")({
   component: SettingsComponent,
@@ -15,6 +16,7 @@ export const Route = createFileRoute("/dashboard/settings")({
 function SettingsComponent() {
   const [isLoadingApiKeys, setIsLoadingApiKeys] = useState(false);
   const [apiKeysError, setApiKeysError] = useState<string | null>(null);
+  const { tokens } = useAuth();
 
   // Use TanStack DB's reactive queries
   const { data: userProfileData } = useLiveQuery((q) =>
@@ -36,7 +38,7 @@ function SettingsComponent() {
       setIsLoadingApiKeys(true);
       setApiKeysError(null);
       try {
-        await dbHelpers.syncApiKeys();
+        await dbHelpers.syncApiKeys(tokens?.accessToken);
       } catch (error) {
         console.error("Failed to sync API keys:", error);
         setApiKeysError("Failed to load API keys from server");
@@ -46,7 +48,7 @@ function SettingsComponent() {
     };
 
     syncApiKeys();
-  }, []);
+  }, [tokens]);
 
   const handleUpdateProfile = async (updatedData: Partial<UserProfile>) => {
     if (!userProfile) return;
@@ -71,7 +73,7 @@ function SettingsComponent() {
     try {
       setApiKeysError(null);
       // Call the API to create the key
-      const newKey = await apiKeysApi.createApiKey({ name: keyName });
+      const newKey = await apiKeysApi.createApiKey({ name: keyName }, tokens?.accessToken);
 
       // Call the callback with the full key before inserting (so user can copy it)
       if (onKeyGenerated) {
@@ -93,7 +95,7 @@ function SettingsComponent() {
       await collections.apiKeys.insert(keyForStorage);
 
       // Re-sync to ensure consistency
-      await dbHelpers.syncApiKeys();
+      await dbHelpers.syncApiKeys(tokens?.accessToken);
     } catch (error) {
       console.error("Error generating API key:", error);
       setApiKeysError("Failed to create API key");
@@ -104,10 +106,10 @@ function SettingsComponent() {
     try {
       setApiKeysError(null);
       // Call the API to revoke the key
-      await apiKeysApi.revokeApiKey(keyId);
+      await apiKeysApi.revokeApiKey(keyId, tokens?.accessToken);
 
       // Re-sync to get the latest state from the server
-      await dbHelpers.syncApiKeys();
+      await dbHelpers.syncApiKeys(tokens?.accessToken);
     } catch (error) {
       console.error("Error revoking API key:", error);
       setApiKeysError("Failed to revoke API key");
