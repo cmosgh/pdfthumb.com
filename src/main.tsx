@@ -5,7 +5,7 @@ import { RouterProvider } from "@tanstack/react-router";
 import { router } from "./router";
 import { dbHelpers } from "./db";
 import { queryClient } from "./queryClient";
-import { TanStackRouterDevtools } from "@tanstack/router-devtools";
+import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
 const rootElement = document.getElementById("root");
 if (!rootElement) {

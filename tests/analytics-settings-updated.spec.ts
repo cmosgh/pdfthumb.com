@@ -99,6 +99,7 @@ test.describe("Detailed Analytics & Settings", () => {
       page,
     }) => {
       await page.goto("/dashboard/settings");
+      await expect(page.locator("h1:text(Settings)")).toBeVisible();
 
       // Click edit button
       await page.click('[data-testid="edit-profile-button"]');
@@ -120,10 +121,9 @@ test.describe("Detailed Analytics & Settings", () => {
     });
 
     test("should generate and revoke an API key", async ({ page }) => {
-      await page.goto("/dashboard/settings");
-
-      // Mock initial API key listing
-      await page.route("**/api/api-key", async (route) => {
+      // Mock initial API key listing (set up before navigation)
+      await page.route("/api/api-key", async (route) => {
+        console.log("API key route intercepted");
         await route.fulfill({
           status: 200,
           contentType: "application/json",
@@ -141,9 +141,6 @@ test.describe("Detailed Analytics & Settings", () => {
         });
       });
 
-      // Reload the page to trigger initial data load
-      await page.reload();
-
       const apiKeysTable = page.locator('[data-testid="api-keys-table"]');
 
       // Wait for initial keys to load
@@ -151,7 +148,7 @@ test.describe("Detailed Analytics & Settings", () => {
       const initialKeyCount = await apiKeysTable.locator("tbody tr").count();
 
       // Mock API calls for key generation
-      await page.route("**/api/api-key/generate", async (route) => {
+      await page.route("/api/api-key/generate", async (route) => {
         await route.fulfill({
           status: 200,
           contentType: "application/json",
@@ -165,7 +162,7 @@ test.describe("Detailed Analytics & Settings", () => {
       });
 
       // Mock API call for key revocation
-      await page.route("**/api/api-key/test-key-123", async (route) => {
+      await page.route("/api/api-key/test-key-123", async (route) => {
         if (route.request().method() === "DELETE") {
           await route.fulfill({
             status: 200,
@@ -199,7 +196,7 @@ test.describe("Detailed Analytics & Settings", () => {
 
       // Mock the sync call that happens after dialog closes and key is added
       await page.route(
-        "**/api/api-key",
+        "/api/api-key",
         async (route) => {
           await route.fulfill({
             status: 200,
@@ -236,7 +233,8 @@ test.describe("Detailed Analytics & Settings", () => {
       await expect(page.locator('td:text("Test Key")')).toBeVisible();
 
       // Mock the sync call that happens after key revocation
-      await page.route("**/api/api-key", async (route) => {
+      await page.route("/api/api-key", async (route) => {
+        console.log("API key route intercepted");
         await route.fulfill({
           status: 200,
           contentType: "application/json",

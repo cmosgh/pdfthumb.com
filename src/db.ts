@@ -13,6 +13,67 @@ import type {
   UsageTrendData,
   UserProfile,
 } from "./types";
+// API Key Sync Manager to coordinate concurrent sync operations
+class ApiKeySyncManager {
+  private isSyncing: boolean = false;
+  private syncQueue: Array<{
+    resolve: (value: ApiKey[]) => void;
+    reject: (error: any) => void;
+    token?: string;
+  }> = [];
+
+  async syncWithLock(token?: string): Promise<ApiKey[]> {
+    return new Promise((resolve, reject) => {
+      if (!this.isSyncing) {
+        this.isSyncing = true;
+        this.performBulkSync(token)
+          .then(resolve)
+          .catch(reject)
+          .finally(() => {
+            this.isSyncing = false;
+            this.processQueue();
+          });
+      } else {
+        // Queue the request to avoid race conditions
+        this.syncQueue.push({ resolve, reject, token });
+      }
+    });
+  }
+
+  private async performBulkSync(token?: string): Promise<ApiKey[]> {
+    try {
+      const apiKeys = await apiKeysApi.getApiKeys(token);
+
+      // Use bulk operations: clear all existing keys and insert new ones
+      // This prevents race conditions from individual delete-then-insert operations
+      await collections.apiKeys.clear();
+      for (const key of apiKeys) {
+        await collections.apiKeys.insert(key);
+      }
+
+      return apiKeys;
+    } catch (error) {
+      console.error("Error performing bulk API key sync:", error);
+      throw error;
+    }
+  }
+
+  private async processQueue() {
+    if (this.syncQueue.length === 0) return;
+
+    const nextRequest = this.syncQueue.shift()!;
+    this.isSyncing = true;
+
+    this.performBulkSync(nextRequest.token)
+      .then(nextRequest.resolve)
+      .catch(nextRequest.reject)
+      .finally(() => {
+        this.isSyncing = false;
+        this.processQueue();
+      });
+  }
+}
+
 
 // Define collections for different data types
 export const dashboardSummaryCollection = createCollection(
@@ -84,6 +145,8 @@ export const collections = {
 };
 
 // Helper functions for common operations
+// API Key Sync Manager instance
+const apiKeySyncManager = new ApiKeySyncManager();
 export const dbHelpers = {
   // Initialize with mock data
   async initializeWithMockData() {
@@ -138,34 +201,9 @@ export const dbHelpers = {
     await collections.detailedAnalytics.insert(detailedAnalyticsWithId);
   },
 
-  // Sync API keys from the API
+  // Sync API keys from the API with coordination to prevent race conditions
   async syncApiKeys(token?: string) {
-    try {
-      const apiKeys = await apiKeysApi.getApiKeys(token);
-
-      // Note: In a production app, you'd want to properly clear existing keys
-      // For now, we'll assume the API is the source of truth and insert new keys
-      // Duplicate keys with same IDs will be handled by the DB
-
-      for (const key of apiKeys) {
-        try {
-          await collections.apiKeys.insert(key);
-        } catch (e) {
-          // If key already exists, try to update it (delete and re-insert)
-          try {
-            await collections.apiKeys.delete(key.id);
-            await collections.apiKeys.insert(key);
-          } catch (updateError) {
-            console.warn(`Failed to update API key ${key.id}:`, updateError);
-          }
-        }
-      }
-
-      return apiKeys;
-    } catch (error) {
-      console.error("Error syncing API keys:", error);
-      throw error;
-    }
+    return apiKeySyncManager.syncWithLock(token);
   },
 
   // Clear all data - placeholder for now
