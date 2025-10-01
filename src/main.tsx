@@ -19,14 +19,12 @@ dbHelpers
   .initializeWithMockData()
   .then(() => {
     root.render(
-      <React.StrictMode>
-        <QueryClientProvider client={queryClient}>
-          <RouterProvider router={router} />
-          {process.env.NODE_ENV === "development" && (
-            <TanStackRouterDevtools router={router} />
-          )}
-        </QueryClientProvider>
-      </React.StrictMode>,
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+        {process.env.NODE_ENV === "development" && (
+          <TanStackRouterDevtools router={router} />
+        )}
+      </QueryClientProvider>,
     );
   })
   .catch(console.error);

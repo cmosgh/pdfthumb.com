@@ -3,7 +3,10 @@ const API_BASE_URL = "/api";
 export default API_BASE_URL;
 
 // Helper function to get headers with auth token or API key
-const getHeaders = (token?: string, additionalHeaders?: Record<string, string>) => {
+const getHeaders = (
+  token?: string,
+  additionalHeaders?: Record<string, string>,
+) => {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     ...additionalHeaders,
@@ -14,7 +17,10 @@ const getHeaders = (token?: string, additionalHeaders?: Record<string, string>) 
     headers["Authorization"] = `Bearer ${token}`;
   }
   // Otherwise, in development mode, add the test API key
-  else if (import.meta.env.MODE === "development" && import.meta.env.TEST_API_KEY) {
+  else if (
+    import.meta.env.MODE === "development" &&
+    import.meta.env.TEST_API_KEY
+  ) {
     headers["x-api-key"] = import.meta.env.TEST_API_KEY;
   }
 
@@ -23,6 +29,28 @@ const getHeaders = (token?: string, additionalHeaders?: Record<string, string>) 
 
 // API functions for authentication
 export const authApi = {
+  // Refresh access token using refresh token
+  async refresh(refreshToken: string) {
+    try {
+      const response = await fetch("/api/auth/refresh", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ refreshToken }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Token refresh failed");
+      }
+
+      return response.json();
+    } catch (error) {
+      console.error("Token refresh API error:", error);
+      throw error;
+    }
+  },
+
   // Logout - this would typically call the backend to invalidate the session
   async logout(token?: string) {
     try {

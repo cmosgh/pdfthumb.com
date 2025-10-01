@@ -28,21 +28,26 @@ function DashboardComponent() {
     }
 
     // Only check authentication after loading is complete
+    // Add a small delay to ensure auth state has settled
     if (!isLoading) {
-      if (!isAuthenticated) {
-        navigate({
-          to: "/login",
-          search: {
-            redirect: "/dashboard",
-          },
-        });
-      }
+      const timer = setTimeout(() => {
+        if (!isAuthenticated) {
+          navigate({
+            to: "/login",
+            search: {
+              redirect: "/dashboard",
+            },
+          });
+        }
+      }, 100);
+
+      return () => clearTimeout(timer);
     }
   }, [isAuthenticated, isLoading, navigate]);
 
-  // Show loading state while auth is being determined (only in non-test environments)
+  // Show loading state only while auth is being determined (only in non-test environments)
   if (
-    (isLoading || !isAuthenticated) &&
+    isLoading &&
     process.env.NODE_ENV !== "test" &&
     !(typeof window !== "undefined" && window.Cypress)
   ) {
@@ -57,6 +62,9 @@ function DashboardComponent() {
       </div>
     );
   }
+
+  // If not loading and not authenticated, the useEffect will handle the redirect
+  // Don't show loading screen for unauthenticated users
 
   return (
     <DashboardLayout>

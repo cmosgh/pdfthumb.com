@@ -3,10 +3,12 @@ import { routeTree } from "./routeTree.gen";
 
 // Define router context
 interface RouterContext {
-  auth: {
-    isAuthenticated: boolean;
-    user: any;
-  };
+  auth:
+    | {
+        isAuthenticated: boolean;
+        user: any;
+      }
+    | undefined;
 }
 
 export const router = createRouter({

@@ -1,28 +1,11 @@
-import { Outlet, createRootRoute } from "@tanstack/react-router";
+import { createRootRoute, Outlet } from "@tanstack/react-router";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { useTheme } from "../hooks/useTheme";
-import { AuthProvider, useAuth } from "../hooks/AuthContext";
-import { useEffect } from "react";
-import { router } from "../router";
+import { AuthProvider } from "../hooks/AuthContext";
 
 function RootComponent() {
   const [theme, toggleTheme] = useTheme();
-  const { isAuthenticated, user, isLoading } = useAuth();
-
-  // Update router context when auth state changes
-  useEffect(() => {
-    if (!isLoading) {
-      router.update({
-        context: {
-          auth: {
-            isAuthenticated,
-            user,
-          },
-        },
-      });
-    }
-  }, [isAuthenticated, user, isLoading]);
 
   return (
     <div className="min-h-screen flex flex-col">
