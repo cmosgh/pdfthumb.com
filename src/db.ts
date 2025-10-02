@@ -1,8 +1,7 @@
 import { createCollection, localOnlyCollectionOptions } from "@tanstack/db";
 import { queryCollectionOptions } from "@tanstack/query-db-collection";
-import { apiKeysApi } from "./api";
 import { queryClient } from "./queryClient";
-import { mockApiKeys } from "./data/dashboardMocks";
+import { apiKeysApi } from "./api";
 import type {
   ApiKey,
   DashboardSummary,
@@ -13,76 +12,6 @@ import type {
   UsageTrendData,
   UserProfile,
 } from "./types";
-// API Key Sync Manager to coordinate concurrent sync operations
-class ApiKeySyncManager {
-  private isSyncing: boolean = false;
-  private syncQueue: Array<{
-    resolve: (value: ApiKey[]) => void;
-    reject: (error: any) => void;
-    token?: string;
-  }> = [];
-
-  async syncWithLock(token?: string): Promise<ApiKey[]> {
-    return new Promise((resolve, reject) => {
-      if (!this.isSyncing) {
-        this.isSyncing = true;
-        this.performBulkSync(token)
-          .then(resolve)
-          .catch(reject)
-          .finally(() => {
-            this.isSyncing = false;
-            this.processQueue();
-          });
-      } else {
-        // Queue the request to avoid race conditions
-        this.syncQueue.push({ resolve, reject, token });
-      }
-    });
-  }
-
-  private async performBulkSync(token?: string): Promise<ApiKey[]> {
-    try {
-      const apiKeys = await apiKeysApi.getApiKeys(token);
-
-      // Smart sync: update existing keys, add new ones, remove deleted ones
-      // This preserves locally created keys that haven't been synced to server yet
-      const apiKeyMap = new Map(apiKeys.map(key => [key.id, key]));
-      const existingKeys = Array.from(collections.apiKeys.keys());
-
-      // Delete keys that no longer exist in API
-      for (const localKeyId of existingKeys) {
-        if (!apiKeyMap.has(localKeyId)) {
-          await collections.apiKeys.delete(localKeyId);
-        }
-      }
-
-      // Insert or update keys from API
-      for (const apiKey of apiKeys) {
-        await collections.apiKeys.insert(apiKey);
-      }
-
-      return apiKeys;
-    } catch (error) {
-      console.error("Error performing bulk API key sync:", error);
-      throw error;
-    }
-  }
-
-  private async processQueue() {
-    if (this.syncQueue.length === 0) return;
-
-    const nextRequest = this.syncQueue.shift()!;
-    this.isSyncing = true;
-
-    this.performBulkSync(nextRequest.token)
-      .then(nextRequest.resolve)
-      .catch(nextRequest.reject)
-      .finally(() => {
-        this.isSyncing = false;
-        this.processQueue();
-      });
-  }
-}
 
 // Define collections for different data types
 export const dashboardSummaryCollection = createCollection(
@@ -127,11 +56,33 @@ export const userProfileCollection = createCollection(
   }),
 );
 
+// Store current token for API calls
+let currentToken: string | undefined;
+
+export const setAuthToken = (token: string | undefined) => {
+  currentToken = token;
+};
+
 export const apiKeysCollection = createCollection(
-  localOnlyCollectionOptions({
-    id: "apiKeys",
-    getKey: (item: ApiKey) => item.id,
-  }),
+  import.meta.env.MODE === "test"
+    ? // In test mode, use localOnlyCollectionOptions for easier testing
+      localOnlyCollectionOptions({
+        id: "apiKeys",
+        getKey: (item: ApiKey) => item.id,
+      })
+    : // In production, use queryCollectionOptions with TanStack Query
+      queryCollectionOptions({
+        id: "apiKeys",
+        queryKey: ["apiKeys"],
+        queryFn: async () => {
+          return apiKeysApi.getApiKeys(currentToken);
+        },
+        queryClient,
+        getKey: (item: ApiKey) => item.id,
+        retry: 2,
+        retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+        startSync: false,
+      }),
 );
 
 export const detailedAnalyticsCollection = createCollection(
@@ -154,8 +105,6 @@ export const collections = {
 };
 
 // Helper functions for common operations
-// API Key Sync Manager instance
-const apiKeySyncManager = new ApiKeySyncManager();
 export const dbHelpers = {
   // Initialize with mock data
   async initializeWithMockData() {
@@ -210,9 +159,33 @@ export const dbHelpers = {
     await collections.detailedAnalytics.insert(detailedAnalyticsWithId);
   },
 
-  // Sync API keys from the API with coordination to prevent race conditions
+  // Sync API keys from the API
   async syncApiKeys(token?: string) {
-    return apiKeySyncManager.syncWithLock(token);
+    if (import.meta.env.MODE === "test") {
+      // In test mode with localOnlyCollectionOptions, fetch and insert manually
+      try {
+        const apiKeys = await apiKeysApi.getApiKeys(token);
+        // Clear existing keys
+        const existingKeys = Array.from(apiKeysCollection.keys());
+        for (const keyId of existingKeys) {
+          await apiKeysCollection.delete(keyId);
+        }
+        // Insert new keys
+        for (const apiKey of apiKeys) {
+          await apiKeysCollection.insert(apiKey);
+        }
+      } catch (error) {
+        console.error("Error syncing API keys in test mode:", error);
+        throw error;
+      }
+    } else {
+      // In production mode with queryCollectionOptions, use TanStack Query
+      setAuthToken(token);
+      apiKeysCollection.startSyncImmediate();
+      await queryClient.refetchQueries({
+        queryKey: ["apiKeys"],
+      });
+    }
   },
 
   // Clear all data - placeholder for now
