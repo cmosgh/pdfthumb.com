@@ -19,7 +19,9 @@
       "Bash(git log:*)",
       "mcp___ontext7__resolve-library-id",
       "mcp___ontext7__get-library-docs",
-      "Bash(npm run test:*)"
+      "Bash(npm run test:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm test:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

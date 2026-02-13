@@ -80,21 +80,7 @@ function SettingsComponent() {
         onKeyGenerated(newKey.apiKey);
       }
 
-      // Create the key object with masked identifier for storage
-      const keyForStorage: ApiKey = {
-        id: newKey.id,
-        name: newKey.name,
-        identifier: maskApiKey(newKey.apiKey), // Masked version for display
-        createdAt: newKey.createdAt,
-        expiresAt: null,
-        lastUsedAt: undefined,
-        enabled: true,
-      };
-
-      // Insert into collection
-      await collections.apiKeys.insert(keyForStorage);
-
-      // Re-sync to ensure consistency
+      // Re-sync to get the updated keys from the server
       await dbHelpers.syncApiKeys(tokens?.accessToken);
     } catch (error) {
       console.error("Error generating API key:", error);

@@ -1,8 +1,7 @@
 import { createCollection, localOnlyCollectionOptions } from "@tanstack/db";
 import { queryCollectionOptions } from "@tanstack/query-db-collection";
-import { apiKeysApi } from "./api";
 import { queryClient } from "./queryClient";
-import { mockApiKeys } from "./data/dashboardMocks";
+import { apiKeysApi } from "./api";
 import type {
   ApiKey,
   DashboardSummary,
@@ -57,11 +56,33 @@ export const userProfileCollection = createCollection(
   }),
 );
 
+// Store current token for API calls
+let currentToken: string | undefined;
+
+export const setAuthToken = (token: string | undefined) => {
+  currentToken = token;
+};
+
 export const apiKeysCollection = createCollection(
-  localOnlyCollectionOptions({
-    id: "apiKeys",
-    getKey: (item: ApiKey) => item.id,
-  }),
+  import.meta.env.MODE === "test"
+    ? // In test mode, use localOnlyCollectionOptions for easier testing
+      localOnlyCollectionOptions({
+        id: "apiKeys",
+        getKey: (item: ApiKey) => item.id,
+      })
+    : // In production, use queryCollectionOptions with TanStack Query
+      queryCollectionOptions({
+        id: "apiKeys",
+        queryKey: ["apiKeys"],
+        queryFn: async () => {
+          return apiKeysApi.getApiKeys(currentToken);
+        },
+        queryClient,
+        getKey: (item: ApiKey) => item.id,
+        retry: 2,
+        retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+        startSync: false,
+      }),
 );
 
 export const detailedAnalyticsCollection = createCollection(
@@ -140,31 +161,30 @@ export const dbHelpers = {
 
   // Sync API keys from the API
   async syncApiKeys(token?: string) {
-    try {
-      const apiKeys = await apiKeysApi.getApiKeys(token);
-
-      // Note: In a production app, you'd want to properly clear existing keys
-      // For now, we'll assume the API is the source of truth and insert new keys
-      // Duplicate keys with same IDs will be handled by the DB
-
-      for (const key of apiKeys) {
-        try {
-          await collections.apiKeys.insert(key);
-        } catch (e) {
-          // If key already exists, try to update it (delete and re-insert)
-          try {
-            await collections.apiKeys.delete(key.id);
-            await collections.apiKeys.insert(key);
-          } catch (updateError) {
-            console.warn(`Failed to update API key ${key.id}:`, updateError);
-          }
+    if (import.meta.env.MODE === "test") {
+      // In test mode with localOnlyCollectionOptions, fetch and insert manually
+      try {
+        const apiKeys = await apiKeysApi.getApiKeys(token);
+        // Clear existing keys
+        const existingKeys = Array.from(apiKeysCollection.keys());
+        for (const keyId of existingKeys) {
+          await apiKeysCollection.delete(keyId);
         }
+        // Insert new keys
+        for (const apiKey of apiKeys) {
+          await apiKeysCollection.insert(apiKey);
+        }
+      } catch (error) {
+        console.error("Error syncing API keys in test mode:", error);
+        throw error;
       }
-
-      return apiKeys;
-    } catch (error) {
-      console.error("Error syncing API keys:", error);
-      throw error;
+    } else {
+      // In production mode with queryCollectionOptions, use TanStack Query
+      setAuthToken(token);
+      apiKeysCollection.startSyncImmediate();
+      await queryClient.refetchQueries({
+        queryKey: ["apiKeys"],
+      });
     }
   },
 

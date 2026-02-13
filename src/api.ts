@@ -16,9 +16,9 @@ const getHeaders = (
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
-  // Otherwise, in development mode, add the test API key
+  // Only use env API key in test mode for mocking purposes
   else if (
-    import.meta.env.MODE === "development" &&
+    import.meta.env.MODE === "test" &&
     import.meta.env.TEST_API_KEY
   ) {
     headers["x-api-key"] = import.meta.env.TEST_API_KEY;
@@ -32,7 +32,7 @@ export const authApi = {
   // Refresh access token using refresh token
   async refresh(refreshToken: string) {
     try {
-      const response = await fetch("/api/auth/refresh", {
+      const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -54,7 +54,7 @@ export const authApi = {
   // Logout - this would typically call the backend to invalidate the session
   async logout(token?: string) {
     try {
-      const response = await fetch("/api/auth/logout", {
+      const response = await fetch(`${API_BASE_URL}/auth/logout`, {
         method: "POST",
         headers: getHeaders(token),
       });

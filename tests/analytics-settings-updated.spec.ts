@@ -120,10 +120,8 @@ test.describe("Detailed Analytics & Settings", () => {
     });
 
     test("should generate and revoke an API key", async ({ page }) => {
-      await page.goto("/dashboard/settings");
-
       // Mock initial API key listing
-      await page.route("**/api/api-key", async (route) => {
+      await page.route("/api/api-key", async (route) => {
         await route.fulfill({
           status: 200,
           contentType: "application/json",
@@ -141,8 +139,9 @@ test.describe("Detailed Analytics & Settings", () => {
         });
       });
 
-      // Reload the page to trigger initial data load
-      await page.reload();
+      // Navigate to settings page
+      await page.click('aside a:has-text("Settings")');
+      await expect(page.locator('h1:text("Settings")')).toBeVisible();
 
       const apiKeysTable = page.locator('[data-testid="api-keys-table"]');
 
@@ -151,7 +150,7 @@ test.describe("Detailed Analytics & Settings", () => {
       const initialKeyCount = await apiKeysTable.locator("tbody tr").count();
 
       // Mock API calls for key generation
-      await page.route("**/api/api-key/generate", async (route) => {
+      await page.route("/api/api-key/generate", async (route) => {
         await route.fulfill({
           status: 200,
           contentType: "application/json",
@@ -165,7 +164,7 @@ test.describe("Detailed Analytics & Settings", () => {
       });
 
       // Mock API call for key revocation
-      await page.route("**/api/api-key/test-key-123", async (route) => {
+      await page.route("/api/api-key/test-key-123", async (route) => {
         if (route.request().method() === "DELETE") {
           await route.fulfill({
             status: 200,
@@ -194,49 +193,60 @@ test.describe("Detailed Analytics & Settings", () => {
       // Test copy functionality (basic test - just click the button)
       await page.click('button:text("Copy to Clipboard")');
 
-      // Close the dialog
+      // Remove the first mock and set up a new mock to return 2 keys
+      await page.unroute("/api/api-key");
+
+      let syncCallCount = 0;
+      await page.route("/api/api-key", async (route) => {
+        syncCallCount++;
+        console.log(`API key sync called (${syncCallCount})`);
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify([
+            {
+              id: "existing-key-1",
+              name: "Existing Key",
+              identifier: "ptk_********1234",
+              createdAt: new Date(Date.now() - 86400000).toISOString(),
+              expiresAt: null,
+              lastUsedAt: new Date(Date.now() - 3600000).toISOString(),
+              enabled: true,
+            },
+            {
+              id: "test-key-123",
+              name: "Test Key",
+              identifier: "ptk_********test",
+              createdAt: new Date().toISOString(),
+              expiresAt: null,
+              lastUsedAt: null,
+              enabled: true,
+            },
+          ]),
+        });
+      });
+
+      // Close the dialog - this will trigger the sync
       await page.click('button:text("Close")');
 
-      // Mock the sync call that happens after dialog closes and key is added
-      await page.route(
-        "**/api/api-key",
-        async (route) => {
-          await route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            body: JSON.stringify([
-              {
-                id: "existing-key-1",
-                name: "Existing Key",
-                identifier: "ptk_********1234",
-                createdAt: new Date(Date.now() - 86400000).toISOString(),
-                expiresAt: null,
-                lastUsedAt: new Date(Date.now() - 3600000).toISOString(),
-                enabled: true,
-              },
-              {
-                id: "test-key-123",
-                name: "Test Key",
-                identifier: "ptk_********test",
-                createdAt: new Date().toISOString(),
-                expiresAt: null,
-                lastUsedAt: null,
-                enabled: true,
-              },
-            ]),
-          });
-        },
-        { times: 1 },
-      );
+      // Check if there's an error message
+      const errorMessage = page.locator('.text-red-700, .text-red-300');
+      if (await errorMessage.isVisible({ timeout: 2000 }).catch(() => false)) {
+        const errorText = await errorMessage.textContent();
+        console.log('Error message displayed:', errorText);
+      }
+
+      // Wait for new key to appear in the table
+      await expect(page.locator('td:text("Test Key")')).toBeVisible({ timeout: 10000 });
 
       // Verify new key is added to the table
       await expect(apiKeysTable.locator("tbody tr")).toHaveCount(
         initialKeyCount + 1,
       );
-      await expect(page.locator('td:text("Test Key")')).toBeVisible();
+      console.log(`Sync was called ${syncCallCount} times`);
 
-      // Mock the sync call that happens after key revocation
-      await page.route("**/api/api-key", async (route) => {
+      // Update mock to return the test key as revoked
+      await page.route("/api/api-key", async (route) => {
         await route.fulfill({
           status: 200,
           contentType: "application/json",
