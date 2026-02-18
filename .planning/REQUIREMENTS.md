@@ -95,56 +95,54 @@
 
 ## Traceability
 
-_Populated during roadmap creation._
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | — | Pending |
-| AUTH-02 | — | Pending |
-| AUTH-03 | — | Pending |
-| AUTH-04 | — | Pending |
-| AUTH-05 | — | Pending |
-| AUTH-06 | — | Pending |
-| PAY-01 | — | Pending |
-| PAY-02 | — | Pending |
-| PAY-03 | — | Pending |
-| PAY-04 | — | Pending |
-| PAY-05 | — | Pending |
-| PAY-06 | — | Pending |
-| PAY-07 | — | Pending |
-| PAY-08 | — | Pending |
-| PAY-09 | — | Pending |
-| PAY-10 | — | Pending |
-| PAY-11 | — | Pending |
-| PAY-12 | — | Pending |
-| PAY-13 | — | Pending |
-| PAY-14 | — | Pending |
-| PAY-15 | — | Pending |
-| INVX-01 | — | Pending |
-| INVX-02 | — | Pending |
-| INVX-03 | — | Pending |
-| INVX-04 | — | Pending |
-| ANLX-01 | — | Pending |
-| ANLX-02 | — | Pending |
-| ANLX-03 | — | Pending |
-| ANLX-04 | — | Pending |
-| ANLX-05 | — | Pending |
-| ANLX-06 | — | Pending |
-| ADMN-01 | — | Pending |
-| ADMN-02 | — | Pending |
-| ADMN-03 | — | Pending |
-| ADMN-04 | — | Pending |
-| ADMN-05 | — | Pending |
-| ADMN-06 | — | Pending |
-| ADMN-07 | — | Pending |
-| ADMN-08 | — | Pending |
-| BRND-01 | — | Pending |
+| AUTH-01 | Phase 1 | Pending |
+| AUTH-02 | Phase 1 | Pending |
+| AUTH-03 | Phase 1 | Pending |
+| AUTH-04 | Phase 2 | Pending |
+| AUTH-05 | Phase 2 | Pending |
+| AUTH-06 | Phase 2 | Pending |
+| ANLX-01 | Phase 3 | Pending |
+| ANLX-02 | Phase 3 | Pending |
+| ANLX-03 | Phase 3 | Pending |
+| ANLX-04 | Phase 3 | Pending |
+| ANLX-05 | Phase 4 | Pending |
+| ANLX-06 | Phase 4 | Pending |
+| ADMN-01 | Phase 5 | Pending |
+| ADMN-02 | Phase 5 | Pending |
+| ADMN-03 | Phase 5 | Pending |
+| ADMN-04 | Phase 5 | Pending |
+| ADMN-05 | Phase 6 | Pending |
+| ADMN-06 | Phase 6 | Pending |
+| ADMN-07 | Phase 6 | Pending |
+| ADMN-08 | Phase 6 | Pending |
+| PAY-02 | Phase 7 | Pending |
+| PAY-03 | Phase 7 | Pending |
+| PAY-04 | Phase 7 | Pending |
+| PAY-05 | Phase 7 | Pending |
+| PAY-06 | Phase 7 | Pending |
+| PAY-07 | Phase 7 | Pending |
+| PAY-08 | Phase 7 | Pending |
+| PAY-09 | Phase 7 | Pending |
+| PAY-10 | Phase 7 | Pending |
+| PAY-11 | Phase 7 | Pending |
+| PAY-14 | Phase 7 | Pending |
+| PAY-01 | Phase 8 | Pending |
+| PAY-12 | Phase 8 | Pending |
+| PAY-13 | Phase 8 | Pending |
+| PAY-15 | Phase 8 | Pending |
+| INVX-01 | Phase 9 | Pending |
+| INVX-02 | Phase 9 | Pending |
+| INVX-03 | Phase 9 | Pending |
+| INVX-04 | Phase 9 | Pending |
+| BRND-01 | Phase 1 | Pending |
 
 **Coverage:**
 - v1 requirements: 39 total
-- Mapped to phases: 0 (pending roadmap)
-- Unmapped: 39 ⚠️
+- Mapped to phases: 39
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-18*
-*Last updated: 2026-02-18 after initial definition*
+*Last updated: 2026-02-18 after roadmap reorder (Stripe + invoicing moved to phases 7-9)*
