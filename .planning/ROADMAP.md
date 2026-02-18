@@ -12,7 +12,7 @@ PDFThumb.io's existing codebase has auth, dashboard layout, API key management, 
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Auth Backend + Branding** - Embed role in JWT, enforce RolesGuard on backend routes, and standardize branding
+- [x] **Phase 1: Auth Backend + Branding** - Embed role in JWT, enforce RolesGuard on backend routes, and standardize branding
 - [ ] **Phase 2: Auth Frontend + Token Refresh** - Propagate role into React context, add router guards, and wire auto-refresh
 - [ ] **Phase 3: Analytics Backend** - Create usage_events table, tracking interceptor, and analytics API endpoints
 - [ ] **Phase 4: Analytics Frontend** - Replace mock data on overview and analytics pages with live backend data
@@ -37,8 +37,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 Plans:
 - [x] 01-01-PLAN.md — JWT payload extension + RolesGuard/Roles() infrastructure (Wave 1)
-- [ ] 01-02-PLAN.md — GET /api/auth/me endpoint + AdminModule placeholder route + RolesGuard unit tests (Wave 2)
-- [ ] 01-03-PLAN.md — PDFThumb branding overhaul: APP_NAME constant, Navbar cleanup, TanStack Router head API (Wave 1)
+- [x] 01-02-PLAN.md — GET /api/auth/me endpoint + AdminModule placeholder route + RolesGuard unit tests (Wave 2)
+- [x] 01-03-PLAN.md — PDFThumb branding overhaul: APP_NAME constant, Navbar cleanup, TanStack Router head API (Wave 1)
 
 ### Phase 2: Auth Frontend + Token Refresh
 **Goal**: The React app knows the user's role, admin routes are protected client-side, and access tokens refresh automatically before expiration
@@ -176,7 +176,7 @@ Note: Phase 3 (Analytics BE) depends on Phase 1 completing first. Phase 5 (Admin
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Auth Backend + Branding | 1/3 | In progress | - |
+| 1. Auth Backend + Branding | 3/3 | Complete | 2026-02-18 |
 | 2. Auth Frontend + Token Refresh | 0/3 | Not started | - |
 | 3. Analytics Backend | 0/3 | Not started | - |
 | 4. Analytics Frontend | 0/2 | Not started | - |

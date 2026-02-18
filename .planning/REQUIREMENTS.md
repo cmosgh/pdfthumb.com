@@ -8,7 +8,7 @@
 ### Auth & RBAC
 
 - [x] **AUTH-01**: JWT access token includes user's `role` field (UserRole.USER / ADMIN)
-- [ ] **AUTH-02**: `GET /api/auth/me` returns authenticated user's profile including role
+- [x] **AUTH-02**: `GET /api/auth/me` returns authenticated user's profile including role
 - [x] **AUTH-03**: NestJS `RolesGuard` + `@Roles()` decorator enforce backend admin routes
 - [ ] **AUTH-04**: Frontend fetches role from `/api/auth/me` after login and stores in AuthContext
 - [ ] **AUTH-05**: Admin sidebar section and `/dashboard/admin` route only visible/accessible to admins (TanStack Router `beforeLoad` guard)
