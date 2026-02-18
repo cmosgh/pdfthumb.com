@@ -2,6 +2,7 @@ import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
 import { DashboardLayout } from "../components/dashboard/DashboardLayout";
 import { useAuth } from "../hooks/AuthContext";
 import { useEffect } from "react";
+import { APP_NAME } from "../constants";
 
 // Extend Window interface for Cypress
 declare global {
@@ -11,6 +12,9 @@ declare global {
 }
 
 export const Route = createFileRoute("/dashboard")({
+  head: () => ({
+    meta: [{ title: `Dashboard | ${APP_NAME}` }],
+  }),
   component: DashboardComponent,
 });
 

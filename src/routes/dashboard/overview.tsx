@@ -3,6 +3,7 @@ import { MetricCard } from "@components/dashboard/MetricCard.tsx";
 import { UsageChart } from "@components/dashboard/UsageChart.tsx";
 import { useLiveQuery } from "@tanstack/react-db";
 import { collections } from "@/db.ts";
+import { APP_NAME } from "../../constants";
 
 // Helper function to calculate trend based on growth percentage
 const calculateTrend = (
@@ -41,6 +42,9 @@ const calculateDerivedTrend = (
 };
 
 export const Route = createFileRoute("/dashboard/overview")({
+  head: () => ({
+    meta: [{ title: `Overview | ${APP_NAME}` }],
+  }),
   component: OverviewComponent,
 });
 

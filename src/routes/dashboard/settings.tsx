@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { APP_NAME } from "../../constants";
 import { ApiKeysManager } from "@components/dashboard/ApiKeysManager.tsx";
 import { ProfileSettingsForm } from "@components/dashboard/ProfileSettingsForm.tsx";
 import { useLiveQuery } from "@tanstack/react-db";
@@ -10,6 +11,9 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/AuthContext";
 
 export const Route = createFileRoute("/dashboard/settings")({
+  head: () => ({
+    meta: [{ title: `Settings | ${APP_NAME}` }],
+  }),
   component: SettingsComponent,
 });
 

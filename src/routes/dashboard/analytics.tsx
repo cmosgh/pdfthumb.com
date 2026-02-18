@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
+import { APP_NAME } from "../../constants";
 import { UsageChart } from "@components/dashboard/UsageChart.tsx";
 import { BarChartComponent } from "@components/dashboard/BarChart.tsx";
 import { PieChartComponent } from "@components/dashboard/PieChart.tsx";
@@ -14,6 +15,9 @@ import type {
 } from "@/types.ts";
 
 export const Route = createFileRoute("/dashboard/analytics")({
+  head: () => ({
+    meta: [{ title: `Analytics | ${APP_NAME}` }],
+  }),
   component: AnalyticsComponent,
 });
 

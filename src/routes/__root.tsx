@@ -1,8 +1,9 @@
-import { createRootRoute, Outlet } from "@tanstack/react-router";
+import { createRootRoute, Outlet, HeadContent } from "@tanstack/react-router";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { useTheme } from "../hooks/useTheme";
 import { AuthProvider } from "../hooks/AuthContext";
+import { APP_NAME } from "../constants";
 
 function RootComponent() {
   const [theme, toggleTheme] = useTheme();
@@ -19,11 +20,28 @@ function RootComponent() {
 }
 
 export const Route = createRootRoute({
-  component: () => {
-    return (
-      <AuthProvider>
-        <RootComponent />
-      </AuthProvider>
-    );
-  },
+  head: () => ({
+    meta: [
+      { title: APP_NAME },
+      {
+        name: "description",
+        content:
+          "Fast, reliable PDF thumbnail generation API for developers.",
+      },
+      { property: "og:title", content: APP_NAME },
+      {
+        property: "og:description",
+        content:
+          "Fast, reliable PDF thumbnail generation API for developers.",
+      },
+      { property: "og:site_name", content: APP_NAME },
+      { property: "og:type", content: "website" },
+    ],
+  }),
+  component: () => (
+    <AuthProvider>
+      <HeadContent />
+      <RootComponent />
+    </AuthProvider>
+  ),
 });
