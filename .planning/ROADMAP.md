@@ -36,7 +36,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — JWT payload extension + RolesGuard/Roles() infrastructure (Wave 1)
+- [x] 01-01-PLAN.md — JWT payload extension + RolesGuard/Roles() infrastructure (Wave 1)
 - [ ] 01-02-PLAN.md — GET /api/auth/me endpoint + AdminModule placeholder route + RolesGuard unit tests (Wave 2)
 - [ ] 01-03-PLAN.md — PDFThumb branding overhaul: APP_NAME constant, Navbar cleanup, TanStack Router head API (Wave 1)
 
@@ -176,7 +176,7 @@ Note: Phase 3 (Analytics BE) depends on Phase 1 completing first. Phase 5 (Admin
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Auth Backend + Branding | 0/3 | Planning complete | - |
+| 1. Auth Backend + Branding | 1/3 | In progress | - |
 | 2. Auth Frontend + Token Refresh | 0/3 | Not started | - |
 | 3. Analytics Backend | 0/3 | Not started | - |
 | 4. Analytics Frontend | 0/2 | Not started | - |

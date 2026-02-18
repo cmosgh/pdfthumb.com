@@ -7,9 +7,9 @@
 
 ### Auth & RBAC
 
-- [ ] **AUTH-01**: JWT access token includes user's `role` field (UserRole.USER / ADMIN)
+- [x] **AUTH-01**: JWT access token includes user's `role` field (UserRole.USER / ADMIN)
 - [ ] **AUTH-02**: `GET /api/auth/me` returns authenticated user's profile including role
-- [ ] **AUTH-03**: NestJS `RolesGuard` + `@Roles()` decorator enforce backend admin routes
+- [x] **AUTH-03**: NestJS `RolesGuard` + `@Roles()` decorator enforce backend admin routes
 - [ ] **AUTH-04**: Frontend fetches role from `/api/auth/me` after login and stores in AuthContext
 - [ ] **AUTH-05**: Admin sidebar section and `/dashboard/admin` route only visible/accessible to admins (TanStack Router `beforeLoad` guard)
 - [ ] **AUTH-06**: Access token auto-refreshes before expiration (not just on-demand)
@@ -61,7 +61,7 @@
 
 ### Branding
 
-- [ ] **BRND-01**: "PDFThumb.io" used consistently across all pages (header, footer, page titles, meta tags)
+- [x] **BRND-01**: "PDFThumb.io" used consistently across all pages (header, footer, page titles, meta tags)
 
 ## v2 Requirements
 
@@ -97,9 +97,9 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | Phase 1 | Pending |
+| AUTH-01 | Phase 1 | Complete (01-01) |
 | AUTH-02 | Phase 1 | Pending |
-| AUTH-03 | Phase 1 | Pending |
+| AUTH-03 | Phase 1 | Complete (01-01) |
 | AUTH-04 | Phase 2 | Pending |
 | AUTH-05 | Phase 2 | Pending |
 | AUTH-06 | Phase 2 | Pending |
@@ -136,7 +136,7 @@
 | INVX-02 | Phase 9 | Pending |
 | INVX-03 | Phase 9 | Pending |
 | INVX-04 | Phase 9 | Pending |
-| BRND-01 | Phase 1 | Pending |
+| BRND-01 | Phase 1 | Complete |
 
 **Coverage:**
 - v1 requirements: 39 total
@@ -145,4 +145,4 @@
 
 ---
 *Requirements defined: 2026-02-18*
-*Last updated: 2026-02-18 after roadmap reorder (Stripe + invoicing moved to phases 7-9)*
+*Last updated: 2026-02-18 after completing 01-01 (AUTH-01, AUTH-03 complete)*
