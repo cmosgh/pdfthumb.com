@@ -31,7 +31,7 @@ export const NAV_LINKS = [
 
 export const HOME_LINK = linkOptions({ to: "/", resetScroll: true, hash:'instant-thumbnails' });
 
-export const APP_NAME = "PDFThumb.com";
+export const APP_NAME = "PDFThumb";
 
 export const PRICING_TIERS: PricingTier[] = [
   {

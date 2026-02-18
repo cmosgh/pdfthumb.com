@@ -29,7 +29,7 @@ const FeaturesSection: React.FC = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-800 dark:text-white">
-            Why Choose Our PDF Thumbnail API?
+            Why Choose Our PDFThumb API?
           </h2>
           <p className="mt-4 text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
             We provide a comprehensive solution for all your PDF thumbnail

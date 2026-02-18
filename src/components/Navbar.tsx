@@ -46,7 +46,7 @@ const Navbar: React.FC<NavbarProps> = ({ theme, toggleTheme }) => {
                   className="block md:hidden"
                   data-testid="brand-name-mobile"
                 >
-                  {APP_NAME.replace(".com", "")}
+                  {APP_NAME}
                 </span>
                 <span
                   className="hidden md:block"

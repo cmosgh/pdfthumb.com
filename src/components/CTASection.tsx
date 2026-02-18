@@ -14,7 +14,7 @@ const CTASection: React.FC = () => {
           Ready to Supercharge Your PDF Workflows?
         </h2>
         <p className="mt-4 text-lg text-indigo-100 dark:text-indigo-200 max-w-2xl mx-auto">
-          Integrate our PDF Thumbnail API in minutes and elevate your
+          Integrate our PDFThumb API in minutes and elevate your
           application. Get your API key today and start building!
         </p>
         <div className="mt-10">
