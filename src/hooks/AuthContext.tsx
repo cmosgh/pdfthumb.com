@@ -13,6 +13,7 @@ interface AuthContextType extends AuthState {
   login: (tokens: AuthTokens, user: User) => void;
   logout: () => void;
   refreshToken: () => Promise<void>;
+  fetchMe: (accessToken: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -38,6 +39,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     tokens: null,
     isAuthenticated: false,
     isLoading: true,
+    isRoleLoading: false,
   });
 
   const login = useCallback((tokens: AuthTokens, user: User) => {
@@ -49,6 +51,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       tokens,
       isAuthenticated: true,
       isLoading: false,
+      isRoleLoading: true, // Role fetch is about to start via fetchMe
     });
   }, []);
 
@@ -82,6 +85,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       tokens: null,
       isAuthenticated: false,
       isLoading: false,
+      isRoleLoading: false,
     });
 
     // Redirect to root
@@ -121,6 +125,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         tokens: newTokens,
         isAuthenticated: true,
         isLoading: false,
+        isRoleLoading: false,
       });
     } catch (error) {
       console.error("Token refresh failed:", error);
@@ -134,11 +139,37 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         tokens: null,
         isAuthenticated: false,
         isLoading: false,
+        isRoleLoading: false,
       });
 
       throw error;
     }
   }, []);
+
+  const fetchMe = useCallback(async (accessToken: string): Promise<void> => {
+    setAuthState(prev => ({ ...prev, isRoleLoading: true }));
+    let lastError: Error | null = null;
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const profile = await authApi.me(accessToken);
+        setAuthState(prev => ({
+          ...prev,
+          isRoleLoading: false,
+          user: prev.user
+            ? { ...prev.user, roles: profile.roles }
+            : null,
+        }));
+        return;
+      } catch (err) {
+        lastError = err as Error;
+        if (attempt < 1) await new Promise(r => setTimeout(r, 1000));
+      }
+    }
+    // All retries failed — log out per user decision
+    console.error('fetchMe failed after retries:', lastError);
+    setAuthState(prev => ({ ...prev, isRoleLoading: false }));
+    await logout();
+  }, [logout]);
 
   // Load auth state from localStorage on mount
   useEffect(() => {
@@ -158,7 +189,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               tokens,
               isAuthenticated: true,
               isLoading: false,
+              isRoleLoading: false,
             });
+            // Fire fetchMe async to restore roles — do not await in effect
+            fetchMe(tokens.accessToken);
           } else {
             // Token expired or about to expire, clear it
             localStorage.removeItem(TOKEN_STORAGE_KEY);
@@ -168,6 +202,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               tokens: null,
               isAuthenticated: false,
               isLoading: false,
+              isRoleLoading: false,
             });
           }
         } else {
@@ -183,18 +218,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           tokens: null,
           isAuthenticated: false,
           isLoading: false,
+          isRoleLoading: false,
         });
       }
     };
 
     loadAuthState();
-  }, []); // Remove refreshToken dependency to prevent loops
+  }, [fetchMe]);
 
   const contextValue: AuthContextType = {
     ...authState,
     login,
     logout,
     refreshToken,
+    fetchMe,
   };
 
   return (

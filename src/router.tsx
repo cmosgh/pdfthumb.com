@@ -1,12 +1,15 @@
 import { createRouter } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
+import type { User } from "./types";
 
 // Define router context
 interface RouterContext {
   auth:
     | {
         isAuthenticated: boolean;
-        user: any;
+        isLoading: boolean;
+        isRoleLoading: boolean;
+        user: User | null;
       }
     | undefined;
 }
@@ -18,6 +21,8 @@ export const router = createRouter({
   context: {
     auth: {
       isAuthenticated: false,
+      isLoading: false,
+      isRoleLoading: false,
       user: null,
     },
   } as RouterContext,

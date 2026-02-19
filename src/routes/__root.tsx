@@ -2,7 +2,6 @@ import { createRootRoute, Outlet, HeadContent } from "@tanstack/react-router";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { useTheme } from "../hooks/useTheme";
-import { AuthProvider } from "../hooks/AuthContext";
 import { APP_NAME } from "../constants";
 
 function RootComponent() {
@@ -39,9 +38,9 @@ export const Route = createRootRoute({
     ],
   }),
   component: () => (
-    <AuthProvider>
+    <>
       <HeadContent />
       <RootComponent />
-    </AuthProvider>
+    </>
   ),
 });

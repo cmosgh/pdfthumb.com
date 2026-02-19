@@ -8,7 +8,7 @@ export const Route = createFileRoute("/auth/callback")({
 
 function CallbackComponent() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, fetchMe } = useAuth();
   const hasProcessed = useRef(false);
 
   useEffect(() => {
@@ -58,6 +58,7 @@ function CallbackComponent() {
               id: "oauth-user",
               email: "user@example.com",
               name: "OAuth User",
+              roles: [],
               createdAt: new Date().toISOString(),
               updatedAt: new Date().toISOString(),
             };
@@ -65,6 +66,9 @@ function CallbackComponent() {
 
           // Login the user
           login(tokens, user);
+
+          // Fire fetchMe async — don't await, dashboard navigates immediately
+          fetchMe(tokens.accessToken).catch(console.error);
 
           // Small delay to ensure state is updated before navigation
           setTimeout(() => {
@@ -82,7 +86,7 @@ function CallbackComponent() {
     };
 
     handleCallback();
-  }, [login, navigate]);
+  }, [login, fetchMe, navigate]);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
