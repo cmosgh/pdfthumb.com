@@ -64,12 +64,12 @@ Plans:
   1. Every thumbnail generation request writes a usage event row to `usage_events` without adding latency to the thumbnail response
   2. `GET /api/analytics/summary` returns the authenticated user's own aggregated stats (total calls, errors, duration)
   3. `GET /api/analytics/admin/summary` returns platform-wide aggregate stats and is only accessible to admins (returns 403 to regular users)
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 03-01: Create `UsageEvent` TypeORM entity and migration for `usage_events` table
-- [ ] 03-02: Implement `UsageTrackingInterceptor` applied to `ThumbnailController` with fire-and-forget write
-- [ ] 03-03: Implement `AnalyticsModule` with `AnalyticsService` aggregate queries and `GET /api/analytics/summary` + `GET /api/analytics/admin/summary` endpoints
+- [ ] 03-01-PLAN.md — Create `UsageEvent` TypeORM entity and `AddUsageEventsTable` migration (Wave 1)
+- [ ] 03-02-PLAN.md — Install BullMQ, wire AppModule, create `UsageTrackingInterceptor` + `AnalyticsProcessor`, apply to `ThumbnailController` (Wave 2)
+- [ ] 03-03-PLAN.md — Create `AnalyticsService` with raw SQL aggregation + `AnalyticsController` with `GET /api/analytics/summary` and `GET /api/analytics/admin/summary` endpoints (Wave 3)
 
 ### Phase 4: Analytics Frontend
 **Goal**: The overview and analytics dashboard pages display real usage data from the backend
@@ -178,7 +178,7 @@ Note: Phase 3 (Analytics BE) depends on Phase 1 completing first. Phase 5 (Admin
 |-------|----------------|--------|-----------|
 | 1. Auth Backend + Branding | 3/3 | Complete | 2026-02-18 |
 | 2. Auth Frontend + Token Refresh | 3/3 | Complete   | 2026-02-19 |
-| 3. Analytics Backend | 0/3 | Not started | - |
+| 3. Analytics Backend | 0/3 | Planned | - |
 | 4. Analytics Frontend | 0/2 | Not started | - |
 | 5. Admin Backend | 0/3 | Not started | - |
 | 6. Admin Frontend | 0/3 | Not started | - |
