@@ -1,9 +1,21 @@
-import { createRootRoute, Outlet, HeadContent } from "@tanstack/react-router";
+import { createRootRouteWithContext, Outlet, HeadContent } from "@tanstack/react-router";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { useTheme } from "../hooks/useTheme";
 import { APP_NAME } from "../constants";
 import { useAuth } from "../hooks/AuthContext";
+import type { User } from "../types";
+
+interface RouterContext {
+  auth:
+    | {
+        isAuthenticated: boolean;
+        isLoading: boolean;
+        isRoleLoading: boolean;
+        user: User | null;
+      }
+    | undefined;
+}
 
 function SessionExpiredModal() {
   return (
@@ -52,7 +64,7 @@ function RootComponent() {
   );
 }
 
-export const Route = createRootRoute({
+export const Route = createRootRouteWithContext<RouterContext>()({
   head: () => ({
     meta: [
       { title: APP_NAME },
