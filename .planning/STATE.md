@@ -5,33 +5,34 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** Users can get a working API key and start generating PDF thumbnails in under 5 minutes — the portal must make that path frictionless.
-**Current focus:** Phase 1 — Auth Backend + Branding
+**Current focus:** Phase 2 — Auth Frontend + Token Refresh
 
 ## Current Position
 
-Phase: 1 of 9 (Auth Backend + Branding)
-Plan: 3 of 3 in current phase (01-02 complete, 01-03 complete — Phase 1 all plans done)
+Phase: 2 of 9 (Auth Frontend + Token Refresh)
+Plan: 1 of 3 in current phase (02-01 complete)
 Status: In progress
-Last activity: 2026-02-18 — Completed plan 01-02: /auth/me endpoint, AdminModule, RolesGuard TDD tests
+Last activity: 2026-02-19 — Completed plan 02-01: Wire AuthContext to /api/auth/me, fetchMe with roles, AuthProvider moved to main.tsx
 
-Progress: [███░░░░░░░] 11%
+Progress: [███░░░░░░░] 14%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
+- Total plans completed: 4
 - Average duration: ~3 min
-- Total execution time: ~10 min
+- Total execution time: ~13 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-auth-backend-branding | 3 | ~10 min | ~3 min |
+| 02-auth-frontend-token-refresh | 1 | ~3 min | ~3 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (2 min), 01-03 (3 min), 01-02 (5 min)
-- Trend: —
+- Last 5 plans: 01-01 (2 min), 01-03 (3 min), 01-02 (5 min), 02-01 (3 min)
+- Trend: Stable
 
 *Updated after each plan completion*
 
@@ -51,6 +52,9 @@ Recent decisions affecting current work:
 - [01-03]: HeadContent rendered inside AuthProvider in root component — OG/meta injected client-side. Root route head() sets global OG defaults; child routes override with route-specific titles only.
 - [01-02]: displayName returns null from GET /auth/me — not in JWT payload. Phase 2 frontend falls back to email. TODO added for Phase 2.
 - [01-02]: AdminModule imports AuthModule directly (no forwardRef) — no circular dependency exists.
+- [02-01]: fetchMe uses 2-attempt retry with 1s backoff; on all-retries failure, logout() is called — no silent stuck state.
+- [02-01]: AuthProvider moved to main.tsx so useAuth() can be called in AuthedApp above the router; AuthedApp passes context={{ auth }} to RouterProvider.
+- [02-01]: login() sets isRoleLoading: true immediately; roles come only from fetchMe, never from JWT decode.
 
 ### Pending Todos
 
@@ -65,5 +69,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Session resumed, proceeding to Phase 2 — Auth Frontend + Token Refresh
+Stopped at: Completed 02-01-PLAN.md — AuthContext fetchMe + AuthProvider move to main.tsx
 Resume file: None

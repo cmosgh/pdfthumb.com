@@ -52,7 +52,7 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 02-01-PLAN.md — Extend types, add authApi.me(), implement fetchMe() in AuthContext, wire RouterProvider with live auth context (Wave 1)
+- [x] 02-01-PLAN.md — Extend types, add authApi.me(), implement fetchMe() in AuthContext, wire RouterProvider with live auth context (Wave 1)
 - [ ] 02-02-PLAN.md — Create pathless _admin route group with beforeLoad role guard; add conditional admin nav item with skeleton (Wave 2)
 - [ ] 02-03-PLAN.md — Proactive refresh timer (5min buffer), cross-tab storage sync, session-expired modal (Wave 2)
 
@@ -177,7 +177,7 @@ Note: Phase 3 (Analytics BE) depends on Phase 1 completing first. Phase 5 (Admin
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Auth Backend + Branding | 3/3 | Complete | 2026-02-18 |
-| 2. Auth Frontend + Token Refresh | 0/3 | Not started | - |
+| 2. Auth Frontend + Token Refresh | 1/3 | In progress | - |
 | 3. Analytics Backend | 0/3 | Not started | - |
 | 4. Analytics Frontend | 0/2 | Not started | - |
 | 5. Admin Backend | 0/3 | Not started | - |
