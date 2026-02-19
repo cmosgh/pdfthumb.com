@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Auth Backend + Branding** - Embed role in JWT, enforce RolesGuard on backend routes, and standardize branding
 - [x] **Phase 2: Auth Frontend + Token Refresh** - Propagate role into React context, add router guards, and wire auto-refresh (completed 2026-02-19)
-- [ ] **Phase 3: Analytics Backend** - Create usage_events table, tracking interceptor, and analytics API endpoints
+- [x] **Phase 3: Analytics Backend** - Create usage_events table, tracking interceptor, and analytics API endpoints
 - [ ] **Phase 4: Analytics Frontend** - Replace mock data on overview and analytics pages with live backend data
 - [ ] **Phase 5: Admin Backend** - Ship paginated user list, per-user API key access, and user suspend endpoints
 - [ ] **Phase 6: Admin Frontend** - Build admin dashboard UI, user detail drill-down, plan assignment, and key revocation
@@ -67,9 +67,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 03-01-PLAN.md — Create `UsageEvent` TypeORM entity and `AddUsageEventsTable` migration (Wave 1)
-- [ ] 03-02-PLAN.md — Install BullMQ, wire AppModule, create `UsageTrackingInterceptor` + `AnalyticsProcessor`, apply to `ThumbnailController` (Wave 2)
-- [ ] 03-03-PLAN.md — Create `AnalyticsService` with raw SQL aggregation + `AnalyticsController` with `GET /api/analytics/summary` and `GET /api/analytics/admin/summary` endpoints (Wave 3)
+- [x] 03-01-PLAN.md — Create `UsageEvent` TypeORM entity and `AddUsageEventsTable` migration (Wave 1)
+- [x] 03-02-PLAN.md — Install BullMQ, wire AppModule, create `UsageTrackingInterceptor` + `AnalyticsProcessor`, apply to `ThumbnailController` (Wave 2)
+- [x] 03-03-PLAN.md — Create `AnalyticsService` with raw SQL aggregation + `AnalyticsController` with `GET /api/analytics/summary` and `GET /api/analytics/admin/summary` endpoints (Wave 3)
 
 ### Phase 4: Analytics Frontend
 **Goal**: The overview and analytics dashboard pages display real usage data from the backend

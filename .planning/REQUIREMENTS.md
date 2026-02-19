@@ -43,8 +43,8 @@
 
 - [x] **ANLX-01**: `usage_events` table records each thumbnail generation (userId, eventType, isError, durationMs, createdAt)
 - [x] **ANLX-02**: `UsageTrackingInterceptor` on `ThumbnailController` writes events fire-and-forget (does not block thumbnail API response)
-- [ ] **ANLX-03**: `GET /api/analytics/summary` returns authenticated user's own aggregated stats
-- [ ] **ANLX-04**: `GET /api/analytics/admin/summary` returns platform-wide aggregate stats (admin-only)
+- [x] **ANLX-03**: `GET /api/analytics/summary` returns authenticated user's own aggregated stats
+- [x] **ANLX-04**: `GET /api/analytics/admin/summary` returns platform-wide aggregate stats (admin-only)
 - [ ] **ANLX-05**: Overview dashboard page displays real data from `/api/analytics/summary`
 - [ ] **ANLX-06**: Analytics detail page charts display real data with working date range filtering
 
@@ -105,8 +105,8 @@
 | AUTH-06 | Phase 2 | Complete |
 | ANLX-01 | Phase 3 | Complete |
 | ANLX-02 | Phase 3 | Complete |
-| ANLX-03 | Phase 3 | Pending |
-| ANLX-04 | Phase 3 | Pending |
+| ANLX-03 | Phase 3 | Complete |
+| ANLX-04 | Phase 3 | Complete |
 | ANLX-05 | Phase 4 | Pending |
 | ANLX-06 | Phase 4 | Pending |
 | ADMN-01 | Phase 5 | Pending |
