@@ -13,7 +13,7 @@ PDFThumb.io's existing codebase has auth, dashboard layout, API key management, 
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Auth Backend + Branding** - Embed role in JWT, enforce RolesGuard on backend routes, and standardize branding
-- [ ] **Phase 2: Auth Frontend + Token Refresh** - Propagate role into React context, add router guards, and wire auto-refresh
+- [x] **Phase 2: Auth Frontend + Token Refresh** - Propagate role into React context, add router guards, and wire auto-refresh (completed 2026-02-19)
 - [ ] **Phase 3: Analytics Backend** - Create usage_events table, tracking interceptor, and analytics API endpoints
 - [ ] **Phase 4: Analytics Frontend** - Replace mock data on overview and analytics pages with live backend data
 - [ ] **Phase 5: Admin Backend** - Ship paginated user list, per-user API key access, and user suspend endpoints
@@ -177,7 +177,7 @@ Note: Phase 3 (Analytics BE) depends on Phase 1 completing first. Phase 5 (Admin
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Auth Backend + Branding | 3/3 | Complete | 2026-02-18 |
-| 2. Auth Frontend + Token Refresh | 1/3 | In progress | - |
+| 2. Auth Frontend + Token Refresh | 3/3 | Complete   | 2026-02-19 |
 | 3. Analytics Backend | 0/3 | Not started | - |
 | 4. Analytics Frontend | 0/2 | Not started | - |
 | 5. Admin Backend | 0/3 | Not started | - |

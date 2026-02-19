@@ -55,6 +55,8 @@ Recent decisions affecting current work:
 - [02-01]: fetchMe uses 2-attempt retry with 1s backoff; on all-retries failure, logout() is called — no silent stuck state.
 - [02-01]: AuthProvider moved to main.tsx so useAuth() can be called in AuthedApp above the router; AuthedApp passes context={{ auth }} to RouterProvider.
 - [02-01]: login() sets isRoleLoading: true immediately; roles come only from fetchMe, never from JWT decode.
+- [02-02]: index.tsx inside pathless group maps to parent URL (/dashboard) not /dashboard/admin — use admin.tsx to produce /dashboard/admin URL.
+- [02-02]: Admin nav item renders null for non-admin users (completely absent) — not disabled or visually hidden.
 - [02-03]: scheduleRefreshRef (useRef) pattern breaks circular useCallback dep between doRefresh and scheduleRefresh.
 - [02-03]: Session expired shows modal instead of silent logout — refreshToken() kept as backward-compat alias for doRefresh().
 - [02-03]: __root.tsx migrated to createRootRouteWithContext<RouterContext>() — fixes TS errors in admin routes that need auth context.
@@ -72,5 +74,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Completed 02-03-PLAN.md — proactive token refresh timer, cross-tab storage sync, session-expired modal
+Stopped at: Completed 02-02-PLAN.md — pathless _admin route guard and DashboardSidebar conditional admin nav
 Resume file: None

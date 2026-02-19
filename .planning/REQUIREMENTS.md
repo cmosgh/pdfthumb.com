@@ -11,7 +11,7 @@
 - [x] **AUTH-02**: `GET /api/auth/me` returns authenticated user's profile including role
 - [x] **AUTH-03**: NestJS `RolesGuard` + `@Roles()` decorator enforce backend admin routes
 - [x] **AUTH-04**: Frontend fetches role from `/api/auth/me` after login and stores in AuthContext
-- [ ] **AUTH-05**: Admin sidebar section and `/dashboard/admin` route only visible/accessible to admins (TanStack Router `beforeLoad` guard)
+- [x] **AUTH-05**: Admin sidebar section and `/dashboard/admin` route only visible/accessible to admins (TanStack Router `beforeLoad` guard)
 - [x] **AUTH-06**: Access token auto-refreshes before expiration (not just on-demand)
 
 ### Payments
@@ -101,7 +101,7 @@
 | AUTH-02 | Phase 1 | Pending |
 | AUTH-03 | Phase 1 | Complete (01-01) |
 | AUTH-04 | Phase 2 | Complete |
-| AUTH-05 | Phase 2 | Pending |
+| AUTH-05 | Phase 2 | Complete |
 | AUTH-06 | Phase 2 | Complete |
 | ANLX-01 | Phase 3 | Pending |
 | ANLX-02 | Phase 3 | Pending |
