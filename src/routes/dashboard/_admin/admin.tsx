@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { APP_NAME } from '../../../constants';
 
-export const Route = createFileRoute('/dashboard/_admin/')({
+export const Route = createFileRoute('/dashboard/_admin/admin')({
   head: () => ({
     meta: [{ title: `Admin | ${APP_NAME}` }],
   }),

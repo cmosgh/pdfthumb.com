@@ -17,7 +17,7 @@ import { Route as DashboardOverviewRouteImport } from './routes/dashboard/overvi
 import { Route as DashboardAnalyticsRouteImport } from './routes/dashboard/analytics'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as DashboardAdminRouteRouteImport } from './routes/dashboard/_admin/route'
-import { Route as DashboardAdminIndexRouteImport } from './routes/dashboard/_admin/index'
+import { Route as DashboardAdminAdminRouteImport } from './routes/dashboard/_admin/admin'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -58,9 +58,9 @@ const DashboardAdminRouteRoute = DashboardAdminRouteRouteImport.update({
   id: '/_admin',
   getParentRoute: () => DashboardRoute,
 } as any)
-const DashboardAdminIndexRoute = DashboardAdminIndexRouteImport.update({
-  id: '/',
-  path: '/',
+const DashboardAdminAdminRoute = DashboardAdminAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => DashboardAdminRouteRoute,
 } as any)
 
@@ -72,16 +72,17 @@ export interface FileRoutesByFullPath {
   '/dashboard/analytics': typeof DashboardAnalyticsRoute
   '/dashboard/overview': typeof DashboardOverviewRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
-  '/dashboard/': typeof DashboardAdminIndexRoute
+  '/dashboard/admin': typeof DashboardAdminAdminRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardAdminIndexRoute
+  '/dashboard': typeof DashboardAdminRouteRouteWithChildren
   '/login': typeof LoginRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/dashboard/analytics': typeof DashboardAnalyticsRoute
   '/dashboard/overview': typeof DashboardOverviewRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
+  '/dashboard/admin': typeof DashboardAdminAdminRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -93,7 +94,7 @@ export interface FileRoutesById {
   '/dashboard/analytics': typeof DashboardAnalyticsRoute
   '/dashboard/overview': typeof DashboardOverviewRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
-  '/dashboard/_admin/': typeof DashboardAdminIndexRoute
+  '/dashboard/_admin/admin': typeof DashboardAdminAdminRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -105,7 +106,7 @@ export interface FileRouteTypes {
     | '/dashboard/analytics'
     | '/dashboard/overview'
     | '/dashboard/settings'
-    | '/dashboard/'
+    | '/dashboard/admin'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -115,6 +116,7 @@ export interface FileRouteTypes {
     | '/dashboard/analytics'
     | '/dashboard/overview'
     | '/dashboard/settings'
+    | '/dashboard/admin'
   id:
     | '__root__'
     | '/'
@@ -125,7 +127,7 @@ export interface FileRouteTypes {
     | '/dashboard/analytics'
     | '/dashboard/overview'
     | '/dashboard/settings'
-    | '/dashboard/_admin/'
+    | '/dashboard/_admin/admin'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -193,22 +195,22 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardAdminRouteRouteImport
       parentRoute: typeof DashboardRoute
     }
-    '/dashboard/_admin/': {
-      id: '/dashboard/_admin/'
-      path: '/'
-      fullPath: '/dashboard/'
-      preLoaderRoute: typeof DashboardAdminIndexRouteImport
+    '/dashboard/_admin/admin': {
+      id: '/dashboard/_admin/admin'
+      path: '/admin'
+      fullPath: '/dashboard/admin'
+      preLoaderRoute: typeof DashboardAdminAdminRouteImport
       parentRoute: typeof DashboardAdminRouteRoute
     }
   }
 }
 
 interface DashboardAdminRouteRouteChildren {
-  DashboardAdminIndexRoute: typeof DashboardAdminIndexRoute
+  DashboardAdminAdminRoute: typeof DashboardAdminAdminRoute
 }
 
 const DashboardAdminRouteRouteChildren: DashboardAdminRouteRouteChildren = {
-  DashboardAdminIndexRoute: DashboardAdminIndexRoute,
+  DashboardAdminAdminRoute: DashboardAdminAdminRoute,
 }
 
 const DashboardAdminRouteRouteWithChildren =
