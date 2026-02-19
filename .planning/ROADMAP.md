@@ -49,12 +49,12 @@ Plans:
   2. Navigating to `/dashboard/admin` as a regular user redirects away; navigating as an admin succeeds
   3. The admin section nav item is visible only when the logged-in user has the `ADMIN` role
   4. A user with a near-expiring access token has it silently refreshed without being logged out or seeing an error
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 02-01: Fetch `/api/auth/me` after login, store role in `User` type and `AuthContext`
-- [ ] 02-02: Add `_admin` pathless route group with `beforeLoad` guard; add conditional admin nav item
-- [ ] 02-03: Implement proactive token refresh before expiration (not just on-demand)
+- [ ] 02-01-PLAN.md — Extend types, add authApi.me(), implement fetchMe() in AuthContext, wire RouterProvider with live auth context (Wave 1)
+- [ ] 02-02-PLAN.md — Create pathless _admin route group with beforeLoad role guard; add conditional admin nav item with skeleton (Wave 2)
+- [ ] 02-03-PLAN.md — Proactive refresh timer (5min buffer), cross-tab storage sync, session-expired modal (Wave 2)
 
 ### Phase 3: Analytics Backend
 **Goal**: The backend records thumbnail generation events and exposes aggregated analytics data to authorized callers
