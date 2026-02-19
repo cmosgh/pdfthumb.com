@@ -4,6 +4,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from "react";
 import type { AuthState, AuthTokens, User } from "../types";
@@ -14,6 +15,8 @@ interface AuthContextType extends AuthState {
   logout: () => void;
   refreshToken: () => Promise<void>;
   fetchMe: (accessToken: string) => Promise<void>;
+  sessionExpired: boolean;
+  scheduleRefresh: (expiresAt: number) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -42,6 +45,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isRoleLoading: false,
   });
 
+  const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [sessionExpired, setSessionExpired] = useState(false);
+
   const login = useCallback((tokens: AuthTokens, user: User) => {
     localStorage.setItem(TOKEN_STORAGE_KEY, JSON.stringify(tokens));
     localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
@@ -56,6 +62,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const logout = useCallback(async () => {
+    // Clear refresh timer before anything else
+    if (refreshTimerRef.current) {
+      clearTimeout(refreshTimerRef.current);
+      refreshTimerRef.current = null;
+    }
+
     // Get current token from localStorage to avoid stale state
     const tokensJson = localStorage.getItem(TOKEN_STORAGE_KEY);
     let currentToken: string | undefined;
@@ -92,59 +104,71 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     window.location.href = "/";
   }, []);
 
-  const refreshToken = useCallback(async () => {
+  // doRefresh defined first so scheduleRefresh can reference it
+  const doRefresh = useCallback(async (): Promise<void> => {
     const tokensJson = localStorage.getItem(TOKEN_STORAGE_KEY);
-    const userJson = localStorage.getItem(USER_STORAGE_KEY);
-
-    if (!tokensJson || !userJson) {
-      throw new Error("No authentication data available");
-    }
+    if (!tokensJson) throw new Error('No tokens in storage');
 
     const tokens: AuthTokens = JSON.parse(tokensJson);
-    const user: User = JSON.parse(userJson);
+    if (!tokens.refreshToken) throw new Error('No refresh token');
 
-    if (!tokens.refreshToken) {
-      throw new Error("No refresh token available");
-    }
+    const response = await authApi.refresh(tokens.refreshToken);
 
-    try {
-      const response = await authApi.refresh(tokens.refreshToken);
+    const newTokens: AuthTokens = {
+      accessToken: response.accessToken,
+      refreshToken: response.refreshToken || tokens.refreshToken,
+      expiresAt: Date.now() + (response.expiresIn || 3600) * 1000,
+    };
 
-      const newTokens: AuthTokens = {
-        accessToken: response.accessToken,
-        refreshToken: response.refreshToken || tokens.refreshToken,
-        expiresAt: Date.now() + (response.expiresIn || 3600) * 1000, // Default to 1 hour if not provided
-      };
+    localStorage.setItem(TOKEN_STORAGE_KEY, JSON.stringify(newTokens));
 
-      // Update storage
-      localStorage.setItem(TOKEN_STORAGE_KEY, JSON.stringify(newTokens));
+    setAuthState(prev => ({
+      ...prev,
+      tokens: newTokens,
+      isAuthenticated: true,
+      isLoading: false,
+      isRoleLoading: false,
+    }));
 
-      // Update state
-      setAuthState({
-        user,
-        tokens: newTokens,
-        isAuthenticated: true,
-        isLoading: false,
-        isRoleLoading: false,
-      });
-    } catch (error) {
-      console.error("Token refresh failed:", error);
-
-      // Clear invalid auth data
-      localStorage.removeItem(TOKEN_STORAGE_KEY);
-      localStorage.removeItem(USER_STORAGE_KEY);
-
-      setAuthState({
-        user: null,
-        tokens: null,
-        isAuthenticated: false,
-        isLoading: false,
-        isRoleLoading: false,
-      });
-
-      throw error;
-    }
+    // Reschedule after successful refresh — scheduleRefresh is called via ref
+    // to avoid circular dependency with useCallback deps
+    scheduleRefreshRef.current(newTokens.expiresAt);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const scheduleRefreshRef = useRef<(expiresAt: number) => void>(() => {});
+
+  const scheduleRefresh = useCallback((expiresAt: number) => {
+    // Clear any existing timer
+    if (refreshTimerRef.current) {
+      clearTimeout(refreshTimerRef.current);
+      refreshTimerRef.current = null;
+    }
+
+    const BUFFER_MS = 5 * 60 * 1000; // 5 minutes before expiry
+    const delay = Math.max(expiresAt - Date.now() - BUFFER_MS, 0);
+
+    refreshTimerRef.current = setTimeout(async () => {
+      try {
+        await doRefresh();
+      } catch (err) {
+        console.error('Proactive token refresh failed:', err);
+        // Per user decision: show session expired UI, do NOT silently log out
+        setSessionExpired(true);
+      }
+    }, delay);
+  }, [doRefresh]);
+
+  // Keep scheduleRefreshRef in sync so doRefresh can call scheduleRefresh
+  // without a circular useCallback dependency
+  useEffect(() => {
+    scheduleRefreshRef.current = scheduleRefresh;
+  }, [scheduleRefresh]);
+
+  // Keep the existing refreshToken function as backward-compatible alias
+  const refreshToken = useCallback(async () => {
+    await doRefresh();
+  }, [doRefresh]);
 
   const fetchMe = useCallback(async (accessToken: string): Promise<void> => {
     setAuthState(prev => ({ ...prev, isRoleLoading: true }));
@@ -191,6 +215,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               isLoading: false,
               isRoleLoading: false,
             });
+            // Schedule proactive refresh before token expires
+            scheduleRefresh(tokens.expiresAt);
             // Fire fetchMe async to restore roles — do not await in effect
             fetchMe(tokens.accessToken);
           } else {
@@ -224,7 +250,50 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
 
     loadAuthState();
-  }, [fetchMe]);
+  }, [fetchMe, scheduleRefresh]);
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (refreshTimerRef.current) {
+        clearTimeout(refreshTimerRef.current);
+      }
+    };
+  }, []);
+
+  // Cross-tab sync via storage events
+  useEffect(() => {
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key !== TOKEN_STORAGE_KEY) return;
+
+      if (!event.newValue) {
+        // Another tab logged out — clear local state
+        if (refreshTimerRef.current) {
+          clearTimeout(refreshTimerRef.current);
+          refreshTimerRef.current = null;
+        }
+        setAuthState({
+          user: null,
+          tokens: null,
+          isAuthenticated: false,
+          isLoading: false,
+          isRoleLoading: false,
+        });
+        return;
+      }
+
+      try {
+        const newTokens: AuthTokens = JSON.parse(event.newValue);
+        setAuthState(prev => ({ ...prev, tokens: newTokens }));
+        scheduleRefresh(newTokens.expiresAt);
+      } catch {
+        // Corrupted storage entry — ignore
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [scheduleRefresh]);
 
   const contextValue: AuthContextType = {
     ...authState,
@@ -232,6 +301,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     logout,
     refreshToken,
     fetchMe,
+    sessionExpired,
+    scheduleRefresh,
   };
 
   return (
