@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** Users can get a working API key and start generating PDF thumbnails in under 5 minutes — the portal must make that path frictionless.
-**Current focus:** Phase 2 complete — ready for Phase 3 (Analytics Backend)
+**Current focus:** Phase 3 in progress (Analytics Backend)
 
 ## Current Position
 
-Phase: 2 of 9 (Auth Frontend + Token Refresh) — COMPLETE
-Plan: 3 of 3 in current phase (02-03 complete)
-Status: Phase 2 complete, ready to advance to Phase 3
-Last activity: 2026-02-19 — Completed plan 02-03: Proactive token refresh timer, cross-tab sync, session-expired modal
+Phase: 3 of 9 (Analytics Backend) — IN PROGRESS
+Plan: 1 of 3 in current phase (03-01 complete)
+Status: Plan 03-01 complete — UsageEvent entity and migration created
+Last activity: 2026-02-19 — Completed plan 03-01: UsageEvent TypeORM entity with ErrorCode enum, composite indexes, and Postgres migration
 
-Progress: [████░░░░░░] 22%
+Progress: [████░░░░░░] 25%
 
 ## Performance Metrics
 
@@ -29,6 +29,7 @@ Progress: [████░░░░░░] 22%
 |-------|-------|-------|----------|
 | 01-auth-backend-branding | 3 | ~10 min | ~3 min |
 | 02-auth-frontend-token-refresh | 3 | ~7 min | ~2 min |
+| 03-analytics-backend | 1 | ~3 min | ~3 min |
 
 **Recent Trend:**
 - Last 5 plans: 01-03 (3 min), 01-02 (5 min), 02-01 (3 min), 02-02 (skipped/merged), 02-03 (2 min)
@@ -60,6 +61,9 @@ Recent decisions affecting current work:
 - [02-03]: scheduleRefreshRef (useRef) pattern breaks circular useCallback dep between doRefresh and scheduleRefresh.
 - [02-03]: Session expired shows modal instead of silent logout — refreshToken() kept as backward-compat alias for doRefresh().
 - [02-03]: __root.tsx migrated to createRootRouteWithContext<RouterContext>() — fixes TS errors in admin routes that need auth context.
+- [03-01]: ErrorCode stored as VARCHAR string (not Postgres enum type) — easier to extend without migrations.
+- [03-01]: No FK constraints from userId/apiKeyId to users/api_keys — analytics data preserved even if user/key deleted.
+- [03-01]: UsageEvent entity auto-discovered by TypeORM glob (entities: [__dirname + '/**/*.entity{.ts,.js}']) — no manual registration needed.
 
 ### Pending Todos
 
@@ -74,5 +78,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Completed 02-02-PLAN.md — pathless _admin route guard and DashboardSidebar conditional admin nav
+Stopped at: Completed 03-01-PLAN.md — UsageEvent entity and AddUsageEventsTable migration
 Resume file: None

@@ -41,7 +41,7 @@
 
 ### Analytics Data
 
-- [ ] **ANLX-01**: `usage_events` table records each thumbnail generation (userId, eventType, isError, durationMs, createdAt)
+- [x] **ANLX-01**: `usage_events` table records each thumbnail generation (userId, eventType, isError, durationMs, createdAt)
 - [ ] **ANLX-02**: `UsageTrackingInterceptor` on `ThumbnailController` writes events fire-and-forget (does not block thumbnail API response)
 - [ ] **ANLX-03**: `GET /api/analytics/summary` returns authenticated user's own aggregated stats
 - [ ] **ANLX-04**: `GET /api/analytics/admin/summary` returns platform-wide aggregate stats (admin-only)
@@ -103,7 +103,7 @@
 | AUTH-04 | Phase 2 | Complete |
 | AUTH-05 | Phase 2 | Complete |
 | AUTH-06 | Phase 2 | Complete |
-| ANLX-01 | Phase 3 | Pending |
+| ANLX-01 | Phase 3 | Complete |
 | ANLX-02 | Phase 3 | Pending |
 | ANLX-03 | Phase 3 | Pending |
 | ANLX-04 | Phase 3 | Pending |
