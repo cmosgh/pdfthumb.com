@@ -16,6 +16,8 @@ import { Route as DashboardSettingsRouteImport } from './routes/dashboard/settin
 import { Route as DashboardOverviewRouteImport } from './routes/dashboard/overview'
 import { Route as DashboardAnalyticsRouteImport } from './routes/dashboard/analytics'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
+import { Route as DashboardAdminRouteRouteImport } from './routes/dashboard/_admin/route'
+import { Route as DashboardAdminIndexRouteImport } from './routes/dashboard/_admin/index'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -52,19 +54,29 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
   path: '/auth/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardAdminRouteRoute = DashboardAdminRouteRouteImport.update({
+  id: '/_admin',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardAdminIndexRoute = DashboardAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardAdminRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRouteWithChildren
+  '/dashboard': typeof DashboardAdminRouteRouteWithChildren
   '/login': typeof LoginRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/dashboard/analytics': typeof DashboardAnalyticsRoute
   '/dashboard/overview': typeof DashboardOverviewRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
+  '/dashboard/': typeof DashboardAdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRouteWithChildren
+  '/dashboard': typeof DashboardAdminIndexRoute
   '/login': typeof LoginRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/dashboard/analytics': typeof DashboardAnalyticsRoute
@@ -76,10 +88,12 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/login': typeof LoginRoute
+  '/dashboard/_admin': typeof DashboardAdminRouteRouteWithChildren
   '/auth/callback': typeof AuthCallbackRoute
   '/dashboard/analytics': typeof DashboardAnalyticsRoute
   '/dashboard/overview': typeof DashboardOverviewRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
+  '/dashboard/_admin/': typeof DashboardAdminIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -91,6 +105,7 @@ export interface FileRouteTypes {
     | '/dashboard/analytics'
     | '/dashboard/overview'
     | '/dashboard/settings'
+    | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -105,10 +120,12 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/login'
+    | '/dashboard/_admin'
     | '/auth/callback'
     | '/dashboard/analytics'
     | '/dashboard/overview'
     | '/dashboard/settings'
+    | '/dashboard/_admin/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -169,16 +186,43 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/_admin': {
+      id: '/dashboard/_admin'
+      path: ''
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardAdminRouteRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/_admin/': {
+      id: '/dashboard/_admin/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardAdminIndexRouteImport
+      parentRoute: typeof DashboardAdminRouteRoute
+    }
   }
 }
 
+interface DashboardAdminRouteRouteChildren {
+  DashboardAdminIndexRoute: typeof DashboardAdminIndexRoute
+}
+
+const DashboardAdminRouteRouteChildren: DashboardAdminRouteRouteChildren = {
+  DashboardAdminIndexRoute: DashboardAdminIndexRoute,
+}
+
+const DashboardAdminRouteRouteWithChildren =
+  DashboardAdminRouteRoute._addFileChildren(DashboardAdminRouteRouteChildren)
+
 interface DashboardRouteChildren {
+  DashboardAdminRouteRoute: typeof DashboardAdminRouteRouteWithChildren
   DashboardAnalyticsRoute: typeof DashboardAnalyticsRoute
   DashboardOverviewRoute: typeof DashboardOverviewRoute
   DashboardSettingsRoute: typeof DashboardSettingsRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardAdminRouteRoute: DashboardAdminRouteRouteWithChildren,
   DashboardAnalyticsRoute: DashboardAnalyticsRoute,
   DashboardOverviewRoute: DashboardOverviewRoute,
   DashboardSettingsRoute: DashboardSettingsRoute,
