@@ -5,33 +5,33 @@
 See: .planning/PROJECT.md (updated 2026-02-18)
 
 **Core value:** Users can get a working API key and start generating PDF thumbnails in under 5 minutes — the portal must make that path frictionless.
-**Current focus:** Phase 2 — Auth Frontend + Token Refresh
+**Current focus:** Phase 2 complete — ready for Phase 3 (Analytics Backend)
 
 ## Current Position
 
-Phase: 2 of 9 (Auth Frontend + Token Refresh)
-Plan: 1 of 3 in current phase (02-01 complete)
-Status: In progress
-Last activity: 2026-02-19 — Completed plan 02-01: Wire AuthContext to /api/auth/me, fetchMe with roles, AuthProvider moved to main.tsx
+Phase: 2 of 9 (Auth Frontend + Token Refresh) — COMPLETE
+Plan: 3 of 3 in current phase (02-03 complete)
+Status: Phase 2 complete, ready to advance to Phase 3
+Last activity: 2026-02-19 — Completed plan 02-03: Proactive token refresh timer, cross-tab sync, session-expired modal
 
-Progress: [███░░░░░░░] 14%
+Progress: [████░░░░░░] 22%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 4
-- Average duration: ~3 min
-- Total execution time: ~13 min
+- Total plans completed: 6
+- Average duration: ~2-3 min
+- Total execution time: ~17 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-auth-backend-branding | 3 | ~10 min | ~3 min |
-| 02-auth-frontend-token-refresh | 1 | ~3 min | ~3 min |
+| 02-auth-frontend-token-refresh | 3 | ~7 min | ~2 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (2 min), 01-03 (3 min), 01-02 (5 min), 02-01 (3 min)
+- Last 5 plans: 01-03 (3 min), 01-02 (5 min), 02-01 (3 min), 02-02 (skipped/merged), 02-03 (2 min)
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -55,6 +55,9 @@ Recent decisions affecting current work:
 - [02-01]: fetchMe uses 2-attempt retry with 1s backoff; on all-retries failure, logout() is called — no silent stuck state.
 - [02-01]: AuthProvider moved to main.tsx so useAuth() can be called in AuthedApp above the router; AuthedApp passes context={{ auth }} to RouterProvider.
 - [02-01]: login() sets isRoleLoading: true immediately; roles come only from fetchMe, never from JWT decode.
+- [02-03]: scheduleRefreshRef (useRef) pattern breaks circular useCallback dep between doRefresh and scheduleRefresh.
+- [02-03]: Session expired shows modal instead of silent logout — refreshToken() kept as backward-compat alias for doRefresh().
+- [02-03]: __root.tsx migrated to createRootRouteWithContext<RouterContext>() — fixes TS errors in admin routes that need auth context.
 
 ### Pending Todos
 
@@ -69,5 +72,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Completed 02-01-PLAN.md — AuthContext fetchMe + AuthProvider move to main.tsx
+Stopped at: Completed 02-03-PLAN.md — proactive token refresh timer, cross-tab storage sync, session-expired modal
 Resume file: None
