@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-18)
 ## Current Position
 
 Phase: 3 of 9 (Analytics Backend) — IN PROGRESS
-Plan: 1 of 3 in current phase (03-01 complete)
-Status: Plan 03-01 complete — UsageEvent entity and migration created
-Last activity: 2026-02-19 — Completed plan 03-01: UsageEvent TypeORM entity with ErrorCode enum, composite indexes, and Postgres migration
+Plan: 2 of 3 in current phase (03-02 complete)
+Status: Plan 03-02 complete — BullMQ analytics pipeline: interceptor, processor, AnalyticsModule
+Last activity: 2026-02-19 — Completed plan 03-02: BullMQ fire-and-forget pipeline with UsageTrackingInterceptor, AnalyticsProcessor, and DLQ
 
 Progress: [████░░░░░░] 25%
 
@@ -29,10 +29,10 @@ Progress: [████░░░░░░] 25%
 |-------|-------|-------|----------|
 | 01-auth-backend-branding | 3 | ~10 min | ~3 min |
 | 02-auth-frontend-token-refresh | 3 | ~7 min | ~2 min |
-| 03-analytics-backend | 1 | ~3 min | ~3 min |
+| 03-analytics-backend | 2 | ~7 min | ~3.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-03 (3 min), 01-02 (5 min), 02-01 (3 min), 02-02 (skipped/merged), 02-03 (2 min)
+- Last 5 plans: 03-02 (4 min), 03-01 (3 min), 01-03 (3 min), 02-01 (3 min), 02-03 (2 min)
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -64,6 +64,8 @@ Recent decisions affecting current work:
 - [03-01]: ErrorCode stored as VARCHAR string (not Postgres enum type) — easier to extend without migrations.
 - [03-01]: No FK constraints from userId/apiKeyId to users/api_keys — analytics data preserved even if user/key deleted.
 - [03-01]: UsageEvent entity auto-discovered by TypeORM glob (entities: [__dirname + '/**/*.entity{.ts,.js}']) — no manual registration needed.
+- [Phase 03-02]: UsageTrackingInterceptor uses tap() not map() — tap() is a passthrough side-effect; map() would corrupt thumbnail response body
+- [Phase 03-02]: api_key_id resolved inside BullMQ processor job, not HTTP request path — zero latency impact on thumbnail response
 
 ### Pending Todos
 
@@ -78,5 +80,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Completed 03-01-PLAN.md — UsageEvent entity and AddUsageEventsTable migration
+Stopped at: Completed 03-02-PLAN.md — BullMQ analytics pipeline: interceptor, processor, AnalyticsModule
 Resume file: None
