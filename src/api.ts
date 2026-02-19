@@ -51,6 +51,15 @@ export const authApi = {
     }
   },
 
+  // Fetch user profile including roles from the backend
+  async me(accessToken: string) {
+    const response = await fetch('/api/auth/me', {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    if (!response.ok) throw new Error('Failed to fetch user profile');
+    return response.json() as Promise<{ id: string; email: string; roles: string[]; displayName: string | null }>;
+  },
+
   // Logout - this would typically call the backend to invalidate the session
   async logout(token?: string) {
     try {

@@ -118,6 +118,7 @@ export interface User {
   email: string;
   name: string;
   picture?: string;
+  roles: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -133,4 +134,5 @@ export interface AuthState {
   tokens: AuthTokens | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  isRoleLoading: boolean;
 }
