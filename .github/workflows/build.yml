@@ -24,3 +24,32 @@ jobs:
         run: npm run build
       - name: Check the bundle is safe to publish
         run: scripts/check-public-bundle.sh dist
+
+  # The /docs examples (docs-snippets/) must build in every language (#126).
+  doc-snippets:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Install dependencies
+        run: npm ci
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+      # Python 3 and PHP come with the ubuntu-24.04 runner.
+      - name: Compile the documentation examples
+        run: scripts/check-doc-snippets.sh

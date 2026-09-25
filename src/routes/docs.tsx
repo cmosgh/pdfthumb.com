@@ -5,6 +5,7 @@ import {
   APP_NAME,
   SWAGGER_URL,
 } from "../constants";
+import ApiReference from "../components/docs/ApiReference";
 
 export const Route = createFileRoute("/docs")({
   head: () => ({
@@ -14,7 +15,8 @@ export const Route = createFileRoute("/docs")({
 });
 
 // The quickstart follows the backend's thumbnail controller and the live
-// OpenAPI spec (#126). Swagger has the full examples and "Try it out".
+// OpenAPI spec (#126). The reference below has an example per language,
+// and Swagger's "Try it out" runs them.
 const FIRST_REQUEST = `curl -X POST "${PUBLIC_API_URL}/thumbnail/page?page=1&width=400" \\
   -H "x-api-key: $PDFTHUMB_API_KEY" \\
   -F "file=@document.pdf" \\
@@ -22,6 +24,7 @@ const FIRST_REQUEST = `curl -X POST "${PUBLIC_API_URL}/thumbnail/page?page=1&wid
 
 const ENDPOINTS = [
   {
+    id: "page",
     path: "/api/thumbnail/page",
     text: (
       <>
@@ -30,10 +33,12 @@ const ENDPOINTS = [
     ),
   },
   {
+    id: "zip",
     path: "/api/thumbnail/zip",
     text: <>every page as JPEGs in a ZIP; each page counts as one Thumbnail.</>,
   },
   {
+    id: "count",
     path: "/api/thumbnail/count",
     text: (
       <>
@@ -48,7 +53,7 @@ const h2 = "text-2xl font-bold text-slate-800 dark:text-white mb-4";
 const p = "text-slate-600 dark:text-slate-300 mb-4";
 // Inline code only: the curl block keeps its own dark background.
 const code =
-  "[&_:is(p,li)_code]:font-mono [&_:is(p,li)_code]:text-sm [&_:is(p,li)_code]:bg-slate-100 dark:[&_:is(p,li)_code]:bg-slate-700 [&_:is(p,li)_code]:px-1 [&_:is(p,li)_code]:rounded";
+  "[&_:is(p,li,td)_code]:font-mono [&_:is(p,li,td)_code]:text-sm [&_:is(p,li,td)_code]:bg-slate-100 dark:[&_:is(p,li,td)_code]:bg-slate-700 [&_:is(p,li,td)_code]:px-1 [&_:is(p,li,td)_code]:rounded";
 const link = "text-indigo-600 dark:text-indigo-400 hover:underline";
 const pre =
   "bg-slate-900 dark:bg-slate-800 border border-transparent dark:border-slate-700 text-slate-100 text-sm rounded-lg p-4 overflow-x-auto mb-6";
@@ -105,7 +110,7 @@ function DocsPage() {
           Upload the PDF as multipart form data in the <code>file</code> field.
           This renders page 1 at 400 px wide:
         </p>
-        <pre className={pre}>
+        <pre className={pre} data-testid="docs-first-request">
           <code>{FIRST_REQUEST}</code>
         </pre>
         <p className={p}>
@@ -116,16 +121,24 @@ function DocsPage() {
         <ul className="list-disc pl-6 space-y-2 mb-4 text-slate-600 dark:text-slate-300">
           {ENDPOINTS.map((endpoint) => (
             <li key={endpoint.path}>
-              <code>POST {endpoint.path}</code>: {endpoint.text}
+              <a href={`#ref-${endpoint.id}`} className={link}>
+                <code>POST {endpoint.path}</code>
+              </a>
+              : {endpoint.text}
             </li>
           ))}
         </ul>
         <p className={p}>
           The{" "}
-          <a href={SWAGGER_URL} className={link}>
-            API reference
+          <a href="#reference" className={link}>
+            reference
           </a>{" "}
-          has a full example for each, and you can run them there with your key.
+          below documents each one, with examples in curl, TypeScript, Python,
+          C#, Java, Go and PHP. In the{" "}
+          <a href={SWAGGER_URL} className={link}>
+            Swagger API reference
+          </a>{" "}
+          you can run them with your key.
         </p>
       </section>
 
@@ -164,6 +177,11 @@ function DocsPage() {
             header saying how many seconds to wait.
           </li>
         </ul>
+      </section>
+
+      <section id="reference" className="scroll-mt-24">
+        <h2 className={h2}>API reference</h2>
+        <ApiReference />
       </section>
     </div>
   );
