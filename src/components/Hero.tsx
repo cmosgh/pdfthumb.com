@@ -1,5 +1,5 @@
 import React from "react";
-// Removed: import { Link } from '@tanstack/react-router';
+import { Link } from "@tanstack/react-router";
 import Button from "./Button.tsx";
 import { HOME_LINK } from "@/constants.ts";
 
@@ -37,12 +37,13 @@ const Hero: React.FC = () => {
           <Button href="#pricing" variant="primary" size="lg">
             View Pricing Plans
           </Button>
-          <a
-            href="#features" // Reverted: Points to features section as a placeholder for docs
+          <Link
+            to="/docs"
             className={docLinkClasses}
+            data-testid="hero-docs-link"
           >
             Read Documentation
-          </a>
+          </Link>
         </div>
         <div className="mt-16">
           <img

@@ -23,10 +23,10 @@ export const NAV_LINKS = [
     name: "Pricing",
     linkOptions: linkOptions({ to: "/", hash: "pricing" }),
   },
-  // {
-  //   name: "Docs",
-  //   linkOptions: linkOptions({ to: "/", hash: "features" }), // Placeholder
-  // },
+  {
+    name: "Docs",
+    linkOptions: linkOptions({ to: "/docs" }),
+  },
 ];
 
 export const HOME_LINK = linkOptions({
@@ -210,3 +210,17 @@ export const FEATURE_ITEMS: FeatureItem[] = [
       "Generate crisp, clear thumbnails perfect for previews, galleries, and document management systems.",
   },
 ];
+
+// Request limits the documentation page states (#126). They follow the
+// backend: the upload cap (thumbnail.controller.ts) and the width bounds
+// (render-size.ts). Change them here when the backend changes.
+export const API_LIMITS = {
+  maxUploadMB: 10,
+  minWidthPx: 16,
+  maxWidthPx: 1600,
+};
+
+export const SWAGGER_URL = "https://pdfthumb.com/api/swagger";
+// The public API origin, for examples readers copy. The app itself calls
+// the same-origin /api (src/api.ts).
+export const PUBLIC_API_URL = "https://pdfthumb.com/api";
