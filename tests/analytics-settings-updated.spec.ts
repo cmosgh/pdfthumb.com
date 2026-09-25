@@ -95,28 +95,39 @@ test.describe("Detailed Analytics & Settings", () => {
       ).toBeVisible();
     });
 
-    test("should allow editing and saving profile information", async ({
+    // The profile shows the signed-in user (#77): mockAuthentication signs
+    // in "Test User" <test@example.com>.
+    test("shows the signed-in user's name and email", async ({ page }) => {
+      await page.goto("/dashboard/settings");
+
+      const profile = page.getByTestId("profile-settings-section");
+      await expect(profile.getByTestId("profile-name")).toHaveText("Test User");
+      await expect(profile.getByTestId("profile-email")).toHaveText(
+        "test@example.com",
+      );
+    });
+
+    test("shows no placeholder profile and nothing the backend lacks", async ({
       page,
     }) => {
       await page.goto("/dashboard/settings");
 
-      // Click edit button
-      await page.click('[data-testid="edit-profile-button"]');
-
-      // Edit form fields
-      const nameInput = page.getByLabel("Full Name");
-      const companyInput = page.getByLabel("Company (Optional)");
-
-      await nameInput.fill("John Doe Updated");
-      await companyInput.fill("Updated Inc.");
-
-      // Save changes
-      await page.click('[data-testid="save-profile-button"]');
-
-      // Verify inputs are disabled and updated
-      await expect(nameInput).toBeDisabled();
-      await expect(nameInput).toHaveValue("John Doe Updated");
-      await expect(companyInput).toHaveValue("Updated Inc.");
+      const profile = page.getByTestId("profile-settings-section");
+      await expect(profile.getByTestId("profile-name")).toHaveText("Test User");
+      for (const placeholder of [
+        "John Doe",
+        "john.doe@example.com",
+        "Acme Corp",
+        "June 15, 2023",
+        "Account Created",
+        "Company",
+        "Last Updated",
+      ]) {
+        await expect(profile).not.toContainText(placeholder);
+      }
+      // No backend endpoint saves a profile, so nothing offers to.
+      await expect(page.getByTestId("edit-profile-button")).toHaveCount(0);
+      await expect(page.getByTestId("save-profile-button")).toHaveCount(0);
     });
 
     test("should generate and revoke an API key", async ({ page }) => {

@@ -4,7 +4,6 @@ import type {
   FileTypeData,
   ErrorLogData,
   GeographicData,
-  UserProfile,
   ApiKey,
   DetailedAnalytics,
 } from "../types";
@@ -62,16 +61,6 @@ export const mockGeographicData: GeographicData[] = [
   { country: "Japan", requests: 6000, percentage: 4.7 },
   { country: "Other", requests: 4000, percentage: 3.1 },
 ];
-
-// Mock user settings data
-export const mockUserProfile: UserProfile = {
-  id: "user123",
-  name: "John Doe",
-  email: "john.doe@example.com",
-  company: "Acme Corp",
-  createdAt: "2023-06-15T10:30:00Z",
-  updatedAt: new Date().toISOString(),
-};
 
 export const mockApiKeys: ApiKey[] = [
   {

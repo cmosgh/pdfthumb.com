@@ -11,7 +11,6 @@ import type {
   FileTypeData,
   GeographicData,
   UsageTrendData,
-  UserProfile,
 } from "./types";
 
 // Define collections for different data types
@@ -50,13 +49,6 @@ export const geographicDataCollection = createCollection(
   }),
 );
 
-export const userProfileCollection = createCollection(
-  localOnlyCollectionOptions({
-    id: "userProfile",
-    getKey: (item: UserProfile) => item.id,
-  }),
-);
-
 export const apiKeysCollection = createCollection(
   localOnlyCollectionOptions({
     id: "apiKeys",
@@ -78,7 +70,6 @@ export const collections = {
   fileTypeData: fileTypeDataCollection,
   errorLogs: errorLogsCollection,
   geographicData: geographicDataCollection,
-  userProfile: userProfileCollection,
   apiKeys: apiKeysCollection,
   detailedAnalytics: detailedAnalyticsCollection,
 };
@@ -93,7 +84,6 @@ export const dbHelpers = {
       mockFileTypeData,
       mockErrorLogs,
       mockGeographicData,
-      mockUserProfile,
       mockApiKeys,
       mockDetailedAnalytics,
     } = await import("./data/dashboardMocks");
@@ -128,7 +118,6 @@ export const dbHelpers = {
     for (const item of geographicDataWithIds) {
       await collections.geographicData.insert(item);
     }
-    await collections.userProfile.insert(mockUserProfile);
     for (const item of mockApiKeys) {
       // only adding in tests
       if (import.meta.env.MODE === "test") {
