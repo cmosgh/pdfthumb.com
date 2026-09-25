@@ -207,3 +207,19 @@ export const subscriptionApi = {
     return body.trim() ? (JSON.parse(body) as Subscription) : null;
   },
 };
+
+// Public health checks behind /status (#144). No key needed.
+export const healthApi = {
+  // Whether GET /api/health/{live|ready} answers 200 with status "ok". A
+  // network failure counts as not ok.
+  async check(name: "live" | "ready") {
+    try {
+      const response = await fetch(`${API_BASE_URL}/health/${name}`);
+      if (!response.ok) return false;
+      const body = (await response.json()) as { status?: string };
+      return body.status === "ok";
+    } catch {
+      return false;
+    }
+  },
+};
