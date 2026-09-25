@@ -4,7 +4,6 @@ import type {
   FileTypeData,
   ErrorLogData,
   GeographicData,
-  ApiKey,
   DetailedAnalytics,
 } from "../types";
 
@@ -60,36 +59,6 @@ export const mockGeographicData: GeographicData[] = [
   { country: "Australia", requests: 8000, percentage: 6.3 },
   { country: "Japan", requests: 6000, percentage: 4.7 },
   { country: "Other", requests: 4000, percentage: 3.1 },
-];
-
-export const mockApiKeys: ApiKey[] = [
-  {
-    id: "1",
-    name: "Production API Key",
-    identifier: "ptk_********abcd", // Masked identifier
-    createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-    expiresAt: null,
-    lastUsedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-    enabled: true,
-  },
-  {
-    id: "2",
-    name: "Development API Key",
-    identifier: "ptk_********ef12", // Masked identifier
-    createdAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
-    expiresAt: null,
-    lastUsedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-    enabled: true,
-  },
-  {
-    id: "3",
-    name: "Old API Key",
-    identifier: "ptk_********6789", // Masked identifier
-    createdAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
-    expiresAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(), // Expired
-    lastUsedAt: undefined,
-    enabled: false,
-  },
 ];
 
 export const mockDetailedAnalytics: DetailedAnalytics = {
