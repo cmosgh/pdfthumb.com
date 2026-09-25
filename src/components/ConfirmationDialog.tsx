@@ -63,19 +63,16 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
     >
       <div
         ref={dialogRef}
-        className="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-md w-full mx-4 p-6 border border-gray-200 dark:border-slate-700"
+        className="bg-surface rounded-lg shadow-xl max-w-md w-full mx-4 p-6 border border-line"
       >
         <div className="mb-4">
           <h3
             id="confirmation-title"
-            className="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-2"
+            className="text-lg font-semibold text-fg-strong mb-2"
           >
             {title}
           </h3>
-          <p
-            id="confirmation-message"
-            className="text-sm text-gray-600 dark:text-slate-300"
-          >
+          <p id="confirmation-message" className="text-sm text-fg-muted">
             {message}
           </p>
         </div>
@@ -84,7 +81,7 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
           <button
             onClick={onCancel}
             disabled={isLoading}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-slate-600 dark:text-slate-100 dark:hover:bg-slate-500"
+            className="px-4 py-2 text-sm font-medium text-fg-2 bg-neutral rounded-md hover:bg-neutral-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-focus disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {cancelText}
           </button>
@@ -92,12 +89,12 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
             ref={confirmButtonRef}
             onClick={onConfirm}
             disabled={isLoading}
-            className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 text-sm font-medium text-on-accent bg-danger rounded-md hover:bg-danger-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-danger disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? (
               <div className="flex items-center">
                 <svg
-                  className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                  className="animate-spin -ml-1 mr-2 h-4 w-4 text-on-accent"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"

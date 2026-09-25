@@ -1,0 +1,294 @@
+/* Design tokens (#137): the one place colours, fonts and radii are set.
+
+   Components use role classes (bg-surface, text-fg-muted, border-line, ...),
+   never the stock palette; scripts/check-design-tokens.mjs enforces that.
+   Every value is a --pt-* custom property, so a runtime theme (#138) can
+   override any of them without a rebuild. Light values sit on :root, dark
+   values on .dark; a role missing from .dark keeps its light value. The
+   comments name the Tailwind palette step each value came from. */
+
+@theme {
+  /* No stock palette: bg-slate-100 and the like compile to nothing. */
+  --color-*: initial;
+
+  --font-sans: var(--pt-font-sans);
+  --font-mono: var(--pt-font-mono);
+
+  --radius-sm: var(--pt-radius-sm);
+  --radius-md: var(--pt-radius-md);
+  --radius-lg: var(--pt-radius-lg);
+  --radius-xl: var(--pt-radius-xl);
+}
+
+:root {
+  --pt-font-sans: "Inter", sans-serif;
+  --pt-font-mono:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+
+  --pt-radius-sm: 0.25rem;
+  --pt-radius-md: 0.375rem;
+  --pt-radius-lg: 0.5rem;
+  --pt-radius-xl: 0.75rem;
+
+  /* Surfaces */
+  --pt-page: oklch(98.4% 0.003 247.858); /* slate-50 */
+  --pt-surface: #fff; /* white */
+  --pt-surface-raised: #fff; /* white */
+  --pt-band: oklch(96.8% 0.007 247.896); /* slate-100 */
+  --pt-muted: oklch(96.8% 0.007 247.896); /* slate-100 */
+  --pt-muted-hover: oklch(92.9% 0.013 255.508); /* slate-200 */
+  --pt-neutral: oklch(96.8% 0.007 247.896); /* slate-100 */
+  --pt-neutral-hover: oklch(92.9% 0.013 255.508); /* slate-200 */
+  --pt-chip: oklch(55.4% 0.046 257.417); /* slate-500 */
+  --pt-code: oklch(20.8% 0.042 265.755); /* slate-900 */
+  --pt-code-fg: oklch(96.8% 0.007 247.896); /* slate-100 */
+  --pt-code-line: transparent;
+  --pt-overlay: color-mix(in oklab, #000 50%, transparent); /* black/50 */
+  --pt-frame: #fff; /* white */
+
+  /* Text */
+  --pt-heading: oklch(27.9% 0.041 260.031); /* slate-800 */
+  --pt-fg-strong: oklch(20.8% 0.042 265.755); /* slate-900 */
+  --pt-fg: oklch(27.9% 0.041 260.031); /* slate-800 */
+  --pt-fg-2: oklch(37.2% 0.044 257.287); /* slate-700 */
+  --pt-fg-muted: oklch(44.6% 0.043 257.281); /* slate-600 */
+  --pt-fg-caption: oklch(44.6% 0.043 257.281); /* slate-600 */
+  --pt-fg-subtle: oklch(55.4% 0.046 257.417); /* slate-500 */
+  --pt-fg-label: oklch(55.4% 0.046 257.417); /* slate-500 */
+  --pt-fg-faint: oklch(70.4% 0.04 256.788); /* slate-400 */
+
+  /* Accent */
+  --pt-accent: oklch(51.1% 0.262 276.966); /* indigo-600 */
+  --pt-accent-hover: oklch(45.7% 0.24 277.023); /* indigo-700 */
+  --pt-on-accent: #fff; /* white */
+  --pt-on-accent-muted: oklch(93% 0.034 272.788); /* indigo-100 */
+  --pt-link: oklch(51.1% 0.262 276.966); /* indigo-600 */
+  --pt-link-hover: oklch(45.7% 0.24 277.023); /* indigo-700 */
+  --pt-accent-soft: oklch(93% 0.034 272.788); /* indigo-100 */
+  --pt-accent-soft-hover: oklch(87% 0.065 274.039); /* indigo-200 */
+  --pt-accent-soft-fg: oklch(45.7% 0.24 277.023); /* indigo-700 */
+  --pt-accent-tint: oklch(93% 0.034 272.788); /* indigo-100 */
+  --pt-selected: oklch(93% 0.034 272.788); /* indigo-100 */
+  --pt-focus: oklch(58.5% 0.233 277.117); /* indigo-500 */
+
+  /* Lines */
+  --pt-line: oklch(92.9% 0.013 255.508); /* slate-200 */
+  --pt-line-strong: oklch(92.9% 0.013 255.508); /* slate-200 */
+  --pt-line-input: oklch(86.9% 0.022 252.894); /* slate-300 */
+
+  /* States */
+  --pt-danger: oklch(57.7% 0.245 27.325); /* red-600 */
+  --pt-danger-hover: oklch(50.5% 0.213 27.518); /* red-700 */
+  --pt-danger-fg: oklch(50.5% 0.213 27.518); /* red-700 */
+  --pt-danger-soft: oklch(97.1% 0.013 17.38); /* red-50 */
+  --pt-danger-line: oklch(88.5% 0.062 18.334); /* red-200 */
+  --pt-danger-muted: oklch(93.6% 0.032 17.717); /* red-100 */
+  --pt-danger-muted-hover: oklch(88.5% 0.062 18.334); /* red-200 */
+  --pt-danger-muted-fg: oklch(44.4% 0.177 26.899); /* red-800 */
+  --pt-success: oklch(62.7% 0.194 149.214); /* green-600 */
+  --pt-success-hover: oklch(52.7% 0.154 150.069); /* green-700 */
+  --pt-success-fg: oklch(52.7% 0.154 150.069); /* green-700 */
+  --pt-success-muted: oklch(96.2% 0.044 156.743); /* green-100 */
+  --pt-success-muted-fg: oklch(44.8% 0.119 151.328); /* green-800 */
+  --pt-warning: oklch(76.9% 0.188 70.08); /* amber-500 */
+  --pt-warning-fg: oklch(47.3% 0.137 46.201); /* amber-800 */
+  --pt-warning-soft: oklch(98.7% 0.022 95.277); /* amber-50 */
+  --pt-warning-line: oklch(92.4% 0.12 95.746); /* amber-200 */
+
+  /* Gradients */
+  --pt-hero-start: oklch(98.4% 0.003 247.858); /* slate-50 */
+  --pt-hero-end: oklch(95.1% 0.026 236.824); /* sky-100 */
+  --pt-cta-start: oklch(51.1% 0.262 276.966); /* indigo-600 */
+  --pt-cta-end: oklch(55.8% 0.288 302.321); /* purple-600 */
+
+  /* Charts */
+  --pt-chart-1: oklch(58.5% 0.233 277.117); /* indigo-500 */
+  --pt-chart-2: oklch(64.5% 0.246 16.439); /* rose-500 */
+  --pt-chart-grid: oklch(70.4% 0.04 256.788); /* slate-400 */
+  --pt-chart-axis: oklch(55.4% 0.046 257.417); /* slate-500 */
+
+  /* Shadows: --pt-elevation and --pt-elevation-deep are unset here, so
+     shadow-elevation falls back to Tailwind's default black shadow in
+     light; dark mode tints it. */
+
+  /* Scrollbars (WebKit) */
+  --pt-scrollbar-track: #f1f1f1;
+  --pt-scrollbar-thumb: #888;
+  --pt-scrollbar-thumb-hover: #555;
+}
+
+.dark {
+  /* Surfaces */
+  --pt-page: oklch(20.8% 0.042 265.755); /* slate-900 */
+  --pt-surface: oklch(27.9% 0.041 260.031); /* slate-800 */
+  --pt-surface-raised: oklch(37.2% 0.044 257.287); /* slate-700 */
+  --pt-band: oklch(27.9% 0.041 260.031); /* slate-800 */
+  --pt-muted: oklch(37.2% 0.044 257.287); /* slate-700 */
+  --pt-muted-hover: oklch(44.6% 0.043 257.281); /* slate-600 */
+  --pt-neutral: oklch(44.6% 0.043 257.281); /* slate-600 */
+  --pt-neutral-hover: oklch(55.4% 0.046 257.417); /* slate-500 */
+  --pt-chip: oklch(44.6% 0.043 257.281); /* slate-600 */
+  --pt-code: oklch(27.9% 0.041 260.031); /* slate-800 */
+  --pt-code-line: oklch(37.2% 0.044 257.287); /* slate-700 */
+  --pt-frame: oklch(44.6% 0.043 257.281); /* slate-600 */
+
+  /* Text */
+  --pt-heading: #fff; /* white */
+  --pt-fg-strong: oklch(96.8% 0.007 247.896); /* slate-100 */
+  --pt-fg: oklch(96.8% 0.007 247.896); /* slate-100 */
+  --pt-fg-2: oklch(92.9% 0.013 255.508); /* slate-200 */
+  --pt-fg-muted: oklch(86.9% 0.022 252.894); /* slate-300 */
+  --pt-fg-caption: oklch(70.4% 0.04 256.788); /* slate-400 */
+  --pt-fg-subtle: oklch(70.4% 0.04 256.788); /* slate-400 */
+  --pt-fg-label: oklch(86.9% 0.022 252.894); /* slate-300 */
+  --pt-fg-faint: oklch(55.4% 0.046 257.417); /* slate-500 */
+
+  /* Accent */
+  --pt-accent: oklch(58.5% 0.233 277.117); /* indigo-500 */
+  --pt-accent-hover: oklch(51.1% 0.262 276.966); /* indigo-600 */
+  --pt-on-accent-muted: oklch(87% 0.065 274.039); /* indigo-200 */
+  --pt-link: oklch(67.3% 0.182 276.935); /* indigo-400 */
+  --pt-link-hover: oklch(58.5% 0.233 277.117); /* indigo-500 */
+  --pt-accent-soft: oklch(37.2% 0.044 257.287); /* slate-700 */
+  --pt-accent-soft-hover: oklch(44.6% 0.043 257.281); /* slate-600 */
+  --pt-accent-soft-fg: oklch(78.5% 0.115 274.713); /* indigo-300 */
+  --pt-accent-tint: color-mix(
+    in oklab,
+    oklch(58.5% 0.233 277.117) 20%,
+    transparent
+  ); /* indigo-500/20 */
+  --pt-selected: color-mix(
+    in oklab,
+    oklch(35.9% 0.144 278.697) 30%,
+    transparent
+  ); /* indigo-900/30 */
+  --pt-focus: oklch(67.3% 0.182 276.935); /* indigo-400 */
+
+  /* Lines */
+  --pt-line: oklch(37.2% 0.044 257.287); /* slate-700 */
+  --pt-line-strong: oklch(44.6% 0.043 257.281); /* slate-600 */
+  --pt-line-input: oklch(44.6% 0.043 257.281); /* slate-600 */
+
+  /* States */
+  --pt-danger-fg: oklch(80.8% 0.114 19.571); /* red-300 */
+  --pt-danger-soft: color-mix(
+    in oklab,
+    oklch(39.6% 0.141 25.723) 20%,
+    transparent
+  ); /* red-900/20 */
+  --pt-danger-line: oklch(44.4% 0.177 26.899); /* red-800 */
+  --pt-danger-muted: oklch(39.6% 0.141 25.723); /* red-900 */
+  --pt-danger-muted-hover: oklch(44.4% 0.177 26.899); /* red-800 */
+  --pt-danger-muted-fg: oklch(88.5% 0.062 18.334); /* red-200 */
+  --pt-success-fg: oklch(79.2% 0.209 151.711); /* green-400 */
+  --pt-success-muted: oklch(39.3% 0.095 152.535); /* green-900 */
+  --pt-success-muted-fg: oklch(92.5% 0.084 155.995); /* green-200 */
+  --pt-warning-fg: oklch(92.4% 0.12 95.746); /* amber-200 */
+  --pt-warning-soft: color-mix(
+    in oklab,
+    oklch(41.4% 0.112 45.904) 20%,
+    transparent
+  ); /* amber-900/20 */
+  --pt-warning-line: oklch(47.3% 0.137 46.201); /* amber-800 */
+
+  /* Gradients */
+  --pt-hero-start: oklch(27.9% 0.041 260.031); /* slate-800 */
+  --pt-hero-end: oklch(39.1% 0.09 240.876); /* sky-900 */
+  --pt-cta-start: oklch(45.7% 0.24 277.023); /* indigo-700 */
+  --pt-cta-end: oklch(49.6% 0.265 301.924); /* purple-700 */
+
+  /* Charts */
+
+  /* Shadows */
+  --pt-elevation: oklch(37.2% 0.044 257.287); /* slate-700 */
+  --pt-elevation-deep: oklch(20.8% 0.042 265.755); /* slate-900 */
+
+  /* Scrollbars (WebKit) */
+  --pt-scrollbar-track: #2d3748;
+  --pt-scrollbar-thumb: #4a5568;
+  --pt-scrollbar-thumb-hover: #718096;
+}
+
+@theme inline {
+  /* Surfaces */
+  --color-page: var(--pt-page);
+  --color-surface: var(--pt-surface);
+  --color-surface-raised: var(--pt-surface-raised);
+  --color-band: var(--pt-band);
+  --color-muted: var(--pt-muted);
+  --color-muted-hover: var(--pt-muted-hover);
+  --color-neutral: var(--pt-neutral);
+  --color-neutral-hover: var(--pt-neutral-hover);
+  --color-chip: var(--pt-chip);
+  --color-code: var(--pt-code);
+  --color-code-fg: var(--pt-code-fg);
+  --color-code-line: var(--pt-code-line);
+  --color-overlay: var(--pt-overlay);
+  --color-frame: var(--pt-frame);
+
+  /* Text */
+  --color-heading: var(--pt-heading);
+  --color-fg-strong: var(--pt-fg-strong);
+  --color-fg: var(--pt-fg);
+  --color-fg-2: var(--pt-fg-2);
+  --color-fg-muted: var(--pt-fg-muted);
+  --color-fg-caption: var(--pt-fg-caption);
+  --color-fg-subtle: var(--pt-fg-subtle);
+  --color-fg-label: var(--pt-fg-label);
+  --color-fg-faint: var(--pt-fg-faint);
+
+  /* Accent */
+  --color-accent: var(--pt-accent);
+  --color-accent-hover: var(--pt-accent-hover);
+  --color-on-accent: var(--pt-on-accent);
+  --color-on-accent-muted: var(--pt-on-accent-muted);
+  --color-link: var(--pt-link);
+  --color-link-hover: var(--pt-link-hover);
+  --color-accent-soft: var(--pt-accent-soft);
+  --color-accent-soft-hover: var(--pt-accent-soft-hover);
+  --color-accent-soft-fg: var(--pt-accent-soft-fg);
+  --color-accent-tint: var(--pt-accent-tint);
+  --color-selected: var(--pt-selected);
+  --color-focus: var(--pt-focus);
+
+  /* Lines */
+  --color-line: var(--pt-line);
+  --color-line-strong: var(--pt-line-strong);
+  --color-line-input: var(--pt-line-input);
+
+  /* States */
+  --color-danger: var(--pt-danger);
+  --color-danger-hover: var(--pt-danger-hover);
+  --color-danger-fg: var(--pt-danger-fg);
+  --color-danger-soft: var(--pt-danger-soft);
+  --color-danger-line: var(--pt-danger-line);
+  --color-danger-muted: var(--pt-danger-muted);
+  --color-danger-muted-hover: var(--pt-danger-muted-hover);
+  --color-danger-muted-fg: var(--pt-danger-muted-fg);
+  --color-success: var(--pt-success);
+  --color-success-hover: var(--pt-success-hover);
+  --color-success-fg: var(--pt-success-fg);
+  --color-success-muted: var(--pt-success-muted);
+  --color-success-muted-fg: var(--pt-success-muted-fg);
+  --color-warning: var(--pt-warning);
+  --color-warning-fg: var(--pt-warning-fg);
+  --color-warning-soft: var(--pt-warning-soft);
+  --color-warning-line: var(--pt-warning-line);
+
+  /* Gradients */
+  --color-hero-start: var(--pt-hero-start);
+  --color-hero-end: var(--pt-hero-end);
+  --color-cta-start: var(--pt-cta-start);
+  --color-cta-end: var(--pt-cta-end);
+
+  /* Charts */
+  --color-chart-1: var(--pt-chart-1);
+  --color-chart-2: var(--pt-chart-2);
+  --color-chart-grid: var(--pt-chart-grid);
+  --color-chart-axis: var(--pt-chart-axis);
+
+  /* Shadows */
+  --color-elevation: var(--pt-elevation);
+  --color-elevation-deep: var(--pt-elevation-deep);
+}

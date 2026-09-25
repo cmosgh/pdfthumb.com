@@ -15,11 +15,11 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   };
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-slate-50 to-sky-100 dark:from-slate-800 dark:to-sky-900">
+    <div className="flex h-screen bg-gradient-to-br from-hero-start to-hero-end">
       {/* Mobile sidebar overlay */}
       {isSidebarOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black bg-opacity-50 md:hidden"
+          className="fixed inset-0 z-40 bg-overlay md:hidden"
           onClick={toggleSidebar}
         />
       )}
@@ -34,10 +34,10 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       {/* Main content */}
       <div className="flex-1 flex flex-col md:ml-0">
         {/* Mobile header */}
-        <div className="md:hidden bg-white dark:bg-slate-800 shadow-sm dark:shadow-slate-700 p-4 flex items-center justify-between">
+        <div className="md:hidden bg-surface shadow-sm shadow-elevation p-4 flex items-center justify-between">
           <button
             onClick={toggleSidebar}
-            className="p-2 rounded-md text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-700"
+            className="p-2 rounded-md text-fg-muted hover:text-link hover:bg-muted"
             data-testid="sidebar-toggle"
             aria-label="Open sidebar"
           >
@@ -55,9 +55,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
               />
             </svg>
           </button>
-          <h1 className="text-xl font-semibold text-slate-800 dark:text-slate-100">
-            Dashboard
-          </h1>
+          <h1 className="text-xl font-semibold text-fg">Dashboard</h1>
         </div>
 
         <main className="flex-1 overflow-y-auto">

@@ -14,9 +14,7 @@ export const Route = createFileRoute("/dashboard/overview")({
 function OverviewComponent() {
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100">
-        Dashboard Overview
-      </h1>
+      <h1 className="text-3xl font-bold text-fg">Dashboard Overview</h1>
       <PlanQuota />
       <RequestsPerDay />
     </div>

@@ -69,22 +69,22 @@ export const ApiKeyGeneratedDialog: React.FC<ApiKeyGeneratedDialogProps> = ({
     >
       <div
         ref={dialogRef}
-        className="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-lg w-full mx-4 p-6 border border-gray-200 dark:border-slate-700"
+        className="bg-surface rounded-lg shadow-xl max-w-lg w-full mx-4 p-6 border border-line"
       >
         <div className="mb-6">
           <h3
             id="api-key-dialog-title"
-            className="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-4"
+            className="text-lg font-semibold text-fg-strong mb-4"
           >
             API Key Generated Successfully
           </h3>
 
           <div id="api-key-dialog-description" className="space-y-4">
-            <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+            <div className="p-4 bg-warning-soft border border-warning-line rounded-lg">
               <div className="flex">
                 <div className="flex-shrink-0">
                   <svg
-                    className="h-5 w-5 text-amber-400"
+                    className="h-5 w-5 text-warning"
                     viewBox="0 0 20 20"
                     fill="currentColor"
                   >
@@ -96,10 +96,10 @@ export const ApiKeyGeneratedDialog: React.FC<ApiKeyGeneratedDialogProps> = ({
                   </svg>
                 </div>
                 <div className="ml-3">
-                  <h4 className="text-sm font-medium text-amber-800 dark:text-amber-200">
+                  <h4 className="text-sm font-medium text-warning-fg">
                     Important Security Notice
                   </h4>
-                  <p className="mt-1 text-sm text-amber-700 dark:text-amber-300">
+                  <p className="mt-1 text-sm text-warning-fg">
                     This is the only time you'll see this API key. Copy it now
                     and store it securely. Once you close this dialog, you won't
                     be able to view or copy the full key again.
@@ -109,11 +109,11 @@ export const ApiKeyGeneratedDialog: React.FC<ApiKeyGeneratedDialogProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-fg-2 mb-2">
                 API Key for "{keyName}"
               </label>
-              <div className="flex items-center space-x-3 p-4 bg-gray-50 dark:bg-slate-700 rounded-lg border border-gray-200 dark:border-slate-600">
-                <code className="flex-1 text-sm font-mono text-gray-900 dark:text-slate-100 break-all">
+              <div className="flex items-center space-x-3 p-4 bg-muted rounded-lg border border-line-strong">
+                <code className="flex-1 text-sm font-mono text-fg-strong break-all">
                   {maskApiKey(apiKey)}
                 </code>
               </div>
@@ -125,7 +125,7 @@ export const ApiKeyGeneratedDialog: React.FC<ApiKeyGeneratedDialogProps> = ({
           <button
             ref={copyButtonRef}
             onClick={handleCopyToClipboard}
-            className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="inline-flex items-center px-4 py-2 text-sm font-medium text-on-accent bg-accent rounded-md hover:bg-accent-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-focus"
             aria-label={
               copied
                 ? "API key copied to clipboard"
@@ -172,7 +172,7 @@ export const ApiKeyGeneratedDialog: React.FC<ApiKeyGeneratedDialogProps> = ({
           </button>
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 dark:bg-slate-600 dark:text-slate-100 dark:hover:bg-slate-500"
+            className="px-4 py-2 text-sm font-medium text-fg-2 bg-neutral rounded-md hover:bg-neutral-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-focus"
             aria-label="Close dialog and return to settings"
           >
             Close

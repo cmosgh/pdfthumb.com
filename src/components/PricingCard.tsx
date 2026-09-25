@@ -10,21 +10,14 @@ interface PricingCardProps {
 
 const PricingCard: React.FC<PricingCardProps> = ({ tier }) => {
   const cardBaseClasses =
-    "bg-white dark:bg-slate-700 rounded-xl shadow-lg dark:shadow-slate-900/50 p-8 flex flex-col h-full transition-all duration-300";
-  const featuredBorderColor = tier.highlightColor
-    ? tier.highlightColor.replace("bg-", "border-")
-    : "border-indigo-600";
-  const darkFeaturedBorderColor = tier.highlightColor
-    ? tier.highlightColor.replace("bg-", "dark:border-")
-    : "dark:border-indigo-500";
-
+    "bg-surface-raised rounded-xl shadow-lg shadow-elevation-deep/50 p-8 flex flex-col h-full transition-all duration-300";
   const featuredClasses = tier.isFeatured
-    ? `border-4 ${featuredBorderColor} ${darkFeaturedBorderColor} transform scale-105 z-10 relative`
-    : "border border-slate-200 dark:border-slate-600";
+    ? "border-4 border-accent transform scale-105 z-10 relative"
+    : "border border-line-strong";
 
-  const highlightTextColorClass = tier.highlightColor
-    ? `${tier.highlightColor.replace("bg-", "text-")} dark:${tier.highlightColor.replace("bg-", "text-").replace("-500", "-400").replace("-600", "-400").replace("-700", "-500")}`
-    : "text-slate-800 dark:text-slate-100";
+  // The featured tier's name, price and ticks take the accent colour; the
+  // others keep the text colour.
+  const highlightText = tier.isFeatured ? "text-link" : "";
 
   const ctaHref = tier.ctaContact ? contactHref(tier.ctaContact) : undefined;
   const ctaDisabled = tier.isComingSoon || (!!tier.ctaContact && !ctaHref);
@@ -37,9 +30,6 @@ const PricingCard: React.FC<PricingCardProps> = ({ tier }) => {
     ? "text-5xl"
     : "text-3xl lg:text-2xl xl:text-3xl leading-[3rem]";
 
-  const featuredBadgeBg = tier.highlightColor || "bg-indigo-600";
-  const featuredBadgeText = "text-white";
-
   return (
     <div
       className={`${cardBaseClasses} ${featuredClasses} relative`}
@@ -49,9 +39,7 @@ const PricingCard: React.FC<PricingCardProps> = ({ tier }) => {
       {/* Ensure card is relative for absolute badge */}
       {tier.isFeatured && (
         <div className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2">
-          <span
-            className={`${featuredBadgeBg} ${featuredBadgeText} text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider`}
-          >
+          <span className="bg-accent text-on-accent text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider">
             Most Popular
           </span>
         </div>
@@ -60,26 +48,26 @@ const PricingCard: React.FC<PricingCardProps> = ({ tier }) => {
         <div className="absolute top-4 right-4 z-20">
           {" "}
           {/* Add z-20 to ensure badge is above all */}
-          <span className="bg-slate-500 dark:bg-slate-600 text-white text-xs font-semibold px-3 py-1 rounded-full uppercase flex items-center">
+          <span className="bg-chip text-on-accent text-xs font-semibold px-3 py-1 rounded-full uppercase flex items-center">
             <InformationCircleIcon className="h-4 w-4 mr-1" /> Soon
           </span>
         </div>
       )}
-      <h3 className={`text-2xl font-bold ${highlightTextColorClass} mb-2`}>
+      <h3 className={`text-2xl font-bold ${highlightText} mb-2`}>
         {tier.name}
       </h3>
       {/* Three lines from lg, so the prices of a row line up. */}
-      <p className="text-slate-500 dark:text-slate-400 mb-1 min-h-[3rem] lg:min-h-[4.5rem]">
+      <p className="text-fg-subtle mb-1 min-h-[3rem] lg:min-h-[4.5rem]">
         {tier.description}
       </p>
       <div className="mb-6" data-testid="pricing-card-price">
         <span
-          className={`${priceSize} font-extrabold whitespace-nowrap ${highlightTextColorClass}`}
+          className={`${priceSize} font-extrabold whitespace-nowrap ${highlightText}`}
         >
           {tier.price}
         </span>
         {tier.priceFrequency && (
-          <span className="text-slate-500 dark:text-slate-400 text-lg ml-1">
+          <span className="text-fg-subtle text-lg ml-1">
             {tier.priceFrequency}
           </span>
         )}
@@ -88,10 +76,10 @@ const PricingCard: React.FC<PricingCardProps> = ({ tier }) => {
         {lines.map((feature, index) => (
           <li key={index} className="flex items-start">
             <CheckCircleIcon
-              className={`h-6 w-6 ${highlightTextColorClass.split(" ")[0]} ${highlightTextColorClass.split(" ")[1] || ""} mr-2 flex-shrink-0`}
+              className={`h-6 w-6 ${highlightText} mr-2 flex-shrink-0`}
             />
             {/* min-w-0 lets a long address wrap inside a narrow card. */}
-            <span className="min-w-0 break-words text-slate-600 dark:text-slate-300">
+            <span className="min-w-0 break-words text-fg-muted">
               {typeof feature === "string" ? (
                 feature
               ) : (
@@ -108,15 +96,7 @@ const PricingCard: React.FC<PricingCardProps> = ({ tier }) => {
         // A live tier follows its ctaLink; Enterprise's button mails sales.
         href={ctaHref ?? (ctaDisabled ? "#" : tier.ctaLink)}
         variant={tier.isFeatured ? "primary" : "secondary"}
-        className={`w-full mt-auto ${ctaDisabled ? "opacity-70 cursor-not-allowed" : ""} 
-                    ${
-                      tier.isFeatured && tier.highlightColor
-                        ? `${tier.highlightColor} hover:${tier.highlightColor?.replace("500", "600").replace("600", "700").replace("700", "800")} 
-                                                              dark:${tier.highlightColor.replace("bg-", "bg-").replace("500", "400").replace("600", "500")} 
-                                                              dark:hover:${tier.highlightColor.replace("bg-", "bg-").replace("500", "500").replace("600", "600")}`
-                        : ""
-                    }
-                   `}
+        className={`w-full mt-auto ${ctaDisabled ? "opacity-70 cursor-not-allowed" : ""}`}
         disabled={ctaDisabled}
       >
         {tier.ctaText}

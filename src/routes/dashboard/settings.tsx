@@ -102,9 +102,7 @@ function SettingsComponent() {
 
   return (
     <div className="space-y-6" data-testid="settings-page">
-      <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100">
-        Settings
-      </h1>
+      <h1 className="text-3xl font-bold text-fg">Settings</h1>
 
       {/* Profile Settings */}
       {/* Only the profile needs the user; the API keys don't wait on it. */}
@@ -113,18 +111,14 @@ function SettingsComponent() {
       {/* API Keys Management */}
       <div>
         {apiKeysError && (
-          <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-            <p className="text-sm text-red-700 dark:text-red-300">
-              {apiKeysError}
-            </p>
+          <div className="mb-4 p-4 bg-danger-soft border border-danger-line rounded-lg">
+            <p className="text-sm text-danger-fg">{apiKeysError}</p>
           </div>
         )}
         {isLoadingApiKeys ? (
-          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700 p-6">
+          <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
             <div className="flex items-center justify-center h-32">
-              <div className="text-lg text-slate-600 dark:text-slate-400">
-                Loading API keys...
-              </div>
+              <div className="text-lg text-fg-caption">Loading API keys...</div>
             </div>
           </div>
         ) : (
@@ -138,67 +132,65 @@ function SettingsComponent() {
 
       {/* Additional Settings Sections */}
       <div
-        className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-lg dark:shadow-slate-700/50 border border-slate-200 dark:border-slate-700"
+        className="bg-surface p-6 rounded-lg shadow-lg shadow-elevation/50 border border-line"
         data-testid="notification-preferences-section"
       >
-        <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-4">
+        <h3 className="text-lg font-semibold text-fg mb-4">
           Notification Preferences
         </h3>
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="text-sm font-medium text-slate-900 dark:text-slate-100">
+              <h4 className="text-sm font-medium text-fg-strong">
                 Email Notifications
               </h4>
-              <p className="text-sm text-slate-600 dark:text-slate-300">
+              <p className="text-sm text-fg-muted">
                 Receive email updates about your account activity
               </p>
             </div>
             <button
-              className="relative inline-flex h-6 w-11 items-center rounded-full bg-indigo-600 transition-colors"
+              className="relative inline-flex h-6 w-11 items-center rounded-full bg-accent transition-colors"
               data-testid="email-notifications-toggle"
             >
-              <span className="inline-block h-4 w-4 transform rounded-full bg-white transition-transform translate-x-6" />
+              <span className="inline-block h-4 w-4 transform rounded-full bg-on-accent transition-transform translate-x-6" />
             </button>
           </div>
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="text-sm font-medium text-slate-900 dark:text-slate-100">
+              <h4 className="text-sm font-medium text-fg-strong">
                 API Usage Alerts
               </h4>
-              <p className="text-sm text-slate-600 dark:text-slate-300">
+              <p className="text-sm text-fg-muted">
                 Get notified when you approach your usage limits
               </p>
             </div>
             <button
-              className="relative inline-flex h-6 w-11 items-center rounded-full bg-gray-200 transition-colors"
+              className="relative inline-flex h-6 w-11 items-center rounded-full bg-muted-hover transition-colors"
               data-testid="api-usage-alerts-toggle"
             >
-              <span className="inline-block h-4 w-4 transform rounded-full bg-white transition-transform translate-x-1" />
+              <span className="inline-block h-4 w-4 transform rounded-full bg-on-accent transition-transform translate-x-1" />
             </button>
           </div>
         </div>
       </div>
 
       <div
-        className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-lg dark:shadow-slate-700/50 border border-slate-200 dark:border-slate-700"
+        className="bg-surface p-6 rounded-lg shadow-lg shadow-elevation/50 border border-line"
         data-testid="danger-zone-section"
       >
-        <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-4">
-          Danger Zone
-        </h3>
+        <h3 className="text-lg font-semibold text-fg mb-4">Danger Zone</h3>
         <div className="space-y-4">
-          <div className="flex items-center justify-between p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+          <div className="flex items-center justify-between p-4 bg-danger-soft rounded-lg border border-danger-line">
             <div>
-              <h4 className="text-sm font-medium text-red-900 dark:text-red-200">
+              <h4 className="text-sm font-medium text-danger-fg">
                 Delete Account
               </h4>
-              <p className="text-sm text-red-700 dark:text-red-300">
+              <p className="text-sm text-danger-fg">
                 Permanently delete your account and all associated data
               </p>
             </div>
             <button
-              className="px-4 py-2 text-sm font-medium text-red-700 bg-red-100 rounded-md hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:bg-red-800 dark:text-red-200 dark:hover:bg-red-700"
+              className="px-4 py-2 text-sm font-medium text-danger-fg bg-danger-muted rounded-md hover:bg-danger-muted-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-danger"
               data-testid="delete-account-button"
             >
               Delete Account

@@ -91,16 +91,14 @@ export const ApiKeysManager: React.FC<ApiKeysManagerProps> = ({
 
   return (
     <div
-      className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700 p-6"
+      className="bg-surface rounded-lg shadow-sm border border-line p-6"
       data-testid="api-keys-section"
     >
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100">
-          API Keys
-        </h3>
+        <h3 className="text-lg font-semibold text-fg-strong">API Keys</h3>
         <button
           onClick={() => setShowGenerateForm(true)}
-          className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          className="px-4 py-2 text-sm font-medium text-on-accent bg-accent rounded-md hover:bg-accent-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-focus"
           data-testid="generate-api-key-button"
         >
           Generate New Key
@@ -108,8 +106,8 @@ export const ApiKeysManager: React.FC<ApiKeysManagerProps> = ({
       </div>
 
       {showGenerateForm && (
-        <div className="mb-6 p-4 bg-gray-50 dark:bg-slate-700 rounded-lg">
-          <h4 className="text-sm font-medium text-gray-900 dark:text-slate-100 mb-3">
+        <div className="mb-6 p-4 bg-muted rounded-lg">
+          <h4 className="text-sm font-medium text-fg-strong mb-3">
             Generate New API Key
           </h4>
           <div className="flex gap-3">
@@ -118,13 +116,13 @@ export const ApiKeysManager: React.FC<ApiKeysManagerProps> = ({
               value={newKeyName}
               onChange={(e) => setNewKeyName(e.target.value)}
               placeholder="Enter key name (e.g., Production API Key)"
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-slate-600 dark:border-slate-500 dark:text-slate-100"
+              className="flex-1 px-3 py-2 border border-line-input rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-focus bg-neutral text-fg"
               data-testid="api-key-name-input"
             />
             <button
               onClick={handleGenerateKey}
               disabled={!newKeyName.trim()}
-              className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 text-sm font-medium text-on-accent bg-success rounded-md hover:bg-success-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-success disabled:opacity-50 disabled:cursor-not-allowed"
               data-testid="generate-api-key-submit"
             >
               Generate
@@ -134,7 +132,7 @@ export const ApiKeysManager: React.FC<ApiKeysManagerProps> = ({
                 setShowGenerateForm(false);
                 setNewKeyName("");
               }}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 dark:bg-slate-600 dark:text-slate-100 dark:hover:bg-slate-500"
+              className="px-4 py-2 text-sm font-medium text-fg-2 bg-neutral rounded-md hover:bg-neutral-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-focus"
               data-testid="generate-api-key-cancel"
             >
               Cancel
@@ -145,40 +143,40 @@ export const ApiKeysManager: React.FC<ApiKeysManagerProps> = ({
 
       <div className="overflow-x-auto">
         <table
-          className="min-w-full divide-y divide-gray-200 dark:divide-slate-700"
+          className="min-w-full divide-y divide-line"
           data-testid="api-keys-table"
         >
-          <thead className="bg-gray-50 dark:bg-slate-700">
+          <thead className="bg-muted">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-300 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-fg-label uppercase tracking-wider">
                 Name
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-300 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-fg-label uppercase tracking-wider">
                 Key
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-300 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-fg-label uppercase tracking-wider">
                 Status
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-300 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-fg-label uppercase tracking-wider">
                 Created
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-300 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-fg-label uppercase tracking-wider">
                 Last Used
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-300 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-fg-label uppercase tracking-wider">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-slate-700">
+          <tbody className="bg-surface divide-y divide-line">
             {apiKeys.map((key) => (
               <tr key={key.id}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-slate-100">
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-fg-strong">
                   {key.name}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-slate-300">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-fg-label">
                   <div className="flex items-center space-x-2">
-                    <code className="text-xs bg-gray-100 dark:bg-slate-700 px-2 py-1 rounded">
+                    <code className="text-xs bg-muted px-2 py-1 rounded">
                       {isDevelopment
                         ? key.identifier
                         : maskApiKey(key.identifier)}
@@ -186,7 +184,7 @@ export const ApiKeysManager: React.FC<ApiKeysManagerProps> = ({
                     {isDevelopment && (
                       <button
                         onClick={() => copyToClipboard(key.identifier)}
-                        className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
+                        className="text-link hover:text-link-hover"
                         title="Copy to clipboard"
                         data-testid="copy-api-key-button"
                       >
@@ -227,30 +225,30 @@ export const ApiKeysManager: React.FC<ApiKeysManagerProps> = ({
                   <span
                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                       key.enabled
-                        ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                        : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                        ? "bg-success-muted text-success-muted-fg"
+                        : "bg-danger-muted text-danger-muted-fg"
                     }`}
                   >
                     {key.enabled ? "Active" : "Revoked"}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-slate-300">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-fg-label">
                   {formatDate(key.createdAt)}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-slate-300">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-fg-label">
                   {key.lastUsedAt ? formatDate(key.lastUsedAt) : "Never"}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   {key.enabled ? (
                     <button
                       onClick={() => handleRevokeKey(key.id)}
-                      className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                      className="text-danger-fg hover:text-danger-muted-fg"
                       data-testid="revoke-api-key-button"
                     >
                       Revoke
                     </button>
                   ) : (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-danger-muted text-danger-muted-fg">
                       Revoked
                     </span>
                   )}
@@ -264,7 +262,7 @@ export const ApiKeysManager: React.FC<ApiKeysManagerProps> = ({
       {apiKeys.length === 0 && (
         <div className="text-center py-8">
           <svg
-            className="mx-auto h-12 w-12 text-gray-400 dark:text-slate-500"
+            className="mx-auto h-12 w-12 text-fg-faint"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -276,10 +274,10 @@ export const ApiKeysManager: React.FC<ApiKeysManagerProps> = ({
               d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
             />
           </svg>
-          <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-slate-100">
+          <h3 className="mt-2 text-sm font-medium text-fg-strong">
             No API keys
           </h3>
-          <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">
+          <p className="mt-1 text-sm text-fg-subtle">
             Get started by creating a new API key.
           </p>
         </div>

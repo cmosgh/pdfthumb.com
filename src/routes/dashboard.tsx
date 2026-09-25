@@ -56,12 +56,10 @@ function DashboardComponent() {
     !(typeof window !== "undefined" && window.Cypress)
   ) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-page flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600 dark:text-slate-400">
-            Loading dashboard...
-          </p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto"></div>
+          <p className="mt-4 text-fg-caption">Loading dashboard...</p>
         </div>
       </div>
     );

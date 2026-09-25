@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { APP_NAME } from "../constants";
 import { healthApi } from "../api";
+import { dayMonth } from "../utils/format";
 import TrustPage from "../components/trust/TrustPage";
 
 export const Route = createFileRoute("/status")({
@@ -14,9 +15,8 @@ export const Route = createFileRoute("/status")({
 // "25 Sep 2026, 22:10 UTC", spelled out by hand: locale data varies
 // between browsers (en-GB now says "Sept").
 const formatCheckedAt = (at: Date) => {
-  const month = at.toLocaleString("en-US", { month: "short", timeZone: "UTC" });
   const time = at.toISOString().slice(11, 16);
-  return `${at.getUTCDate()} ${month} ${at.getUTCFullYear()}, ${time} UTC`;
+  return `${dayMonth(at)} ${at.getUTCFullYear()}, ${time} UTC`;
 };
 
 // The API's state right now, from its public health checks (#144). There's
@@ -41,9 +41,7 @@ function StatusPage() {
       <span>{label}</span>
       <span
         className={
-          ok
-            ? "font-medium text-emerald-700 dark:text-emerald-400"
-            : "font-medium text-rose-700 dark:text-rose-400"
+          ok ? "font-medium text-success-fg" : "font-medium text-danger-fg"
         }
       >
         {ok ? "Yes" : "No"}
@@ -57,16 +55,16 @@ function StatusPage() {
         <p>Checking…</p>
       ) : (
         <>
-          <p className="flex items-center gap-3 text-2xl font-semibold text-slate-800 dark:text-slate-100">
+          <p className="flex items-center gap-3 text-2xl font-semibold text-fg">
             <span
               aria-hidden="true"
-              className={`inline-block h-3 w-3 rounded-full ${operational ? "bg-emerald-500" : "bg-amber-500"}`}
+              className={`inline-block h-3 w-3 rounded-full ${operational ? "bg-success" : "bg-warning"}`}
             />
             <span data-testid="status-overall">
               {operational ? "Operational" : "Degraded"}
             </span>
           </p>
-          <ul className="divide-y divide-slate-200 dark:divide-slate-700">
+          <ul className="divide-y divide-line">
             {row("API is running", data.live, "status-live")}
             {row("API is ready to serve requests", data.ready, "status-ready")}
           </ul>
@@ -77,7 +75,7 @@ function StatusPage() {
             type="button"
             onClick={() => refetch()}
             disabled={isFetching}
-            className="text-sm font-medium text-indigo-600 hover:text-indigo-700 disabled:opacity-60 dark:text-indigo-400"
+            className="text-sm font-medium text-link hover:text-link-hover disabled:opacity-60"
           >
             {isFetching ? "Checking…" : "Check again"}
           </button>

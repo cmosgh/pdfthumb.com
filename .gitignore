@@ -99,3 +99,5 @@ test-results.json
 
 # repomix generated files
 repomix-output.md
+# Local visual-regression baselines (vr/README.md)
+vr/__snapshots__/

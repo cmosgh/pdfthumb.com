@@ -154,13 +154,12 @@ export const apiKeysApi = {
   },
 };
 
-// One day of the caller's requests to the thumbnail routes. In production
-// (Postgres) the date comes as a midnight timestamp and the counts as
-// strings; see toDailyRequests.
+// One day of the caller's requests to the thumbnail routes: the date as
+// YYYY-MM-DD (UTC) and the counts as numbers (BE #350).
 export interface AnalyticsDailyBucket {
   date: string;
-  call_count: number | string;
-  error_count: number | string;
+  call_count: number;
+  error_count: number;
 }
 
 // API functions for usage analytics

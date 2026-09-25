@@ -20,6 +20,8 @@ jobs:
         run: scripts/check-node-pins.sh
       - name: Install dependencies
         run: npm ci
+      - name: Check colours come only from the design tokens
+        run: node scripts/check-design-tokens.mjs
       - name: Build app
         run: npm run build
       - name: Check the bundle is safe to publish

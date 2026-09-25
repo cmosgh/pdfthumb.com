@@ -38,9 +38,9 @@ function storedLanguage(): SnippetLanguage {
   return "curl";
 }
 
-const cell = "px-3 py-2 align-top text-sm text-slate-600 dark:text-slate-300";
+const cell = "px-3 py-2 align-top text-sm text-fg-muted";
 const head =
-  "px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-300";
+  "px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-fg-label";
 
 interface RouteReferenceProps {
   route: ApiRoute;
@@ -58,23 +58,21 @@ const RouteReference: React.FC<RouteReferenceProps> = ({
     data-testid={`docs-route-${route.id}`}
     className="mb-16 scroll-mt-24"
   >
-    <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2 font-mono">
+    <h3 className="text-xl font-bold text-heading mb-2 font-mono">
       {route.method} {route.path}
     </h3>
-    <p className="text-slate-600 dark:text-slate-300 mb-4">{route.summary}</p>
-    <p className="text-slate-600 dark:text-slate-300 mb-4">
+    <p className="text-fg-muted mb-4">{route.summary}</p>
+    <p className="text-fg-muted mb-4">
       Authenticate with the <code>x-api-key</code> header.
     </p>
 
-    <h4 className="font-semibold text-slate-800 dark:text-white mb-2">
-      Request
-    </h4>
-    <div className="overflow-x-auto mb-6 rounded-lg border border-slate-200 dark:border-slate-700">
+    <h4 className="font-semibold text-heading mb-2">Request</h4>
+    <div className="overflow-x-auto mb-6 rounded-lg border border-line">
       <table
-        className="min-w-full divide-y divide-slate-200 dark:divide-slate-700"
+        className="min-w-full divide-y divide-line"
         data-testid="docs-fields"
       >
-        <thead className="bg-slate-100 dark:bg-slate-700">
+        <thead className="bg-muted">
           <tr>
             <th className={head}>Field</th>
             <th className={head}>In</th>
@@ -82,7 +80,7 @@ const RouteReference: React.FC<RouteReferenceProps> = ({
             <th className={head}>Description</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+        <tbody className="divide-y divide-line">
           {route.fields.map((field) => (
             <tr key={field.name}>
               <td className={cell}>
@@ -102,19 +100,15 @@ const RouteReference: React.FC<RouteReferenceProps> = ({
       </table>
     </div>
 
-    <h4 className="font-semibold text-slate-800 dark:text-white mb-2">
-      Response
-    </h4>
-    <p className="text-slate-600 dark:text-slate-300 mb-4">
+    <h4 className="font-semibold text-heading mb-2">Response</h4>
+    <p className="text-fg-muted mb-4">
       <code>{route.response.status} Created</code>,{" "}
       <code>{route.response.contentType}</code>: {route.response.description}
     </p>
 
-    <h4 className="font-semibold text-slate-800 dark:text-white mb-2">
-      Errors
-    </h4>
+    <h4 className="font-semibold text-heading mb-2">Errors</h4>
     <ul
-      className="list-disc pl-6 space-y-1 mb-6 text-slate-600 dark:text-slate-300"
+      className="list-disc pl-6 space-y-1 mb-6 text-fg-muted"
       data-testid="docs-errors"
     >
       {route.errors.map((error) => (
@@ -124,9 +118,7 @@ const RouteReference: React.FC<RouteReferenceProps> = ({
       ))}
     </ul>
 
-    <h4 className="font-semibold text-slate-800 dark:text-white mb-2">
-      Example
-    </h4>
+    <h4 className="font-semibold text-heading mb-2">Example</h4>
     <div
       role="tablist"
       aria-label={`Example language for ${route.path}`}
@@ -161,8 +153,8 @@ const RouteReference: React.FC<RouteReferenceProps> = ({
             }}
             className={`px-3 py-1 rounded-md text-sm font-medium ${
               selected
-                ? "bg-indigo-600 text-white dark:bg-indigo-500"
-                : "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600"
+                ? "bg-accent text-on-accent"
+                : "bg-muted text-fg-2 hover:bg-muted-hover"
             }`}
           >
             {l.label}
@@ -177,7 +169,7 @@ const RouteReference: React.FC<RouteReferenceProps> = ({
       tabIndex={0}
       data-testid="docs-snippet"
       data-language={language}
-      className="bg-slate-900 dark:bg-slate-800 border border-transparent dark:border-slate-700 text-slate-100 text-sm rounded-lg p-4 overflow-x-auto"
+      className="bg-code border border-code-line text-code-fg text-sm rounded-lg p-4 overflow-x-auto"
     >
       <code>{snippet(route, language)}</code>
     </pre>

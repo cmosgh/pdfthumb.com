@@ -21,29 +21,26 @@ const OveragePricingSection: React.FC = () => {
   ];
 
   return (
-    <section
-      id="overage-pricing"
-      className="py-16 sm:py-24 bg-slate-50 dark:bg-slate-900"
-    >
+    <section id="overage-pricing" className="py-16 sm:py-24 bg-page">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-800 dark:text-white">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-heading">
             Flexible Overages: Pay Only For What You Exceed
           </h2>
-          <p className="mt-4 text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
+          <p className="mt-4 text-lg text-fg-muted max-w-2xl mx-auto">
             Our plans are designed to grow with you. If you go over your monthly
             allowance, you're covered with transparent, pay-as-you-go pricing.
           </p>
         </div>
 
         <div className="max-w-5xl mx-auto">
-          <div className="overflow-x-auto rounded-lg shadow-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-            <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
-              <thead className="bg-slate-100 dark:bg-slate-700">
+          <div className="overflow-x-auto rounded-lg shadow-lg bg-surface border border-line">
+            <table className="min-w-full divide-y divide-line">
+              <thead className="bg-muted">
                 <tr>
                   <th
                     scope="col"
-                    className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider w-1/3 sm:w-1/4"
+                    className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-fg-label uppercase tracking-wider w-1/3 sm:w-1/4"
                   >
                     Feature
                   </th>
@@ -51,23 +48,23 @@ const OveragePricingSection: React.FC = () => {
                     <th
                       key={tier.id}
                       scope="col"
-                      className={`px-4 sm:px-6 py-3 text-center text-xs font-medium text-slate-500 dark:text-slate-300 uppercase tracking-wider ${tier.isFeatured ? "font-bold" : ""}`}
+                      className={`px-4 sm:px-6 py-3 text-center text-xs font-medium text-fg-label uppercase tracking-wider ${tier.isFeatured ? "font-bold" : ""}`}
                     >
                       {tier.name}
                     </th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
+              <tbody className="bg-surface divide-y divide-line">
                 {overageFeatures.map((feature) => (
                   <tr key={feature.name}>
-                    <td className="px-4 sm:px-6 py-4 whitespace-normal text-sm font-medium text-slate-800 dark:text-slate-100">
+                    <td className="px-4 sm:px-6 py-4 whitespace-normal text-sm font-medium text-fg">
                       {feature.name}
                     </td>
                     {PRICING_TIERS.map((tier) => (
                       <td
                         key={`${tier.id}-${feature.name}`}
-                        className="px-4 sm:px-6 py-4 text-center text-sm text-slate-600 dark:text-slate-300 whitespace-normal"
+                        className="px-4 sm:px-6 py-4 text-center text-sm text-fg-muted whitespace-normal"
                       >
                         {feature.getValue(tier)}
                       </td>
@@ -78,7 +75,7 @@ const OveragePricingSection: React.FC = () => {
             </table>
           </div>
         </div>
-        <p className="text-center mt-10 text-sm text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">
+        <p className="text-center mt-10 text-sm text-fg-subtle max-w-2xl mx-auto">
           Overage billing starts when paid plans launch. Until then, Free stops
           at 1,000 Thumbnails a month.
         </p>

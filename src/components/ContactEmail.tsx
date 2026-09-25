@@ -28,10 +28,7 @@ const ContactEmail: React.FC<ContactEmailProps> = ({ kind, className }) => {
       {href ? (
         <a
           href={href}
-          className={
-            className ??
-            "text-indigo-600 dark:text-indigo-400 hover:underline break-words"
-          }
+          className={className ?? "text-link hover:underline break-words"}
         >
           {text}
         </a>

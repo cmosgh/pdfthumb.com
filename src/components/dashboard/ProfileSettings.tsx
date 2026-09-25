@@ -15,21 +15,21 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
 
   return (
     <div
-      className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700 p-6"
+      className="bg-surface rounded-lg shadow-sm border border-line p-6"
       data-testid="profile-settings-section"
     >
-      <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-6">
+      <h3 className="text-lg font-semibold text-fg-strong mb-6">
         Profile Settings
       </h3>
 
       <dl className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {fields.map(({ label, value, testId }) => (
           <div key={testId}>
-            <dt className="block text-sm font-medium text-gray-700 dark:text-slate-200 mb-1">
+            <dt className="block text-sm font-medium text-fg-2 mb-1">
               {label}
             </dt>
             <dd
-              className="px-3 py-2 text-sm text-gray-900 dark:text-slate-100 bg-gray-50 dark:bg-slate-700 rounded-md"
+              className="px-3 py-2 text-sm text-fg-strong bg-muted rounded-md"
               data-testid={testId}
             >
               {/* Google may withhold an email, or a name, from the profile. */}
