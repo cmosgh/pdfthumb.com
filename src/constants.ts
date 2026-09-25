@@ -147,11 +147,13 @@ export const EVERY_PLAN_INCLUDES = [
   "EU-hosted in Germany · API keys stored hashed and revocable",
 ];
 
-// M14 + Q4. "Trial on request" joins once the trial cap ships.
+// M14 + Q4. "Trial on request" joins once the trial cap ships. The licence
+// is €9,000/yr per company; until the SaaS prices go live with billing
+// (pdfthumbnailpro-be#185), the page says "Pricing on request" (Q-P).
 export const ON_PREM = {
   title: "On-prem edition",
   text: "Run PDFThumb in your own infrastructure (Kubernetes/Helm or AWS via Terraform), with unlimited instances and no per-Thumbnail charges under one annual licence, and counts-only usage reports.",
-  price: "€9,000/yr per company",
+  price: "Pricing on request",
 };
 
 // Fix: Explicitly type FEATURE_ITEMS and use React.createElement for icons.

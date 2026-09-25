@@ -159,7 +159,9 @@ test.describe("pricing page copy (#118)", () => {
     await expect(onPrem).toContainText(
       "Run PDFThumb in your own infrastructure (Kubernetes/Helm or AWS via Terraform), with unlimited instances and no per-Thumbnail charges under one annual licence, and counts-only usage reports.",
     );
-    await expect(onPrem).toContainText("€9,000/yr per company");
+    // Q-P: the licence price waits for the SaaS prices (Stripe).
+    await expect(onPrem).toContainText("Pricing on request");
+    await expect(onPrem).not.toContainText(/[$€£]\s?\d/);
     await expect(onPrem).not.toContainText(/trial/i);
     await expectContact(onPrem, SALES);
   });

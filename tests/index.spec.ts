@@ -60,15 +60,12 @@ test.describe("index.tsx basic render", () => {
     }
   });
 
-  test("shows no plan price amounts on the landing page", async ({ page }) => {
+  test("shows no price amounts anywhere on the landing page", async ({
+    page,
+  }) => {
     await page.goto("/");
     await expect(page.getByTestId("pricing-section")).toContainText("Upcoming");
-    // The On-prem edition is the one priced offer (M14, #118).
-    const onPrem = await page.getByTestId("pricing-on-prem").textContent();
-    const text = (await page.locator("body").textContent())?.replace(
-      onPrem ?? "",
-      "",
-    );
+    const text = await page.locator("body").textContent();
     expect(text).not.toMatch(/[$€£]\s?\d/);
     // Without prices there is nothing to switch between.
     await expect(page.getByRole("button", { name: /annually/i })).toHaveCount(
