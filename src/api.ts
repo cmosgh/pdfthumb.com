@@ -46,7 +46,7 @@ export const authApi = {
         throw new Error("Token refresh failed");
       }
 
-      return response.json();
+      return response.json() as Promise<AuthSession>;
     } catch (error) {
       console.error("Token refresh API error:", error);
       throw error;

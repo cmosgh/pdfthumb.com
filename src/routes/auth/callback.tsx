@@ -2,14 +2,11 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useAuth } from "../../hooks/AuthContext";
 import { authApi } from "../../api";
-import { durationToMs } from "../../utils/duration";
+import { sessionExpiresAt } from "../../utils/duration";
 
 export const Route = createFileRoute("/auth/callback")({
   component: CallbackComponent,
 });
-
-// Used when the backend's expiresIn isn't a duration we can read.
-const FALLBACK_TOKEN_LIFETIME_MS = 60 * 60 * 1000;
 
 // A code is single-use, so every mount of the callback shares one exchange per
 // code. That covers StrictMode's double effect and a remount of this route alike.
@@ -42,17 +39,10 @@ function CallbackComponent() {
         }
 
         const session = await exchangeOnce(code);
-        const lifetimeMs = durationToMs(session.expiresIn);
-        if (lifetimeMs === null) {
-          console.warn(
-            "Unreadable expiresIn from the backend:",
-            session.expiresIn,
-          );
-        }
         const tokens = {
           accessToken: session.accessToken,
           refreshToken: session.refreshToken,
-          expiresAt: Date.now() + (lifetimeMs ?? FALLBACK_TOKEN_LIFETIME_MS),
+          expiresAt: sessionExpiresAt(session.expiresIn),
         };
         const now = new Date().toISOString();
         const user = {

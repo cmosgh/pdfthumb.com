@@ -27,3 +27,20 @@ export const durationToMs = (duration: string): number | null => {
   const key = unit.startsWith("ms") || unit.startsWith("mil") ? "ms" : unit[0];
   return Number(match[1]) * MS_PER_UNIT[key];
 };
+
+// Used when the backend's expiresIn isn't a duration we can read.
+const FALLBACK_TOKEN_LIFETIME_MS = 60 * 60 * 1000;
+
+/**
+ * Turns a session's `expiresIn` (from the OAuth exchange or a refresh) into
+ * the timestamp the access token expires at.
+ * @param expiresIn - The jsonwebtoken duration from the backend
+ * @returns Epoch milliseconds; one hour from now if expiresIn is unreadable
+ */
+export const sessionExpiresAt = (expiresIn: string): number => {
+  const lifetimeMs = durationToMs(expiresIn);
+  if (lifetimeMs === null) {
+    console.warn("Unreadable expiresIn from the backend:", expiresIn);
+  }
+  return Date.now() + (lifetimeMs ?? FALLBACK_TOKEN_LIFETIME_MS);
+};
