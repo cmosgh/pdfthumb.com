@@ -21,9 +21,8 @@ updates:
     commit-message:
       prefix: "deps"
     ignore:
-      # Odd Node majors never become LTS; stay on even (LTS) lines.
+      # Node majors move by ticket (e.g. #89), onto LTS lines only; patches and
+      # minors still come. Version lists like "26.x" don't match suffixed tags
+      # such as 26.9.0-alpine (#110).
       - dependency-name: "node"
-        versions: ["23.x", "25.x", "27.x", "29.x", "31.x"]
-      # Node 26 turns LTS on 2026-10-28; #89 moves to it then and drops this.
-      - dependency-name: "node"
-        versions: ["26.x"]
+        update-types: ["version-update:semver-major"]
