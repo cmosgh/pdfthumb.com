@@ -1,4 +1,4 @@
-import { test, expect, Request } from "@playwright/test";
+import { test, expect, Page, Request } from "@playwright/test";
 
 // POST /api/auth/refresh answers with the same AuthSession as the OAuth
 // exchange, so expiresIn is a jsonwebtoken duration string.
@@ -13,6 +13,44 @@ const refreshed = {
   },
   expiresIn: "1h",
 };
+
+// Four minutes from expiry: inside the 5-minute refresh buffer, so the
+// refresh fires at once, but past the 60-second one. Seeded once per tab
+// (sessionStorage flag), so reloads see what the app left in storage.
+async function seedNearlyExpiredSession(page: Page) {
+  await page.addInitScript(() => {
+    if (sessionStorage.getItem("seeded")) return;
+    sessionStorage.setItem("seeded", "1");
+    localStorage.setItem(
+      "auth_tokens",
+      JSON.stringify({
+        accessToken: "access-dead",
+        refreshToken: "refresh-already-rotated",
+        expiresAt: Date.now() + 4 * 60 * 1000,
+      }),
+    );
+    localStorage.setItem(
+      "auth_user",
+      JSON.stringify({ id: "user-42", email: "ada@example.com", name: "Ada" }),
+    );
+  });
+}
+
+async function mockMe(page: Page) {
+  await page.route("**/api/auth/me", (route) =>
+    route.fulfill({
+      json: { id: "user-42", email: "ada@example.com", roles: ["user"] },
+    }),
+  );
+}
+
+async function storedRefreshToken(page: Page) {
+  return page.evaluate(
+    () =>
+      JSON.parse(localStorage.getItem("auth_tokens") ?? "null")?.refreshToken ??
+      null,
+  );
+}
 
 test.describe("Token refresh", () => {
   test("stores the refreshed session's expiry and schedules the next refresh an hour out", async ({
@@ -72,29 +110,7 @@ test.describe("Token refresh", () => {
   test("a failed refresh clears the session, and Log in again reaches a clean /login", async ({
     page,
   }) => {
-    // Seeded once per tab (sessionStorage flag), so reloads see real storage.
-    // Four minutes from expiry: inside the 5-minute refresh buffer but past
-    // the 60-second one, which is when the loop happened.
-    await page.addInitScript(() => {
-      if (sessionStorage.getItem("seeded")) return;
-      sessionStorage.setItem("seeded", "1");
-      localStorage.setItem(
-        "auth_tokens",
-        JSON.stringify({
-          accessToken: "access-dead",
-          refreshToken: "refresh-already-rotated",
-          expiresAt: Date.now() + 4 * 60 * 1000,
-        }),
-      );
-      localStorage.setItem(
-        "auth_user",
-        JSON.stringify({
-          id: "user-42",
-          email: "ada@example.com",
-          name: "Ada",
-        }),
-      );
-    });
+    await seedNearlyExpiredSession(page);
     const refreshes: Request[] = [];
     await page.route("**/api/auth/refresh", async (route) => {
       refreshes.push(route.request());
@@ -103,9 +119,7 @@ test.describe("Token refresh", () => {
         json: { statusCode: 401, message: "Invalid refresh token" },
       });
     });
-    await page.route("**/api/auth/me", (route) =>
-      route.fulfill({ json: refreshed.user }),
-    );
+    await mockMe(page);
 
     await page.goto("/dashboard");
     const modal = page.getByRole("dialog", { name: "Your session expired" });
@@ -126,5 +140,53 @@ test.describe("Token refresh", () => {
     await page.waitForTimeout(1500);
     await expect(modal).toHaveCount(0);
     expect(refreshes).toHaveLength(1);
+  });
+
+  test("a refresh that fails for now (503) keeps the session", async ({
+    page,
+  }) => {
+    await seedNearlyExpiredSession(page);
+    await page.route("**/api/auth/refresh", (route) =>
+      route.fulfill({ status: 503, json: { message: "Service Unavailable" } }),
+    );
+    await mockMe(page);
+
+    await page.goto("/dashboard");
+    await expect(
+      page.getByRole("dialog", { name: "Your session expired" }),
+    ).toBeVisible();
+    // Not spent: a reload may still renew it once the backend is back.
+    expect(await storedRefreshToken(page)).toBe("refresh-already-rotated");
+  });
+
+  test("a 401 after another tab already refreshed leaves that tab's tokens alone", async ({
+    page,
+  }) => {
+    await seedNearlyExpiredSession(page);
+    await page.route("**/api/auth/refresh", async (route) => {
+      // Another tab won the race and stored a fresh session first.
+      await page.evaluate(() =>
+        localStorage.setItem(
+          "auth_tokens",
+          JSON.stringify({
+            accessToken: "access-from-other-tab",
+            refreshToken: "refresh-from-other-tab",
+            expiresAt: Date.now() + 60 * 60 * 1000,
+          }),
+        ),
+      );
+      await route.fulfill({
+        status: 401,
+        json: { statusCode: 401, message: "Invalid refresh token" },
+      });
+    });
+    await mockMe(page);
+
+    await page.goto("/dashboard");
+    await page.waitForTimeout(1500);
+    expect(await storedRefreshToken(page)).toBe("refresh-from-other-tab");
+    await expect(
+      page.getByRole("dialog", { name: "Your session expired" }),
+    ).toHaveCount(0);
   });
 });

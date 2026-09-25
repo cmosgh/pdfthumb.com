@@ -25,6 +25,24 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const TOKEN_STORAGE_KEY = "auth_tokens";
 const USER_STORAGE_KEY = "auth_user";
 
+const clearStoredSession = () => {
+  localStorage.removeItem(TOKEN_STORAGE_KEY);
+  localStorage.removeItem(USER_STORAGE_KEY);
+};
+
+const readStoredTokens = (): AuthTokens | null => {
+  try {
+    return JSON.parse(localStorage.getItem(TOKEN_STORAGE_KEY) ?? "null");
+  } catch {
+    return null;
+  }
+};
+
+// Only a 401 means the refresh token is spent; a 5xx or a network error may
+// pass, and a reload can still renew the session.
+const isSpentRefreshToken = (err: unknown) =>
+  (err as { status?: number } | null)?.status === 401;
+
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
@@ -90,8 +108,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
 
     // Clear local storage
-    localStorage.removeItem(TOKEN_STORAGE_KEY);
-    localStorage.removeItem(USER_STORAGE_KEY);
+    clearStoredSession();
 
     setAuthState({
       user: null,
@@ -150,16 +167,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const delay = Math.max(expiresAt - Date.now() - BUFFER_MS, 0);
 
     refreshTimerRef.current = setTimeout(async () => {
+      refreshTimerRef.current = null;
+      const usedRefreshToken = readStoredTokens()?.refreshToken;
       try {
         await doRefresh();
       } catch (err) {
         console.error('Proactive token refresh failed:', err);
-        // The refresh token is spent, so drop the stored session: otherwise
-        // every reload treats it as valid and retries the dead refresh, and
-        // the modal loops (#79). Other tabs clear theirs via the storage event.
-        refreshTimerRef.current = null;
-        localStorage.removeItem(TOKEN_STORAGE_KEY);
-        localStorage.removeItem(USER_STORAGE_KEY);
+        if (isSpentRefreshToken(err)) {
+          const stored = readStoredTokens();
+          if (stored && stored.refreshToken !== usedRefreshToken) {
+            // Another tab refreshed first and stored a new session: use it
+            // rather than wiping it, which would log that tab out silently.
+            setAuthState(prev => ({ ...prev, tokens: stored }));
+            scheduleRefreshRef.current(stored.expiresAt);
+            return;
+          }
+          // Spent for good: drop the stored session, or every reload treats
+          // it as valid, retries the dead refresh and the modal loops (#79).
+          clearStoredSession();
+        }
         // Per user decision: show session expired UI, do NOT silently log out
         setSessionExpired(true);
       }
@@ -228,8 +254,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             fetchMe(tokens.accessToken);
           } else {
             // Token expired or about to expire, clear it
-            localStorage.removeItem(TOKEN_STORAGE_KEY);
-            localStorage.removeItem(USER_STORAGE_KEY);
+            clearStoredSession();
             setAuthState({
               user: null,
               tokens: null,
@@ -244,8 +269,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       } catch (error) {
         console.error("Error loading auth state:", error);
         // Clear potentially corrupted data
-        localStorage.removeItem(TOKEN_STORAGE_KEY);
-        localStorage.removeItem(USER_STORAGE_KEY);
+        clearStoredSession();
         setAuthState({
           user: null,
           tokens: null,
