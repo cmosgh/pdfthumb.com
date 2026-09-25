@@ -323,17 +323,16 @@ test.describe("Token refresh", () => {
   test("a 401 whose winning pair reaches this tab a moment later adopts it", async ({
     context,
   }) => {
-    // "The other tab" only stores the winning pair: park it on a
-    // same-origin script, so no app of its own reacts to storage.
+    // "The other tab" only stores the winning pair: park it on a blank
+    // same-origin page, so no app of its own reacts to storage.
     const winner = await context.newPage();
-    await winner.goto("/");
-    await winner.goto(
-      await winner.evaluate(
-        () =>
-          document.querySelector<HTMLScriptElement>('script[type="module"]')!
-            .src,
-      ),
+    await winner.route("**/__parked", (route) =>
+      route.fulfill({
+        contentType: "text/html",
+        body: "<title>parked</title>",
+      }),
     );
+    await winner.goto("/__parked");
     await context.route("**/api/auth/refresh", async (route) => {
       setTimeout(() => {
         void winner.evaluate(() =>

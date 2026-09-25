@@ -30,21 +30,15 @@ const clearStoredSession = () => {
   localStorage.removeItem(USER_STORAGE_KEY);
 };
 
-const readStoredTokens = (): AuthTokens | null => {
+const readStored = <T,>(key: string): T | null => {
   try {
-    return JSON.parse(localStorage.getItem(TOKEN_STORAGE_KEY) ?? "null");
+    return JSON.parse(localStorage.getItem(key) ?? "null");
   } catch {
     return null;
   }
 };
-
-const readStoredUser = (): User | null => {
-  try {
-    return JSON.parse(localStorage.getItem(USER_STORAGE_KEY) ?? "null");
-  } catch {
-    return null;
-  }
-};
+const readStoredTokens = () => readStored<AuthTokens>(TOKEN_STORAGE_KEY);
+const readStoredUser = () => readStored<User>(USER_STORAGE_KEY);
 
 // Another tab refreshed since `presented` was read: a rotated token, or the
 // same token with a later expiry.
@@ -68,11 +62,13 @@ const waitForNewerTokens = (presented: AuthTokens) =>
       resolve(tokens);
     };
     const onStorage = (event: StorageEvent) => {
-      if (event.key === TOKEN_STORAGE_KEY && newer()) done(newer());
+      const tokens = event.key === TOKEN_STORAGE_KEY ? newer() : null;
+      if (tokens) done(tokens);
     };
     const timer = setTimeout(() => done(newer()), ROTATION_GRACE_MS);
     window.addEventListener("storage", onStorage);
-    if (newer()) done(newer());
+    const already = newer();
+    if (already) done(already);
   });
 
 // Only a 401 means the refresh token is spent; a 5xx or a network error may
@@ -85,7 +81,9 @@ const isSpentRefreshToken = (err: unknown) =>
 // Locks, the re-read of storage and the 401 grace are the only guards.
 const REFRESH_LOCK = "pdfthumb-refresh";
 const withRefreshLock = async <T,>(fn: () => Promise<T>): Promise<T> =>
-  navigator.locks ? await navigator.locks.request(REFRESH_LOCK, fn) : fn();
+  typeof navigator !== "undefined" && navigator.locks
+    ? await navigator.locks.request(REFRESH_LOCK, fn)
+    : fn();
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
