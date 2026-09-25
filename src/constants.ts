@@ -55,14 +55,15 @@ const HOURS_TBC = SLA_HOURS_CONFIRMED ? "" : " [hours TBC]";
 const OVERAGE_NOT_YET =
   "Overage billing starts when paid plans launch. Until then, Free stops at 1,000 Thumbnails a month.";
 
-// Prices are withheld for now (#71): the plans show "Upcoming" and their
-// buttons start no checkout. The amounts are left out of the bundle too.
+// Paid prices are withheld for now (#71): those plans show "Upcoming" and
+// their buttons start no checkout. Free is live at €0 and starts sign-up
+// (#129). The amounts are left out of the bundle too.
 // The claims follow the Plans & pricing decisions M1–M15 (#118).
 export const PRICING_TIERS: PricingTier[] = [
   {
     id: "free",
     name: "Free",
-    price: "Upcoming",
+    price: "€0",
     priceFrequency: "",
     description: "For builders and side projects.",
     quota: "1,000 Thumbnails a month",
@@ -73,9 +74,8 @@ export const PRICING_TIERS: PricingTier[] = [
         contact: "support",
       },
     ],
-    ctaText: "Upcoming",
-    isComingSoon: true,
-    ctaLink: "#signup-free",
+    ctaText: "Start free",
+    ctaLink: "/login",
     highlightColor: "bg-sky-500",
     overageRateDisplay: "N/A",
     overageDescription: "Upgrade to a paid plan to exceed limits.",
