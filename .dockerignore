@@ -1,0 +1,19 @@
+# The build stage runs `npm ci` and `npm run build` itself.
+node_modules
+dist
+
+.git
+.github
+.agents
+.claude
+.gemini
+.planning
+generated-plans
+docs
+infra
+test-results
+playwright-report
+tests
+*.log
+.env
+.env.*

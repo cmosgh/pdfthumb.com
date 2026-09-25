@@ -42,4 +42,4 @@ jobs:
           --set image.digest=sha256:0000000000000000000000000000000000000000000000000000000000000000
           > /dev/null
       - name: Assert the pod meets Pod Security "restricted"
-        run: "$CHART_DIR/assert-security-context.sh"
+        run: '"$CHART_DIR/assert-security-context.sh"'

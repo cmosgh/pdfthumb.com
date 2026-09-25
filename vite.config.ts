@@ -15,12 +15,14 @@ export default defineConfig(({ mode }) => {
         autoCodeSplitting: true,
       }),
     ],
-    define: {
-      "process.env.API_KEY": JSON.stringify(env.GEMINI_API_KEY),
-      "process.env.GEMINI_API_KEY": JSON.stringify(env.GEMINI_API_KEY),
-      "process.env.API_URL": JSON.stringify(env.API_URL),
-      "import.meta.env.TEST_API_KEY": JSON.stringify(env.TEST_API_KEY),
-    },
+    // loadEnv's empty prefix reads every variable, from .env files and the
+    // build's environment, and define inlines it into the bundle. The image is
+    // public, so a key must never reach a production build: TEST_API_KEY is
+    // defined for the dev server only.
+    define:
+      mode === "development"
+        ? { "import.meta.env.TEST_API_KEY": JSON.stringify(env.TEST_API_KEY) }
+        : {},
     build: {
       rollupOptions: {
         onwarn(warning, warn) {
