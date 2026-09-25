@@ -1,7 +1,6 @@
 import { createCollection, localOnlyCollectionOptions } from "@tanstack/db";
 import { apiKeysApi } from "./api";
 import { queryClient } from "./queryClient";
-import { mockApiKeys } from "./data/dashboardMocks";
 import type {
   ApiKey,
   DashboardSummary,
@@ -75,57 +74,6 @@ export const collections = {
 
 // Helper functions for common operations
 export const dbHelpers = {
-  // Initialize with mock data
-  async initializeWithMockData() {
-    const {
-      mockDashboardSummary,
-      mockUsageTrends,
-      mockFileTypeData,
-      mockErrorLogs,
-      mockGeographicData,
-      mockApiKeys,
-      mockDetailedAnalytics,
-    } = await import("./data/dashboardMocks");
-
-    // Add IDs to data that needs them
-    const dashboardSummaryWithId = { ...mockDashboardSummary, id: "main" };
-    const usageTrendsWithIds = mockUsageTrends.map((item, index) => ({
-      ...item,
-      id: `usage-${index}`,
-    }));
-    const fileTypeDataWithIds = mockFileTypeData.map((item, index) => ({
-      ...item,
-      id: `filetype-${index}`,
-    }));
-    const geographicDataWithIds = mockGeographicData.map((item, index) => ({
-      ...item,
-      id: `geo-${index}`,
-    }));
-    const detailedAnalyticsWithId = { ...mockDetailedAnalytics, id: "main" };
-
-    // Insert mock data one by one
-    await collections.dashboardSummary.insert(dashboardSummaryWithId);
-    for (const item of usageTrendsWithIds) {
-      await collections.usageTrends.insert(item);
-    }
-    for (const item of fileTypeDataWithIds) {
-      await collections.fileTypeData.insert(item);
-    }
-    for (const item of mockErrorLogs) {
-      await collections.errorLogs.insert(item);
-    }
-    for (const item of geographicDataWithIds) {
-      await collections.geographicData.insert(item);
-    }
-    for (const item of mockApiKeys) {
-      // only adding in tests
-      if (import.meta.env.MODE === "test") {
-        await collections.apiKeys.insert(item);
-      }
-    }
-    await collections.detailedAnalytics.insert(detailedAnalyticsWithId);
-  },
-
   // Sync API keys from the API
   async syncApiKeys(token?: string) {
     try {
