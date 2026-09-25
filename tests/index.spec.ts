@@ -24,7 +24,7 @@ test.describe("index.tsx basic render", () => {
 
     if (isMobile) {
       // Click the mobile menu button
-      await page.getByLabel('Toggle mobile menu').click();
+      await page.getByLabel("Toggle mobile menu").click();
       // Check for Mobile Navbar
       await expect(page.locator('nav[aria-label="Mobile Menu"]')).toBeVisible();
     } else {
@@ -35,50 +35,82 @@ test.describe("index.tsx basic render", () => {
     await expect(page.getByRole("contentinfo")).toBeVisible();
   });
 
-  test("should render the Pricing section with correct tiers and prices", async ({
+  // Prices are withheld for now (#71): every amount reads "Upcoming".
+  const pricedTiers = PRICING_TIERS.filter((tier) => tier.price !== "Custom");
+
+  test("shows Upcoming instead of a price on every priced plan", async ({
     page,
   }) => {
     await page.goto(BASE_URL);
     const pricingSection = page.getByTestId("pricing-section");
-    const tiers = PRICING_TIERS;
-    await expect(
-      pricingSection.getByText(/Flexible Pricing for Every Scale/i),
-    ).toBeVisible();
-    for (const tier of tiers) {
-      // Check the heading is visible
-      await expect(
-        pricingSection.getByRole("heading", { name: tier.name }),
-      ).toBeVisible();
-      const pricingCard = await pricingSection.getByTestId(
-        `pricing-card-${tier.id}`,
+    await expect(pricingSection).toContainText(
+      "Flexible Pricing for Every Scale",
+    );
+    for (const tier of pricedTiers) {
+      const card = pricingSection.getByTestId(`pricing-card-${tier.id}`);
+      await expect(card.getByRole("heading", { name: tier.name })).toHaveCount(
+        1,
       );
-      // Check the pricing card is visible by id
-      await expect(pricingCard).toBeVisible();
-      // Check the price is visible
-      await expect(pricingCard.getByTestId("pricing-card-price")).toBeVisible();
-      // check the price text matches
-      await expect(
-        pricingCard.getByText(`${tier.currency ?? ""}${tier.price}`, {
-          exact: true,
-        }),
-      ).toBeVisible();
+      await expect(card.getByTestId("pricing-card-price")).toHaveText(
+        "Upcoming",
+      );
+      for (const feature of tier.features) {
+        await expect(card).toContainText(feature);
+      }
     }
   });
 
-  test("should show annual prices for tiers when toggled", async ({ page }) => {
+  test("shows no price amounts anywhere on the landing page", async ({
+    page,
+  }) => {
     await page.goto(BASE_URL);
-    // Simulate clicking the annual/monthly toggle (assume it has a role or label)
-    const toggle = await page.getByRole("button", { name: /annually/i });
-    await toggle.click();
-    // Only test for existing annual tiers: Basic and Pro
-    const annualTiers = PRICING_TIERS.filter((tier) => tier.priceYearly);
-    for (const tier of annualTiers) {
-      await expect(
-        page.getByRole("heading", { name: tier.name }),
-      ).toBeVisible();
-      await expect(
-        page.getByText(`${tier.currency ?? ""}${tier.priceYearly}`),
-      ).toBeVisible();
-    }
+    await expect(page.getByTestId("pricing-section")).toContainText("Upcoming");
+    const text = await page.locator("body").textContent();
+    expect(text).not.toMatch(/[$€£]\s?\d/);
+    // Without prices there is nothing to switch between.
+    await expect(page.getByRole("button", { name: /annually/i })).toHaveCount(
+      0,
+    );
   });
+
+  test("shows Upcoming for the overage rates", async ({ page }) => {
+    await page.goto(BASE_URL);
+    const row = page
+      .locator("#overage-pricing tr")
+      .filter({ hasText: "Cost per Additional Thumbnail" });
+    await expect(row).not.toContainText("$");
+    // Basic and Pro had per-thumbnail rates; Developer is N/A, Enterprise Custom.
+    await expect(row.getByText("Upcoming")).toHaveCount(2);
+  });
+
+  test("plan buttons are disabled and start no checkout", async ({ page }) => {
+    const dialogs: string[] = [];
+    page.on("dialog", async (dialog) => {
+      dialogs.push(dialog.message());
+      await dialog.dismiss();
+    });
+    await page.goto(BASE_URL);
+    for (const tier of pricedTiers) {
+      const button = page
+        .getByTestId(`pricing-card-${tier.id}`)
+        .getByRole("link", { name: "Upcoming" });
+      await expect(button).toBeDisabled();
+      await button.click({ force: true });
+    }
+    expect(dialogs).toEqual([]);
+  });
+
+  for (const name of ["Get API Key", "Get Your Free API Key Now"]) {
+    test(`"${name}" goes to sign-in, not a checkout`, async ({ page }) => {
+      const dialogs: string[] = [];
+      page.on("dialog", async (dialog) => {
+        dialogs.push(dialog.message());
+        await dialog.dismiss();
+      });
+      await page.goto(BASE_URL);
+      await page.getByRole("link", { name, exact: true }).click();
+      await expect(page).toHaveURL(/\/login$/);
+      expect(dialogs).toEqual([]);
+    });
+  }
 });
