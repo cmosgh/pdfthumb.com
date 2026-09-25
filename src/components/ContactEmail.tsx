@@ -22,13 +22,13 @@ const ContactEmail: React.FC<ContactEmailProps> = ({ kind, className }) => {
           href={href}
           className={
             className ??
-            "text-indigo-600 dark:text-indigo-400 hover:underline break-all"
+            "text-indigo-600 dark:text-indigo-400 hover:underline break-words"
           }
         >
           {address}
         </a>
       ) : (
-        <span className={className ?? "break-all"}>{address}</span>
+        <span className={className ?? "break-words"}>{address}</span>
       )}
       {CONTACT_RENDER === "tbc" && " [TBC]"}
     </>
