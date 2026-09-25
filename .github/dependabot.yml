@@ -23,6 +23,13 @@ updates:
       commitlint:
         patterns:
           - "@commitlint/*"
+      # react and react-dom must be the same version at runtime.
+      react:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
   # Bumps the digest-pinned base images in the Dockerfile.
   - package-ecosystem: "docker"
     directory: "/"
