@@ -136,12 +136,17 @@ export const dbHelpers = {
       // followed by an insert of the same key lets the delete's transaction
       // commit last and drop the row.
       for (const key of apiKeys) {
-        if (collections.apiKeys.has(key.id)) {
-          collections.apiKeys.update(key.id, (draft) => {
-            Object.assign(draft, key);
-          });
-        } else {
-          collections.apiKeys.insert(key);
+        try {
+          if (collections.apiKeys.has(key.id)) {
+            collections.apiKeys.update(key.id, (draft) => {
+              Object.assign(draft, key);
+            });
+          } else {
+            collections.apiKeys.insert(key);
+          }
+        } catch (e) {
+          // One bad key mustn't stop the rest from syncing.
+          console.warn(`Failed to sync API key ${key.id}:`, e);
         }
       }
 
