@@ -49,14 +49,14 @@ const ENDPOINTS = [
   },
 ];
 
-const h2 = "text-2xl font-bold text-slate-800 dark:text-white mb-4";
-const p = "text-slate-600 dark:text-slate-300 mb-4";
+const h2 = "text-2xl font-bold text-heading mb-4";
+const p = "text-fg-muted mb-4";
 // Inline code only: the curl block keeps its own dark background.
 const code =
-  "[&_:is(p,li,td)_code]:font-mono [&_:is(p,li,td)_code]:text-sm [&_:is(p,li,td)_code]:bg-slate-100 dark:[&_:is(p,li,td)_code]:bg-slate-700 [&_:is(p,li,td)_code]:px-1 [&_:is(p,li,td)_code]:rounded";
-const link = "text-indigo-600 dark:text-indigo-400 hover:underline";
+  "[&_:is(p,li,td)_code]:font-mono [&_:is(p,li,td)_code]:text-sm [&_:is(p,li,td)_code]:bg-muted [&_:is(p,li,td)_code]:px-1 [&_:is(p,li,td)_code]:rounded";
+const link = "text-link hover:underline";
 const pre =
-  "bg-slate-900 dark:bg-slate-800 border border-transparent dark:border-slate-700 text-slate-100 text-sm rounded-lg p-4 overflow-x-auto mb-6";
+  "bg-code border border-code-line text-code-fg text-sm rounded-lg p-4 overflow-x-auto mb-6";
 
 function DocsPage() {
   const { maxUploadMB, minWidthPx, maxWidthPx } = API_LIMITS;
@@ -65,7 +65,7 @@ function DocsPage() {
       className={`container mx-auto px-4 sm:px-6 lg:px-8 py-16 max-w-3xl ${code}`}
       data-testid="docs-page"
     >
-      <h1 className="text-4xl font-extrabold text-slate-800 dark:text-white mb-4">
+      <h1 className="text-4xl font-extrabold text-heading mb-4">
         Documentation
       </h1>
       <p className={p}>
@@ -75,7 +75,7 @@ function DocsPage() {
       </p>
       <a
         href={SWAGGER_URL}
-        className="inline-flex items-center font-semibold rounded-md shadow-sm px-6 py-3 mb-12 bg-indigo-600 text-white hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600"
+        className="inline-flex items-center font-semibold rounded-md shadow-sm px-6 py-3 mb-12 bg-accent text-on-accent hover:bg-accent-hover"
         data-testid="docs-swagger-link"
       >
         Open the API reference (Swagger)
@@ -118,7 +118,7 @@ function DocsPage() {
           aspect ratio. The API has three endpoints, each answering{" "}
           <code>201 Created</code>:
         </p>
-        <ul className="list-disc pl-6 space-y-2 mb-4 text-slate-600 dark:text-slate-300">
+        <ul className="list-disc pl-6 space-y-2 mb-4 text-fg-muted">
           {ENDPOINTS.map((endpoint) => (
             <li key={endpoint.path}>
               <a href={`#ref-${endpoint.id}`} className={link}>
@@ -144,7 +144,7 @@ function DocsPage() {
 
       <section className="mb-12" data-testid="docs-limits">
         <h2 className={h2}>Limits and errors</h2>
-        <ul className="list-disc pl-6 space-y-3 text-slate-600 dark:text-slate-300">
+        <ul className="list-disc pl-6 space-y-3 text-fg-muted">
           <li>
             A missing or invalid key gets <code>401 Unauthorized</code>.
           </li>

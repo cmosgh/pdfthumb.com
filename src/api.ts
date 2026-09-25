@@ -159,8 +159,8 @@ export const apiKeysApi = {
 // strings; see toDailyRequests.
 export interface AnalyticsDailyBucket {
   date: string;
-  call_count: number | string;
-  error_count: number | string;
+  call_count: number;
+  error_count: number;
 }
 
 // API functions for usage analytics

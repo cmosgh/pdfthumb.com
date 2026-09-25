@@ -6,31 +6,26 @@ import ContactEmail from "./ContactEmail.tsx";
 
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
-  const linkClasses =
-    "text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 text-sm";
+  const linkClasses = "text-fg-subtle hover:text-link text-sm";
 
   return (
-    <footer className="bg-slate-100 dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700">
+    <footer className="bg-band border-t border-line">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <Link
               to="/"
-              className="flex items-center space-x-2 text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-500 mb-4"
+              className="flex items-center space-x-2 text-link hover:text-link-hover mb-4"
             >
               <DocumentIcon className="h-8 w-8" />
-              <span className="font-bold text-xl text-slate-700 dark:text-slate-200">
-                {APP_NAME}
-              </span>
+              <span className="font-bold text-xl text-fg-2">{APP_NAME}</span>
             </Link>
-            <p className="text-slate-500 dark:text-slate-400 text-sm">
+            <p className="text-fg-subtle text-sm">
               Making PDF thumbnail generation simple and fast for developers.
             </p>
           </div>
           <div>
-            <h5 className="text-slate-700 dark:text-slate-200 font-semibold mb-3">
-              Quick Links
-            </h5>
+            <h5 className="text-fg-2 font-semibold mb-3">Quick Links</h5>
             <ul className="space-y-2">
               <li>
                 <a href="/#features" className={linkClasses}>
@@ -59,9 +54,7 @@ const Footer: React.FC = () => {
             </ul>
           </div>
           <div>
-            <h5 className="text-slate-700 dark:text-slate-200 font-semibold mb-3">
-              Legal
-            </h5>
+            <h5 className="text-fg-2 font-semibold mb-3">Legal</h5>
             <ul className="space-y-2">
               <li>
                 <Link to="/terms" className={linkClasses}>
@@ -73,15 +66,15 @@ const Footer: React.FC = () => {
                   Privacy Policy
                 </Link>
               </li>
-              <li className="text-slate-500 dark:text-slate-400 text-sm">
+              <li className="text-fg-subtle text-sm">
                 Contact Us:{" "}
                 <ContactEmail kind="support" className={linkClasses} />
               </li>
             </ul>
           </div>
         </div>
-        <div className="mt-12 border-t border-slate-200 dark:border-slate-700 pt-8 text-center">
-          <p className="text-sm text-slate-500 dark:text-slate-400">
+        <div className="mt-12 border-t border-line pt-8 text-center">
+          <p className="text-sm text-fg-subtle">
             &copy; {currentYear} {APP_NAME}. All rights reserved.
           </p>
         </div>

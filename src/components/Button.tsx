@@ -21,29 +21,28 @@ const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const baseStyles =
-    "inline-flex items-center justify-center font-semibold rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-slate-900 transition-all duration-150 ease-in-out";
+    "inline-flex items-center justify-center font-semibold rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-page transition-all duration-150 ease-in-out";
 
   let variantStyles = "";
   switch (variant) {
     case "primary":
       variantStyles =
-        "bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-600 dark:focus:ring-indigo-400";
+        "bg-accent text-on-accent hover:bg-accent-hover focus:ring-focus";
       break;
     case "secondary":
       variantStyles =
-        "bg-indigo-100 text-indigo-700 hover:bg-indigo-200 focus:ring-indigo-500 dark:bg-slate-700 dark:text-indigo-300 dark:hover:bg-slate-600 dark:focus:ring-indigo-400";
+        "bg-accent-soft text-accent-soft-fg hover:bg-accent-soft-hover focus:ring-focus";
       break;
     case "outline":
       variantStyles =
-        "border border-indigo-600 text-indigo-600 hover:bg-indigo-50 focus:ring-indigo-500 dark:border-indigo-500 dark:text-indigo-400 dark:hover:bg-indigo-500/20 dark:focus:ring-indigo-400";
+        "border border-accent text-link hover:bg-accent-tint focus:ring-focus";
       break;
     case "outlineWhite":
       variantStyles =
-        "border border-white text-white hover:bg-white hover:text-indigo-600 focus:ring-white dark:hover:bg-opacity-90 dark:focus:ring-gray-300";
+        "border border-on-accent text-on-accent hover:bg-on-accent hover:text-link focus:ring-on-accent";
       break;
     case "ghost":
-      variantStyles =
-        "text-indigo-600 hover:bg-indigo-50 focus:ring-indigo-500 dark:text-indigo-400 dark:hover:bg-indigo-500/20 dark:focus:ring-indigo-400";
+      variantStyles = "text-link hover:bg-accent-tint focus:ring-focus";
       break;
   }
 

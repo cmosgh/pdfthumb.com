@@ -13,6 +13,11 @@ export default {
     process.env.VR_SNAPSHOTS ?? "{testDir}/__snapshots__/{arg}{ext}",
   workers: 4,
   retries: 0,
+  // Playwright's default per-pixel colour tolerance; VR_THRESHOLD=0 shows
+  // every changed pixel, however faint.
+  expect: {
+    toHaveScreenshot: { threshold: Number(process.env.VR_THRESHOLD ?? 0.2) },
+  },
   projects: [{ name: "chromium", use: { browserName: "chromium" } }],
   use: { ...base.use, baseURL: `http://localhost:${port}` },
   webServer: {

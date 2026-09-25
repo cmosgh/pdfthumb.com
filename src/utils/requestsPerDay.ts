@@ -11,22 +11,21 @@ const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 /**
  * One entry per day for the `days` days ending today (UTC), oldest first.
- * Days the API has no bucket for count as zero. A bucket's date may be
- * "YYYY-MM-DD" or a midnight timestamp, and its counts numbers or strings.
+ * Days the API has no bucket for count as zero.
  */
 export function toDailyRequests(
   buckets: AnalyticsDailyBucket[],
   days: number,
   now = new Date(),
 ): DailyRequests[] {
-  const byDate = new Map(buckets.map((b) => [b.date.slice(0, 10), b]));
+  const byDate = new Map(buckets.map((b) => [b.date, b]));
   return Array.from({ length: days }, (_, i) => {
     const date = new Date(now.getTime() - (days - 1 - i) * MS_PER_DAY)
       .toISOString()
       .slice(0, 10);
     const bucket = byDate.get(date);
-    const total = Number(bucket?.call_count ?? 0);
-    const failed = Number(bucket?.error_count ?? 0);
+    const total = bucket?.call_count ?? 0;
+    const failed = bucket?.error_count ?? 0;
     return { date, successful: total - failed, failed };
   });
 }

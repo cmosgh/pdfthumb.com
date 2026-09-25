@@ -33,15 +33,12 @@ export const BarChartComponent: React.FC<BarChartProps> = ({
   const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white dark:bg-slate-800 p-3 border border-slate-200 dark:border-slate-600 rounded-lg shadow-lg">
-          <p className="text-sm font-medium text-slate-900 dark:text-slate-100 mb-2">
+        <div className="bg-surface p-3 border border-line-strong rounded-lg shadow-lg">
+          <p className="text-sm font-medium text-fg-strong mb-2">
             {formatDay(label || "", true)}
           </p>
           {payload.map((entry, index) => (
-            <p
-              key={index}
-              className="text-sm text-slate-600 dark:text-slate-300"
-            >
+            <p key={index} className="text-sm text-fg-muted">
               <span
                 className="inline-block w-3 h-3 rounded-full mr-2"
                 style={{ backgroundColor: entry.color }}
@@ -62,15 +59,19 @@ export const BarChartComponent: React.FC<BarChartProps> = ({
           data={data}
           margin={{ top: 5, right: 10, left: 0, bottom: 5 }}
         >
-          <CartesianGrid strokeDasharray="3 3" stroke="#94a3b8" opacity={0.3} />
+          <CartesianGrid
+            strokeDasharray="3 3"
+            stroke="var(--color-chart-grid)"
+            opacity={0.3}
+          />
           <XAxis
             dataKey="date"
             tickFormatter={(date: string) => formatDay(date)}
-            stroke="#64748b"
+            stroke="var(--color-chart-axis)"
             fontSize={12}
           />
           <YAxis
-            stroke="#64748b"
+            stroke="var(--color-chart-axis)"
             fontSize={12}
             allowDecimals={false}
             tickFormatter={(value: number) => value.toLocaleString("en-US")}

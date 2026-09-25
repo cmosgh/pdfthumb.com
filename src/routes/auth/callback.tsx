@@ -70,14 +70,14 @@ function CallbackComponent() {
   }, [login, fetchMe, navigate]);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-page flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-          <h2 className="mt-6 text-center text-2xl font-extrabold text-gray-900 dark:text-white">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto"></div>
+          <h2 className="mt-6 text-center text-2xl font-extrabold text-heading">
             Signing you in...
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600 dark:text-slate-400">
+          <p className="mt-2 text-center text-sm text-fg-caption">
             Please wait while we complete your authentication.
           </p>
         </div>

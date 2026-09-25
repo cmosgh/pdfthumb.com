@@ -117,12 +117,7 @@ test.describe("Dashboard Navigation", () => {
     page,
   }) => {
     const summary = await mockAnalyticsSummary(page, [
-      // Postgres returns DATE_TRUNC as a timestamp and COUNT as a string.
-      {
-        date: `${daysAgo(2)}T00:00:00.000Z`,
-        call_count: "1200",
-        error_count: "7",
-      },
+      { date: daysAgo(2), call_count: 1200, error_count: 7 },
       { date: daysAgo(0), call_count: 40, error_count: 0 },
     ]);
     await page.goto("/dashboard/overview");
@@ -194,6 +189,23 @@ test.describe("Dashboard Navigation", () => {
       "/api/users/test-user-123/subscription",
     );
     expect(request.headers()["authorization"]).toBe("Bearer mock-access-token");
+  });
+
+  // ICU prints "Sept" for September in en-GB; the reset day says "Sep".
+  test("a September reset day reads Sep", async ({ page }) => {
+    await page.clock.setFixedTime(new Date("2026-09-01T12:00:00Z"));
+    await mockSubscription(page, {
+      ...subscription(
+        { name: "Free", monthlyThumbnailLimit: 1000, isHardLimit: true },
+        10,
+      ),
+      currentPeriodEnd: "2026-09-16T00:00:00.000Z",
+    });
+    await page.goto("/dashboard/overview");
+
+    await expect(page.getByTestId("plan-quota-summary")).toHaveText(
+      "Free · 10 of 1,000 Thumbnails used · resets 16 Sep (in 15 days)",
+    );
   });
 
   test("a plan with overage says so, without the price", async ({ page }) => {

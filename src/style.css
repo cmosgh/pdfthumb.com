@@ -1,7 +1,22 @@
 @import "tailwindcss";
+@import "./tokens.css";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 html {
   scroll-behavior: smooth;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--pt-scrollbar-track);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--pt-scrollbar-thumb);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--pt-scrollbar-thumb-hover);
 }

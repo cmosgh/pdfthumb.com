@@ -4,15 +4,14 @@ import { analyticsApi } from "@/api";
 import { useAuth } from "@/hooks/AuthContext";
 import { BarChartComponent } from "@/components/dashboard/BarChart";
 import { formatDay, toDailyRequests } from "@/utils/requestsPerDay";
+import { count } from "@/utils/format";
 
 const DAYS = 30;
 
 const SERIES = [
-  { key: "successful", name: "Successful", color: "#6366f1" },
-  { key: "failed", name: "Failed", color: "#f43f5e" },
+  { key: "successful", name: "Successful", color: "var(--color-chart-1)" },
+  { key: "failed", name: "Failed", color: "var(--color-chart-2)" },
 ];
-
-const count = (n: number) => n.toLocaleString("en-US");
 
 // Requests to the thumbnail routes per day, successful vs failed (#119).
 // A ZIP counts as one request, so these are requests, not Thumbnails.
@@ -32,29 +31,26 @@ export const RequestsPerDay: React.FC = () => {
 
   return (
     <section
-      className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-6"
+      className="bg-surface rounded-lg shadow-sm border border-line p-6"
       data-testid="requests-per-day"
       aria-labelledby="requests-per-day-heading"
     >
       <h2
         id="requests-per-day-heading"
-        className="text-lg font-semibold text-slate-900 dark:text-slate-100"
+        className="text-lg font-semibold text-fg-strong"
       >
         Requests per day
       </h2>
       {isError ? (
-        <p
-          className="mt-2 text-slate-600 dark:text-slate-400"
-          data-testid="requests-error"
-        >
+        <p className="mt-2 text-fg-caption" data-testid="requests-error">
           Requests per day couldn't be loaded. Try again later.
         </p>
       ) : isPending ? (
-        <p className="mt-2 text-slate-600 dark:text-slate-400">Loading…</p>
+        <p className="mt-2 text-fg-caption">Loading…</p>
       ) : (
         <>
           <p
-            className="mt-1 mb-4 text-sm text-slate-600 dark:text-slate-400"
+            className="mt-1 mb-4 text-sm text-fg-caption"
             data-testid="requests-total"
           >
             {successful + failed === 0
