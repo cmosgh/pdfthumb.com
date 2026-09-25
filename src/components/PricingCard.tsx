@@ -93,9 +93,9 @@ const PricingCard: React.FC<PricingCardProps> = ({ tier }) => {
         ))}
       </ul>
       <Button
-        // Coming-soon tiers get a disabled button that swallows the click.
+        // A disabled button keeps "#" and swallows the click.
         // A live tier follows its ctaLink; Enterprise's button mails sales.
-        href={ctaHref ?? (tier.isComingSoon ? "#" : tier.ctaLink)}
+        href={ctaHref ?? (ctaDisabled ? "#" : tier.ctaLink)}
         variant={tier.isFeatured ? "primary" : "secondary"}
         className={`w-full mt-auto ${ctaDisabled ? "opacity-70 cursor-not-allowed" : ""} 
                     ${
