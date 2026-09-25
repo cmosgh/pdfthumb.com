@@ -5,10 +5,17 @@ export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [{ title: `Sign In | ${APP_NAME}` }],
   }),
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { error?: string; redirect?: string } => ({
+    ...(typeof search.error === "string" && { error: search.error }),
+    ...(typeof search.redirect === "string" && { redirect: search.redirect }),
+  }),
   component: LoginComponent,
 });
 
 function LoginComponent() {
+  const { error } = Route.useSearch();
   const handleGoogleLogin = () => {
     // Redirect to backend Google OAuth endpoint
     window.location.href = "/api/auth/google";
@@ -28,6 +35,14 @@ function LoginComponent() {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white dark:bg-slate-800 py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <div className="space-y-6">
+            {error && (
+              <p
+                role="alert"
+                className="rounded-md bg-red-50 dark:bg-red-900/30 p-3 text-sm text-red-700 dark:text-red-300"
+              >
+                Google sign-in didn't complete. Please try again.
+              </p>
+            )}
             <button
               onClick={handleGoogleLogin}
               className="w-full flex justify-center items-center py-3 px-4 border border-gray-300 dark:border-slate-600 rounded-md shadow-sm bg-white dark:bg-slate-700 text-sm font-medium text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"

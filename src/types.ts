@@ -129,6 +129,19 @@ export interface AuthTokens {
   expiresAt: number; // timestamp when access token expires
 }
 
+// The session the backend returns from POST /api/auth/oauth/exchange
+export interface AuthSession {
+  accessToken: string;
+  refreshToken: string;
+  expiresIn: string; // jsonwebtoken duration, e.g. "1h"
+  user: {
+    id: string;
+    email: string | null;
+    displayName: string | null;
+    roles: string[];
+  };
+}
+
 export interface AuthState {
   user: User | null;
   tokens: AuthTokens | null;

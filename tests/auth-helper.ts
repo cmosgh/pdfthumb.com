@@ -55,6 +55,19 @@ export async function mockAuthentication(page: Page): Promise<void> {
       }),
     );
   });
+
+  // AuthProvider calls fetchMe on load and logs out (navigating to "/") if
+  // /api/auth/me fails, so answer it for the mocked user.
+  await page.route("**/api/auth/me", (route) =>
+    route.fulfill({
+      json: {
+        id: mockUser.id,
+        email: mockUser.email,
+        displayName: mockUser.name,
+        roles: ["user"],
+      },
+    }),
+  );
 }
 
 /**

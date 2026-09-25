@@ -1,3 +1,5 @@
+import type { AuthSession } from "./types";
+
 const API_BASE_URL = "/api";
 
 export default API_BASE_URL;
@@ -44,11 +46,22 @@ export const authApi = {
         throw new Error("Token refresh failed");
       }
 
-      return response.json();
+      return response.json() as Promise<AuthSession>;
     } catch (error) {
       console.error("Token refresh API error:", error);
       throw error;
     }
+  },
+
+  // Redeem the single-use code from the OAuth callback redirect for a session
+  async exchangeCode(code: string) {
+    const response = await fetch("/api/auth/oauth/exchange", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code }),
+    });
+    if (!response.ok) throw new Error("OAuth code exchange failed");
+    return response.json() as Promise<AuthSession>;
   },
 
   // Fetch user profile including roles from the backend

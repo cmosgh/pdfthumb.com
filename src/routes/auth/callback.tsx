@@ -1,87 +1,66 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { useAuth } from "../../hooks/AuthContext";
+import { authApi } from "../../api";
+import { sessionExpiresAt } from "../../utils/duration";
 
 export const Route = createFileRoute("/auth/callback")({
   component: CallbackComponent,
 });
 
+// A code is single-use, so every mount of the callback shares one exchange per
+// code. That covers StrictMode's double effect and a remount of this route alike.
+const exchanges = new Map<string, ReturnType<typeof authApi.exchangeCode>>();
+
+function exchangeOnce(code: string) {
+  let exchange = exchanges.get(code);
+  if (!exchange) {
+    exchange = authApi.exchangeCode(code);
+    exchanges.set(code, exchange);
+  }
+  return exchange;
+}
+
 function CallbackComponent() {
   const navigate = useNavigate();
   const { login, fetchMe } = useAuth();
-  const hasProcessed = useRef(false);
 
   useEffect(() => {
-    // Prevent multiple executions
-    if (hasProcessed.current) return;
-    hasProcessed.current = true;
+    const failToLogin = () =>
+      navigate({ to: "/login", search: { error: "oauth" }, replace: true });
 
     const handleCallback = async () => {
       try {
-        // Check if we have auth data in URL parameters or if the backend set cookies/tokens
-        const urlParams = new URLSearchParams(window.location.search);
-        const accessToken =
-          urlParams.get("accessToken") || urlParams.get("token");
-        const refreshToken = urlParams.get("refreshToken");
-        const expiresIn =
-          urlParams.get("expiresIn") || urlParams.get("expires_in");
-        const userData = urlParams.get("user");
-
-        if (accessToken && expiresIn) {
-          // Parse and validate expiresIn
-          const expiresInSeconds = parseInt(expiresIn);
-          if (isNaN(expiresInSeconds) || expiresInSeconds <= 0) {
-            console.error("Invalid expiresIn value:", expiresIn);
-            navigate({ to: "/login", replace: true });
-            return;
-          }
-
-          // Ensure minimum 5 minutes expiration
-          const minExpiration = 300; // 5 minutes
-          const actualExpiration = Math.max(expiresInSeconds, minExpiration);
-
-          // Create tokens - refresh token is optional
-          const tokens = {
-            accessToken,
-            refreshToken: refreshToken || "",
-            expiresAt: Date.now() + actualExpiration * 1000,
-          };
-
-          let user;
-          if (userData) {
-            // Parse user data if provided
-            user = JSON.parse(decodeURIComponent(userData));
-          } else {
-            // Create a basic user object from token info (if available)
-            // This is a fallback for OAuth providers that don't send user data
-            user = {
-              id: "oauth-user",
-              email: "user@example.com",
-              name: "OAuth User",
-              roles: [],
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-            };
-          }
-
-          // Login the user
-          login(tokens, user);
-
-          // Fire fetchMe async — don't await, dashboard navigates immediately
-          fetchMe(tokens.accessToken).catch(console.error);
-
-          // Small delay to ensure state is updated before navigation
-          setTimeout(() => {
-            navigate({ to: "/dashboard", replace: true });
-          }, 100);
-        } else {
-          // If no tokens in URL, redirect to login with error
-          console.error("OAuth callback failed: missing tokens");
-          navigate({ to: "/login", replace: true });
+        const params = new URLSearchParams(window.location.search);
+        const code = params.get("code");
+        if (!code || params.has("error")) {
+          failToLogin();
+          return;
         }
+
+        const session = await exchangeOnce(code);
+        const tokens = {
+          accessToken: session.accessToken,
+          refreshToken: session.refreshToken,
+          expiresAt: sessionExpiresAt(session.expiresIn),
+        };
+        const now = new Date().toISOString();
+        const user = {
+          id: session.user.id,
+          email: session.user.email ?? "",
+          name: session.user.displayName ?? session.user.email ?? "",
+          roles: session.user.roles,
+          createdAt: now,
+          updatedAt: now,
+        };
+
+        login(tokens, user);
+        // Fire fetchMe async: it refreshes the roles, the dashboard doesn't wait on it
+        fetchMe(tokens.accessToken).catch(console.error);
+        navigate({ to: "/dashboard", replace: true });
       } catch (error) {
         console.error("OAuth callback error:", error);
-        navigate({ to: "/login", replace: true });
+        failToLogin();
       }
     };
 

@@ -9,6 +9,7 @@ import React, {
 } from "react";
 import type { AuthState, AuthTokens, User } from "../types";
 import { authApi } from "../api";
+import { sessionExpiresAt } from "../utils/duration";
 
 interface AuthContextType extends AuthState {
   login: (tokens: AuthTokens, user: User) => void;
@@ -117,7 +118,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const newTokens: AuthTokens = {
       accessToken: response.accessToken,
       refreshToken: response.refreshToken || tokens.refreshToken,
-      expiresAt: Date.now() + (response.expiresIn || 3600) * 1000,
+      expiresAt: sessionExpiresAt(response.expiresIn),
     };
 
     localStorage.setItem(TOKEN_STORAGE_KEY, JSON.stringify(newTokens));
