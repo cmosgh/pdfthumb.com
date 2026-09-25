@@ -100,12 +100,10 @@ test.describe("index.tsx basic render", () => {
     expect(dialogs).toEqual([]);
   });
 
-  // API keys wait for sign-in and plans (#71): both calls to action are
-  // disabled and read "Upcoming" instead of starting a checkout.
+  // Sign-in works and new users get the Free plan (#75): both calls to
+  // action lead to /login, where API keys live behind sign-in.
   for (const testId of ["navbar-api-key", "cta-api-key"]) {
-    test(`${testId} is disabled, says Upcoming and goes nowhere`, async ({
-      page,
-    }) => {
+    test(`${testId} leads to sign-in, not a checkout`, async ({ page }) => {
       const dialogs: string[] = [];
       page.on("dialog", async (dialog) => {
         dialogs.push(dialog.message());
@@ -113,11 +111,20 @@ test.describe("index.tsx basic render", () => {
       });
       await page.goto(BASE_URL);
       const cta = page.getByTestId(testId);
-      await expect(cta).toHaveText("API keys: Upcoming");
-      await expect(cta).toBeDisabled();
-      await cta.click({ force: true });
-      await expect(page).toHaveURL(`${BASE_URL}/`);
+      await expect(cta).toBeEnabled();
+      await cta.click();
+      await expect(page).toHaveURL(/\/login$/);
       expect(dialogs).toEqual([]);
     });
   }
+
+  test("the API-key calls to action keep their original labels", async ({
+    page,
+  }) => {
+    await page.goto(BASE_URL);
+    await expect(page.getByTestId("navbar-api-key")).toHaveText("Get API Key");
+    await expect(page.getByTestId("cta-api-key")).toHaveText(
+      "Get Your Free API Key Now",
+    );
+  });
 });
