@@ -10,51 +10,43 @@ import {
   Legend,
 } from "recharts";
 import type { ChartDataPoint, TooltipProps } from "../../types";
+import { formatDay } from "../../utils/requestsPerDay";
+
+export interface BarSeries {
+  key: string;
+  name: string;
+  color: string;
+}
 
 interface BarChartProps {
+  // One point per day; `date` is YYYY-MM-DD (UTC)
   data: ChartDataPoint[];
-  title: string;
-  dataKeys?: string[];
-  colors?: string[];
+  series: BarSeries[];
   stacked?: boolean;
 }
 
 export const BarChartComponent: React.FC<BarChartProps> = ({
   data,
-  title,
-  dataKeys = ["value"],
-  colors = ["#3B82F6"],
+  series,
   stacked = false,
 }) => {
-  const formatXAxisLabel = (tickItem: string) => {
-    const date = new Date(tickItem);
-    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-  };
-
-  const formatTooltipLabel = (label: string) => {
-    const date = new Date(label);
-    return date.toLocaleDateString("en-US", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
-
   const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
-          <p className="text-sm font-medium text-gray-900 mb-2">
-            {formatTooltipLabel(label || "")}
+        <div className="bg-white dark:bg-slate-800 p-3 border border-slate-200 dark:border-slate-600 rounded-lg shadow-lg">
+          <p className="text-sm font-medium text-slate-900 dark:text-slate-100 mb-2">
+            {formatDay(label || "", true)}
           </p>
           {payload.map((entry, index) => (
-            <p key={index} className="text-sm text-gray-600">
+            <p
+              key={index}
+              className="text-sm text-slate-600 dark:text-slate-300"
+            >
               <span
                 className="inline-block w-3 h-3 rounded-full mr-2"
                 style={{ backgroundColor: entry.color }}
               />
-              {entry.name}: {entry.value.toLocaleString()}
+              {entry.name}: {entry.value.toLocaleString("en-US")}
             </p>
           ))}
         </div>
@@ -63,60 +55,52 @@ export const BarChartComponent: React.FC<BarChartProps> = ({
     return null;
   };
 
-  const renderBars = () => {
-    return dataKeys.map((key, index) => (
-      <Bar
-        key={key}
-        dataKey={key}
-        fill={colors[index % colors.length]}
-        stackId={stacked ? "stack" : undefined}
-        radius={
-          stacked && index === dataKeys.length - 1 ? [4, 4, 0, 0] : undefined
-        }
-      />
-    ));
-  };
-
   return (
-    <div
-      className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
-      data-testid="bar-chart"
-    >
-      <h3
-        className="text-lg font-semibold text-gray-900 mb-4"
-        data-testid="chart-title"
-      >
-        {title}
-      </h3>
-      <div className="h-80" data-testid="chart-container">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart
-            data={data}
-            margin={{
-              top: 5,
-              right: 30,
-              left: 20,
-              bottom: 5,
-            }}
-          >
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-            <XAxis
-              dataKey="date"
-              tickFormatter={formatXAxisLabel}
-              stroke="#6b7280"
-              fontSize={12}
+    <div className="h-72" data-testid="bar-chart">
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart
+          data={data}
+          margin={{ top: 5, right: 10, left: 0, bottom: 5 }}
+        >
+          <CartesianGrid strokeDasharray="3 3" stroke="#94a3b8" opacity={0.3} />
+          <XAxis
+            dataKey="date"
+            tickFormatter={(date: string) => formatDay(date)}
+            stroke="#64748b"
+            fontSize={12}
+          />
+          <YAxis
+            stroke="#64748b"
+            fontSize={12}
+            allowDecimals={false}
+            tickFormatter={(value: number) => value.toLocaleString("en-US")}
+          />
+          <Tooltip content={<CustomTooltip />} cursor={{ opacity: 0.2 }} />
+          <Legend
+            wrapperStyle={{ paddingTop: "12px" }}
+            iconType="rect"
+            // In series order, not alphabetical
+            itemSorter={(item) =>
+              series.findIndex(({ key }) => key === item.dataKey)
+            }
+          />
+          {series.map(({ key, name, color }, index) => (
+            <Bar
+              key={key}
+              dataKey={key}
+              name={name}
+              fill={color}
+              isAnimationActive={false}
+              stackId={stacked ? "stack" : undefined}
+              radius={
+                !stacked || index === series.length - 1
+                  ? [4, 4, 0, 0]
+                  : undefined
+              }
             />
-            <YAxis
-              stroke="#6b7280"
-              fontSize={12}
-              tickFormatter={(value) => value.toLocaleString()}
-            />
-            <Tooltip content={<CustomTooltip />} />
-            <Legend wrapperStyle={{ paddingTop: "20px" }} iconType="rect" />
-            {renderBars()}
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
+          ))}
+        </BarChart>
+      </ResponsiveContainer>
     </div>
   );
 };

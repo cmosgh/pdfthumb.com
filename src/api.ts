@@ -153,3 +153,26 @@ export const apiKeysApi = {
     return response.json();
   },
 };
+
+// One day of the caller's requests to the thumbnail routes. In production
+// (Postgres) the date comes as a midnight timestamp and the counts as
+// strings; see toDailyRequests.
+export interface AnalyticsDailyBucket {
+  date: string;
+  call_count: number | string;
+  error_count: number | string;
+}
+
+// API functions for usage analytics
+export const analyticsApi = {
+  // Requests per day over the last `days` days; days without requests are
+  // missing
+  async getSummary(days: number, token?: string) {
+    const response = await fetch(
+      `${API_BASE_URL}/analytics/summary?days=${days}`,
+      { headers: getHeaders(token) },
+    );
+    if (!response.ok) throw new Error("Failed to fetch analytics summary");
+    return response.json() as Promise<{ dailyBuckets: AnalyticsDailyBucket[] }>;
+  },
+};

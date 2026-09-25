@@ -9,7 +9,6 @@ export async function loadMockData() {
     mockFileTypeData,
     mockErrorLogs,
     mockGeographicData,
-    mockApiKeys,
     mockDetailedAnalytics,
   } = await import("./dashboardMocks");
 
@@ -42,12 +41,6 @@ export async function loadMockData() {
   }
   for (const item of geographicDataWithIds) {
     await collections.geographicData.insert(item);
-  }
-  for (const item of mockApiKeys) {
-    // only adding in tests
-    if (import.meta.env.MODE === "test") {
-      await collections.apiKeys.insert(item);
-    }
   }
   await collections.detailedAnalytics.insert(detailedAnalyticsWithId);
 }
