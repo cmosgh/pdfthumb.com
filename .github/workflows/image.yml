@@ -51,7 +51,7 @@ jobs:
             echo "ok $1 $2 ${3:-}"
           }
 
-          ASSET="$(docker exec dashboard ls /usr/share/nginx/html/assets | grep '\.js$' | head -1)"
+          ASSET="$(docker exec dashboard ls /usr/share/nginx/dashboard/assets | grep '\.js$' | head -1)"
           expect / 200 '^cache-control: no-cache'
           expect /index.html 200 '^cache-control: no-cache'
           expect /dashboard/settings 200 '^cache-control: no-cache'
@@ -67,7 +67,7 @@ jobs:
       - name: Check the image holds only the bundle
         run: |
           set -euo pipefail
-          docker cp dashboard:/usr/share/nginx/html "$RUNNER_TEMP/html"
+          docker cp dashboard:/usr/share/nginx/dashboard "$RUNNER_TEMP/html"
           scripts/check-public-bundle.sh "$RUNNER_TEMP/html"
           unexpected="$(cd "$RUNNER_TEMP/html" && find . -type f | grep -vE '^\./(index\.html|assets/[^/]+\.(js|css|svg|png|jpg|webp|woff2?))$' || true)"
           if [ -n "$unexpected" ]; then

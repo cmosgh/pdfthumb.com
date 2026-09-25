@@ -21,7 +21,9 @@ FROM nginx:stable-alpine
 
 # Replaces the stock server block, which listens on :80.
 COPY nginx/default.conf /etc/nginx/conf.d/default.conf
-COPY --from=build /app/dist /usr/share/nginx/html
+# Its own directory, so nothing the base image ships in /usr/share/nginx/html
+# (its stock index.html and 50x.html) is served.
+COPY --from=build /app/dist /usr/share/nginx/dashboard
 
 # The image's nginx user. nginx writes its pid to /var/run and temp files
 # under /var/cache/nginx; the chart mounts emptyDirs there under a read-only
