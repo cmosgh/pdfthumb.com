@@ -108,14 +108,16 @@ const Navbar: React.FC<NavbarProps> = ({ theme, toggleTheme }) => {
                 >
                   Log In
                 </Link>
-                {/* API keys live in the dashboard, behind sign-in. No checkout
-                    while pricing is upcoming (#71). */}
-                <Link
-                  to="/login"
-                  className="cursor-pointer bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-md shadow-md transition-transform transform hover:scale-105 text-sm"
+                {/* API keys wait for sign-in and plans (#71): no checkout,
+                    no link, until they're ready. */}
+                <button
+                  type="button"
+                  disabled
+                  data-testid="navbar-api-key"
+                  className="cursor-not-allowed opacity-70 bg-indigo-600 dark:bg-indigo-500 text-white font-semibold py-2 px-4 rounded-md shadow-md text-sm"
                 >
-                  Get API Key
-                </Link>
+                  API keys: Upcoming
+                </button>
               </>
             )}
           </div>

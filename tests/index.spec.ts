@@ -100,16 +100,23 @@ test.describe("index.tsx basic render", () => {
     expect(dialogs).toEqual([]);
   });
 
-  for (const name of ["Get API Key", "Get Your Free API Key Now"]) {
-    test(`"${name}" goes to sign-in, not a checkout`, async ({ page }) => {
+  // API keys wait for sign-in and plans (#71): both calls to action are
+  // disabled and read "Upcoming" instead of starting a checkout.
+  for (const testId of ["navbar-api-key", "cta-api-key"]) {
+    test(`${testId} is disabled, says Upcoming and goes nowhere`, async ({
+      page,
+    }) => {
       const dialogs: string[] = [];
       page.on("dialog", async (dialog) => {
         dialogs.push(dialog.message());
         await dialog.dismiss();
       });
       await page.goto(BASE_URL);
-      await page.getByRole("link", { name, exact: true }).click();
-      await expect(page).toHaveURL(/\/login$/);
+      const cta = page.getByTestId(testId);
+      await expect(cta).toHaveText("API keys: Upcoming");
+      await expect(cta).toBeDisabled();
+      await cta.click({ force: true });
+      await expect(page).toHaveURL(`${BASE_URL}/`);
       expect(dialogs).toEqual([]);
     });
   }
