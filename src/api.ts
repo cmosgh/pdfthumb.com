@@ -43,7 +43,10 @@ export const authApi = {
       });
 
       if (!response.ok) {
-        throw new Error("Token refresh failed");
+        // The status tells a spent refresh token (401) from a passing failure.
+        throw Object.assign(new Error("Token refresh failed"), {
+          status: response.status,
+        });
       }
 
       return response.json() as Promise<AuthSession>;
