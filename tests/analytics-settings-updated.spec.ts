@@ -130,6 +130,28 @@ test.describe("Detailed Analytics & Settings", () => {
       await expect(page.getByTestId("save-profile-button")).toHaveCount(0);
     });
 
+    test("says Not provided when Google gave no name or email", async ({
+      page,
+    }) => {
+      // Overrides the user mockAuthentication stored for this page load.
+      await page.addInitScript(() => {
+        const user = JSON.parse(localStorage.getItem("auth_user") ?? "{}");
+        localStorage.setItem(
+          "auth_user",
+          JSON.stringify({ ...user, name: "", email: "" }),
+        );
+      });
+      await page.goto("/dashboard/settings");
+
+      const profile = page.getByTestId("profile-settings-section");
+      await expect(profile.getByTestId("profile-name")).toHaveText(
+        "Not provided",
+      );
+      await expect(profile.getByTestId("profile-email")).toHaveText(
+        "Not provided",
+      );
+    });
+
     test("should generate and revoke an API key", async ({ page }) => {
       await page.goto("/dashboard/settings");
 

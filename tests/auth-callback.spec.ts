@@ -172,4 +172,21 @@ test.describe("OAuth callback", () => {
       await page.evaluate(() => localStorage.getItem("auth_tokens")),
     ).toBeNull();
   });
+
+  test("stores no name when Google gives none, rather than the email", async ({
+    page,
+  }) => {
+    await mockExchange(page, {
+      status: 201,
+      body: { ...session, user: { ...session.user, displayName: null } },
+    });
+
+    await page.goto("/auth/callback?code=single-use-code");
+    await expect(page).toHaveURL(/\/dashboard/);
+
+    const user = await page.evaluate(() =>
+      JSON.parse(localStorage.getItem("auth_user") ?? "null"),
+    );
+    expect(user).toMatchObject({ name: "", email: "ada@example.com" });
+  });
 });

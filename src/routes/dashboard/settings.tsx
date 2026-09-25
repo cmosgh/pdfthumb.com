@@ -100,21 +100,6 @@ function SettingsComponent() {
     }
   };
 
-  if (!user) {
-    return (
-      <div className="space-y-6" data-testid="settings-page">
-        <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100">
-          Settings
-        </h1>
-        <div className="flex items-center justify-center h-64">
-          <div className="text-lg text-slate-600 dark:text-slate-400">
-            Loading settings...
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6" data-testid="settings-page">
       <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100">
@@ -122,7 +107,8 @@ function SettingsComponent() {
       </h1>
 
       {/* Profile Settings */}
-      <ProfileSettings name={user.name} email={user.email} />
+      {/* Only the profile needs the user; the API keys don't wait on it. */}
+      {user && <ProfileSettings user={user} />}
 
       {/* API Keys Management */}
       <div>

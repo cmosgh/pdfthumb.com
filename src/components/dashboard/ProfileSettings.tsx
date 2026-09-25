@@ -1,19 +1,16 @@
 import React from "react";
+import type { User } from "../../types";
 
 interface ProfileSettingsProps {
-  name: string;
-  email: string;
+  user: Pick<User, "name" | "email">;
 }
 
 // The signed-in user's profile, read-only: the backend has no endpoint that
 // updates it, and no created date or company to show yet (#77).
-export const ProfileSettings: React.FC<ProfileSettingsProps> = ({
-  name,
-  email,
-}) => {
+export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ user }) => {
   const fields = [
-    { label: "Full Name", value: name, testId: "profile-name" },
-    { label: "Email Address", value: email, testId: "profile-email" },
+    { label: "Full Name", value: user.name, testId: "profile-name" },
+    { label: "Email Address", value: user.email, testId: "profile-email" },
   ];
 
   return (
