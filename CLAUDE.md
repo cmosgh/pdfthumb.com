@@ -2,6 +2,8 @@
 
 Vite/React SPA. It calls the backend API through a relative `/api` base, so browser calls stay same-origin. The backend lives next to this repo at `../pdfthumbnailpro-be`.
 
+Before starting a ticket, a PR, a merge or a Dependabot update, read `docs/agents/workflow.md`.
+
 ## Agent skills
 
 ### Issue tracker
