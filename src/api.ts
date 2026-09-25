@@ -51,6 +51,27 @@ export const authApi = {
     }
   },
 
+  // Redeem the single-use code from the OAuth callback redirect for a session
+  async exchangeCode(code: string) {
+    const response = await fetch("/api/auth/oauth/exchange", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code }),
+    });
+    if (!response.ok) throw new Error("OAuth code exchange failed");
+    return response.json() as Promise<{
+      accessToken: string;
+      refreshToken: string;
+      expiresIn: string;
+      user: {
+        id: string;
+        email: string | null;
+        displayName: string | null;
+        roles: string[];
+      };
+    }>;
+  },
+
   // Fetch user profile including roles from the backend
   async me(accessToken: string) {
     const response = await fetch('/api/auth/me', {
