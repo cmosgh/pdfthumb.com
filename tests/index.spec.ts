@@ -51,18 +51,24 @@ test.describe("index.tsx basic render", () => {
       await expect(card.getByTestId("pricing-card-price")).toHaveText(
         "Upcoming",
       );
+      await expect(card).toContainText(tier.quota);
       for (const feature of tier.features) {
-        await expect(card).toContainText(feature);
+        await expect(card).toContainText(
+          typeof feature === "string" ? feature : feature.text,
+        );
       }
     }
   });
 
-  test("shows no price amounts anywhere on the landing page", async ({
-    page,
-  }) => {
+  test("shows no plan price amounts on the landing page", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByTestId("pricing-section")).toContainText("Upcoming");
-    const text = await page.locator("body").textContent();
+    // The On-prem edition is the one priced offer (M14, #118).
+    const onPrem = await page.getByTestId("pricing-on-prem").textContent();
+    const text = (await page.locator("body").textContent())?.replace(
+      onPrem ?? "",
+      "",
+    );
     expect(text).not.toMatch(/[$€£]\s?\d/);
     // Without prices there is nothing to switch between.
     await expect(page.getByRole("button", { name: /annually/i })).toHaveCount(
@@ -76,7 +82,7 @@ test.describe("index.tsx basic render", () => {
       .locator("#overage-pricing tr")
       .filter({ hasText: "Cost per Additional Thumbnail" });
     await expect(row).not.toContainText("$");
-    // Basic and Pro had per-thumbnail rates; Developer is N/A, Enterprise Custom.
+    // Basic and Pro had per-thumbnail rates; Free is N/A, Enterprise Custom.
     await expect(row.getByText("Upcoming")).toHaveCount(2);
   });
 

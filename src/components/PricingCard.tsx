@@ -2,6 +2,7 @@ import React from "react";
 import type { PricingTier } from "../types";
 import { CheckCircleIcon, InformationCircleIcon } from "./icons";
 import Button from "./Button";
+import ContactEmail, { contactHref } from "./ContactEmail";
 
 interface PricingCardProps {
   tier: PricingTier;
@@ -24,6 +25,10 @@ const PricingCard: React.FC<PricingCardProps> = ({ tier }) => {
   const highlightTextColorClass = tier.highlightColor
     ? `${tier.highlightColor.replace("bg-", "text-")} dark:${tier.highlightColor.replace("bg-", "text-").replace("-500", "-400").replace("-600", "-400").replace("-700", "-500")}`
     : "text-slate-800 dark:text-slate-100";
+
+  const ctaHref = tier.ctaContact ? contactHref(tier.ctaContact) : undefined;
+  const ctaDisabled = tier.isComingSoon || (!!tier.ctaContact && !ctaHref);
+  const lines = [tier.quota, ...tier.features];
 
   const featuredBadgeBg = tier.highlightColor || "bg-indigo-600";
   const featuredBadgeText = "text-white";
@@ -70,23 +75,30 @@ const PricingCard: React.FC<PricingCardProps> = ({ tier }) => {
         )}
       </div>
       <ul className="space-y-3 mb-8 flex-grow">
-        {tier.features.map((feature, index) => (
+        {lines.map((feature, index) => (
           <li key={index} className="flex items-start">
             <CheckCircleIcon
               className={`h-6 w-6 ${highlightTextColorClass.split(" ")[0]} ${highlightTextColorClass.split(" ")[1] || ""} mr-2 flex-shrink-0`}
             />
             <span className="text-slate-600 dark:text-slate-300">
-              {feature}
+              {typeof feature === "string" ? (
+                feature
+              ) : (
+                <>
+                  {feature.text}: <ContactEmail kind={feature.contact} />
+                </>
+              )}
             </span>
           </li>
         ))}
       </ul>
       <Button
-        // Every tier is coming soon, so the disabled button swallows the click.
-        // A tier that launches needs a real ctaLink here, or it links to "#".
-        href={tier.id === "enterprise" ? tier.ctaLink : "#"}
+        // Paid tiers are coming soon, so the disabled button swallows the
+        // click. A tier that launches needs a real ctaLink here, or it links
+        // to "#". Enterprise's button mails sales.
+        href={ctaHref ?? "#"}
         variant={tier.isFeatured ? "primary" : "secondary"}
-        className={`w-full mt-auto ${tier.isComingSoon ? "opacity-70 cursor-not-allowed" : ""} 
+        className={`w-full mt-auto ${ctaDisabled ? "opacity-70 cursor-not-allowed" : ""} 
                     ${
                       tier.isFeatured && tier.highlightColor
                         ? `${tier.highlightColor} hover:${tier.highlightColor?.replace("500", "600").replace("600", "700").replace("700", "800")} 
@@ -95,7 +107,7 @@ const PricingCard: React.FC<PricingCardProps> = ({ tier }) => {
                         : ""
                     }
                    `}
-        disabled={tier.isComingSoon}
+        disabled={ctaDisabled}
       >
         {tier.ctaText}
       </Button>

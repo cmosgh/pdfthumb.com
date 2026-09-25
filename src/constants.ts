@@ -37,23 +37,43 @@ export const HOME_LINK = linkOptions({
 
 export const APP_NAME = "PDFThumb";
 
+// Q1 (#118): how contact details that wait for the mailbox render.
+// "mailto" links the addresses and hides the [TBC] markers, "tbc" links them
+// and shows the markers, "plain" prints the addresses as text.
+export type ContactRender = "mailto" | "tbc" | "plain";
+export const CONTACT_RENDER = "tbc" as ContactRender;
+
+export const CONTACT_EMAILS = {
+  support: "support@pdfthumb.com",
+  sales: "sales@pdfthumb.com",
+} as const;
+
+const HOURS_TBC = CONTACT_RENDER === "tbc" ? " [hours TBC]" : "";
+
+const OVERAGE_NOT_YET =
+  "Overage billing starts when paid plans launch. Until then, Free stops at 1,000 Thumbnails a month.";
+
 // Prices are withheld for now (#71): the plans show "Upcoming" and their
 // buttons start no checkout. The amounts are left out of the bundle too.
+// The claims follow the Plans & pricing decisions M1–M15 (#118).
 export const PRICING_TIERS: PricingTier[] = [
   {
-    id: "developer",
-    name: "Developer",
+    id: "free",
+    name: "Free",
     price: "Upcoming",
     priceFrequency: "",
-    description: "Perfect for hobby projects and getting started.",
+    description: "For builders and side projects.",
+    quota: "1,000 Thumbnails a month",
     features: [
-      "1,000 thumbnails/month",
-      "Basic Thumbnail Quality",
-      "Community Support",
+      "PDFs up to 10 MB",
+      {
+        text: "Email support, best effort (no response time)",
+        contact: "support",
+      },
     ],
     ctaText: "Upcoming",
     isComingSoon: true,
-    ctaLink: "#signup-developer",
+    ctaLink: "#signup-free",
     highlightColor: "bg-sky-500",
     overageRateDisplay: "N/A",
     overageDescription: "Upgrade to a paid plan to exceed limits.",
@@ -64,18 +84,20 @@ export const PRICING_TIERS: PricingTier[] = [
     price: "Upcoming",
     priceFrequency: "",
     description: "Ideal for individuals and small projects needing more calls.",
+    quota: "10,000 Thumbnails a month",
     features: [
-      "10,000 thumbnails/month",
-      "Standard Thumbnail Quality",
-      "Community Support",
-      "No Watermarks",
+      "PDFs up to 10 MB",
+      {
+        text: "Email support, best effort (no response time)",
+        contact: "support",
+      },
     ],
     ctaText: "Upcoming",
     isComingSoon: true,
     ctaLink: "#signup-basic",
     highlightColor: "bg-teal-500",
     overageRateDisplay: "Upcoming",
-    overageDescription: "Billed automatically for additional usage.",
+    overageDescription: OVERAGE_NOT_YET,
   },
   {
     id: "pro",
@@ -83,12 +105,10 @@ export const PRICING_TIERS: PricingTier[] = [
     price: "Upcoming",
     priceFrequency: "",
     description: "For growing businesses and professional use.",
+    quota: "100,000 Thumbnails a month",
     features: [
-      "100,000 thumbnails/month",
-      "High Quality Thumbnails",
-      "Email Support",
-      "No Watermarks",
-      "Usage Analytics",
+      "PDFs up to 10 MB",
+      { text: "Email, next business day", contact: "support" },
     ],
     ctaText: "Upcoming",
     isComingSoon: true,
@@ -96,8 +116,7 @@ export const PRICING_TIERS: PricingTier[] = [
     isFeatured: true,
     highlightColor: "bg-indigo-600",
     overageRateDisplay: "Upcoming",
-    overageDescription:
-      "Billed automatically for additional usage at a discounted rate.",
+    overageDescription: OVERAGE_NOT_YET,
   },
   {
     id: "enterprise",
@@ -105,21 +124,35 @@ export const PRICING_TIERS: PricingTier[] = [
     price: "Custom",
     priceFrequency: "",
     description: "Tailored solutions for large-scale applications.",
+    quota: "Volume by contract",
     features: [
-      "Unlimited thumbnails",
-      "Highest Quality & Custom Sizes",
-      "Dedicated Support & SLA",
-      "Advanced Security Options",
-      "Custom Integrations",
+      "PDFs up to 10 MB",
+      `Contract SLA: business hours (09:00–17:00 Romanian time, EET/EEST, Mon–Fri${HOURS_TBC}), next-business-day first response · integration help`,
+      { text: "Talk to sales", contact: "sales" },
     ],
     ctaText: "Contact Sales",
+    ctaContact: "sales",
     ctaLink: "#contact-sales",
-    isComingSoon: true,
     highlightColor: "bg-sky-500",
     overageRateDisplay: "Custom",
     overageDescription: "Custom overage rates as per your service agreement.",
   },
 ];
+
+// Said once below the cards, not on each one (M3, M5, M9).
+export const EVERY_PLAN_INCLUDES = [
+  "Same rendering on every plan",
+  "Any width from 16 to 1,600 px",
+  "No watermarks on any plan",
+  "EU-hosted in Germany · API keys stored hashed and revocable",
+];
+
+// M14 + Q4. "Trial on request" joins once the trial cap ships.
+export const ON_PREM = {
+  title: "On-prem edition",
+  text: "Run PDFThumb in your own infrastructure (Kubernetes/Helm or AWS via Terraform), with unlimited instances and no per-Thumbnail charges under one annual licence, and counts-only usage reports.",
+  price: "€9,000/yr per company",
+};
 
 // Fix: Explicitly type FEATURE_ITEMS and use React.createElement for icons.
 // Removed specific text color from icons here, will be applied in FeatureCard.
@@ -144,9 +177,9 @@ export const FEATURE_ITEMS: FeatureItem[] = [
   },
   {
     icon: React.createElement(ShieldCheckIcon, { className: "h-8 w-8" }),
-    title: "Privacy First: Zero File Retention",
+    title: "Privacy First",
     description:
-      "Your PDF files are processed in memory and never stored on our servers, ensuring maximum privacy and security for your sensitive documents.",
+      "PDFs are processed in memory and never stored. ZIP archives of your thumbnails sit on local disk only while they download, deleted within an hour at most.",
   },
   {
     icon: React.createElement(SparklesIcon, { className: "h-8 w-8" }),

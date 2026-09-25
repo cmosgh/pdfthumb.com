@@ -1,5 +1,10 @@
 import type React from "react";
 
+export type ContactKind = "support" | "sales";
+
+// A plan line, optionally followed by a contact address.
+export type PlanFeature = string | { text: string; contact: ContactKind };
+
 export interface PricingTier {
   id: string;
   name: string;
@@ -9,9 +14,11 @@ export interface PricingTier {
   priceFrequencyYearly?: string;
   annualDiscountText?: string;
   description: string;
-  features: string[];
+  quota: string;
+  features: PlanFeature[];
   ctaText: string;
   ctaLink: string;
+  ctaContact?: ContactKind;
   isFeatured?: boolean;
   isComingSoon?: boolean;
   highlightColor?: string; // e.g., 'bg-blue-500', 'bg-indigo-500'
