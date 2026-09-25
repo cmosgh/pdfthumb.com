@@ -25,8 +25,7 @@ const Hero: React.FC = () => {
           <span className="text-indigo-600 dark:text-indigo-400">
             PDF Thumbnails
           </span>
-          ,
-          <br className="hidden sm:block" />
+          , <br className="hidden sm:block" />
           Effortlessly via API
         </h1>
         <p className="mt-6 max-w-2xl mx-auto text-lg md:text-xl text-slate-600 dark:text-slate-300">
