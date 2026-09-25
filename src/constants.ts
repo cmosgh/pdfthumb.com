@@ -29,24 +29,30 @@ export const NAV_LINKS = [
   // },
 ];
 
-export const HOME_LINK = linkOptions({ to: "/", resetScroll: true, hash:'instant-thumbnails' });
+export const HOME_LINK = linkOptions({
+  to: "/",
+  resetScroll: true,
+  hash: "instant-thumbnails",
+});
 
 export const APP_NAME = "PDFThumb";
 
+// Prices are withheld for now (#71): the plans show "Upcoming" and their
+// buttons start no checkout. The amounts are left out of the bundle too.
 export const PRICING_TIERS: PricingTier[] = [
   {
     id: "developer",
     name: "Developer",
-    price: "0",
-    priceFrequency: "/month",
-    currency: "€",
+    price: "Upcoming",
+    priceFrequency: "",
     description: "Perfect for hobby projects and getting started.",
     features: [
       "1,000 thumbnails/month",
       "Basic Thumbnail Quality",
       "Community Support",
     ],
-    ctaText: "Get Started Free",
+    ctaText: "Upcoming",
+    isComingSoon: true,
     ctaLink: "#signup-developer",
     highlightColor: "bg-sky-500",
     overageRateDisplay: "N/A",
@@ -55,12 +61,8 @@ export const PRICING_TIERS: PricingTier[] = [
   {
     id: "basic",
     name: "Basic",
-    price: "9",
-    priceFrequency: "/month",
-    priceYearly: "100",
-    priceFrequencyYearly: "/year",
-    annualDiscountText: "Save $8 annually",
-    currency: "€",
+    price: "Upcoming",
+    priceFrequency: "",
     description: "Ideal for individuals and small projects needing more calls.",
     features: [
       "10,000 thumbnails/month",
@@ -68,21 +70,18 @@ export const PRICING_TIERS: PricingTier[] = [
       "Community Support",
       "No Watermarks",
     ],
-    ctaText: "Choose Basic",
+    ctaText: "Upcoming",
+    isComingSoon: true,
     ctaLink: "#signup-basic",
     highlightColor: "bg-teal-500",
-    overageRateDisplay: "$0.002 / thumbnail",
+    overageRateDisplay: "Upcoming",
     overageDescription: "Billed automatically for additional usage.",
   },
   {
     id: "pro",
     name: "Pro",
-    price: "49",
-    priceFrequency: "/month",
-    priceYearly: "490",
-    priceFrequencyYearly: "/year",
-    annualDiscountText: "Save $98 annually (2 months free!)",
-    currency: "€",
+    price: "Upcoming",
+    priceFrequency: "",
     description: "For growing businesses and professional use.",
     features: [
       "100,000 thumbnails/month",
@@ -91,11 +90,12 @@ export const PRICING_TIERS: PricingTier[] = [
       "No Watermarks",
       "Usage Analytics",
     ],
-    ctaText: "Choose Pro",
+    ctaText: "Upcoming",
+    isComingSoon: true,
     ctaLink: "#signup-pro",
     isFeatured: true,
     highlightColor: "bg-indigo-600",
-    overageRateDisplay: "$0.001 / thumbnail",
+    overageRateDisplay: "Upcoming",
     overageDescription:
       "Billed automatically for additional usage at a discounted rate.",
   },

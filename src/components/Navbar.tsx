@@ -3,7 +3,6 @@ import { Link } from "@tanstack/react-router";
 import { APP_NAME, HOME_LINK, NAV_LINKS } from "@/constants.ts";
 import { DocumentIcon, MoonIcon, SunIcon } from "./icons.tsx";
 import type { Theme } from "../hooks/useTheme.ts";
-import { handleInitiateCheckout } from "../paymentUtils.ts";
 import { useAuth } from "../hooks/AuthContext";
 
 interface NavbarProps {
@@ -17,10 +16,6 @@ const Navbar: React.FC<NavbarProps> = ({ theme, toggleTheme }) => {
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
-
-  const handleGetApiKeyClick = () => {
-    handleInitiateCheckout("pro");
   };
 
   const handleLogout = () => {
@@ -113,16 +108,16 @@ const Navbar: React.FC<NavbarProps> = ({ theme, toggleTheme }) => {
                 >
                   Log In
                 </Link>
-                <a
-                  href="#signup" // Placeholder for actual signup link/modal
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleGetApiKeyClick();
-                  }}
-                  className="cursor-pointer bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-md shadow-md transition-transform transform hover:scale-105 text-sm"
+                {/* API keys wait for sign-in and plans (#71): no checkout,
+                    no link, until they're ready. */}
+                <button
+                  type="button"
+                  disabled
+                  data-testid="navbar-api-key"
+                  className="cursor-not-allowed opacity-70 bg-indigo-600 dark:bg-indigo-500 text-white font-semibold py-2 px-4 rounded-md shadow-md text-sm"
                 >
-                  Get API Key
-                </a>
+                  API keys: Upcoming
+                </button>
               </>
             )}
           </div>

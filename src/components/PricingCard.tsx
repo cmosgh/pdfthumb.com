@@ -4,14 +4,11 @@ import { CheckCircleIcon, InformationCircleIcon } from "./icons";
 import Button from "./Button";
 import { handleInitiateCheckout } from "../paymentUtils";
 
-type BillingCycle = "monthly" | "annually";
-
 interface PricingCardProps {
   tier: PricingTier;
-  billingCycle: BillingCycle;
 }
 
-const PricingCard: React.FC<PricingCardProps> = ({ tier, billingCycle }) => {
+const PricingCard: React.FC<PricingCardProps> = ({ tier }) => {
   const cardBaseClasses =
     "bg-white dark:bg-slate-700 rounded-xl shadow-lg dark:shadow-slate-900/50 p-8 flex flex-col h-full transition-all duration-300";
   const featuredBorderColor = tier.highlightColor
@@ -32,21 +29,6 @@ const PricingCard: React.FC<PricingCardProps> = ({ tier, billingCycle }) => {
   const featuredBadgeBg = tier.highlightColor || "bg-indigo-600";
   const featuredBadgeText = "text-white";
 
-  const isAnnual = billingCycle === "annually";
-  const displayPrice =
-    isAnnual && tier.priceYearly ? tier.priceYearly : tier.price;
-  const displayFrequency =
-    isAnnual && tier.priceFrequencyYearly
-      ? tier.priceFrequencyYearly
-      : tier.priceFrequency;
-  const displayDiscountText =
-    isAnnual && tier.annualDiscountText ? tier.annualDiscountText : null;
-
-  // Add currency display logic
-  const currency = tier.currency || "";
-  const priceWithCurrency =
-    displayPrice === "Custom" ? displayPrice : `${currency}${displayPrice}`;
-
   const handleCtaClick = () => {
     if (tier.isComingSoon) return;
 
@@ -59,13 +41,7 @@ const PricingCard: React.FC<PricingCardProps> = ({ tier, billingCycle }) => {
       return;
     }
 
-    let planIdentifier = tier.id;
-    // Only append billing cycle for tiers that have distinct annual pricing
-    if (tier.priceYearly && tier.id !== "developer") {
-      // Developer is free, no annual distinction needed in ID
-      planIdentifier = `${tier.id}-${billingCycle}`;
-    }
-    handleInitiateCheckout(planIdentifier);
+    handleInitiateCheckout(tier.id);
   };
 
   return (
@@ -99,21 +75,13 @@ const PricingCard: React.FC<PricingCardProps> = ({ tier, billingCycle }) => {
       <p className="text-slate-500 dark:text-slate-400 mb-1 h-12 min-h-[3rem]">
         {tier.description}
       </p>
-      {displayDiscountText && tier.id !== "developer" && (
-        <p className="text-sm text-green-600 dark:text-green-400 font-medium mb-4 h-6 min-h-[1.5rem]">
-          {displayDiscountText}
-        </p>
-      )}
-      {!displayDiscountText && tier.id !== "developer" && (
-        <div className="h-6 min-h-[1.5rem] mb-4"></div> // Placeholder for consistent spacing
-      )}
       <div className="mb-6" data-testid="pricing-card-price">
         <span className={`text-5xl font-extrabold ${highlightTextColorClass}`}>
-          {priceWithCurrency}
+          {tier.price}
         </span>
-        {displayFrequency && (
+        {tier.priceFrequency && (
           <span className="text-slate-500 dark:text-slate-400 text-lg ml-1">
-            {displayFrequency}
+            {tier.priceFrequency}
           </span>
         )}
       </div>
