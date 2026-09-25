@@ -1,12 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { APP_NAME } from "../../constants";
 import { ApiKeysManager } from "@components/dashboard/ApiKeysManager.tsx";
-import { ProfileSettingsForm } from "@components/dashboard/ProfileSettingsForm.tsx";
+import { ProfileSettings } from "@components/dashboard/ProfileSettings.tsx";
 import { useLiveQuery } from "@tanstack/react-db";
 import { collections, dbHelpers } from "@/db.ts";
 import { apiKeysApi } from "@/api.ts";
 import { maskApiKey } from "@/utils/apiKey";
-import type { ApiKey, UserProfile } from "@/types.ts";
+import type { ApiKey } from "@/types.ts";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/AuthContext";
 
@@ -20,21 +20,14 @@ export const Route = createFileRoute("/dashboard/settings")({
 function SettingsComponent() {
   const [isLoadingApiKeys, setIsLoadingApiKeys] = useState(false);
   const [apiKeysError, setApiKeysError] = useState<string | null>(null);
-  const { tokens } = useAuth();
+  const { tokens, user } = useAuth();
 
   // Use TanStack DB's reactive queries
-  const { data: userProfileData } = useLiveQuery((q) =>
-    q.from({ profile: collections.userProfile }),
-  );
-
   const { data: apiKeysData } = useLiveQuery((q) =>
     q.from({ keys: collections.apiKeys }),
   );
 
   const apiKeys = apiKeysData as unknown as ApiKey[];
-
-  // Get the first (and only) user profile
-  const userProfile = userProfileData?.[0];
 
   // Sync API keys on component mount
   useEffect(() => {
@@ -54,22 +47,6 @@ function SettingsComponent() {
     syncApiKeys();
   }, [tokens]);
 
-  const handleUpdateProfile = async (updatedData: Partial<UserProfile>) => {
-    if (!userProfile) return;
-
-    try {
-      const updatedProfile = {
-        ...userProfile,
-        ...updatedData,
-        updatedAt: new Date().toISOString(),
-      };
-      await collections.userProfile.insert(updatedProfile);
-      // useLiveQuery will automatically update the UI
-    } catch (error) {
-      console.error("Error updating profile:", error);
-    }
-  };
-
   const handleGenerateKey = async (
     keyName: string,
     onKeyGenerated?: (fullKey: string) => void,
@@ -77,7 +54,10 @@ function SettingsComponent() {
     try {
       setApiKeysError(null);
       // Call the API to create the key
-      const newKey = await apiKeysApi.createApiKey({ name: keyName }, tokens?.accessToken);
+      const newKey = await apiKeysApi.createApiKey(
+        { name: keyName },
+        tokens?.accessToken,
+      );
 
       // Call the callback with the full key before inserting (so user can copy it)
       if (onKeyGenerated) {
@@ -120,21 +100,6 @@ function SettingsComponent() {
     }
   };
 
-  if (!userProfile) {
-    return (
-      <div className="space-y-6" data-testid="settings-page">
-        <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100">
-          Settings
-        </h1>
-        <div className="flex items-center justify-center h-64">
-          <div className="text-lg text-slate-600 dark:text-slate-400">
-            Loading settings...
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6" data-testid="settings-page">
       <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100">
@@ -142,10 +107,8 @@ function SettingsComponent() {
       </h1>
 
       {/* Profile Settings */}
-      <ProfileSettingsForm
-        userProfile={userProfile}
-        onUpdateProfile={handleUpdateProfile}
-      />
+      {/* Only the profile needs the user; the API keys don't wait on it. */}
+      {user && <ProfileSettings user={user} />}
 
       {/* API Keys Management */}
       <div>

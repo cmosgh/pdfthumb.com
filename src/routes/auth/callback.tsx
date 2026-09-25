@@ -48,7 +48,9 @@ function CallbackComponent() {
         const user = {
           id: session.user.id,
           email: session.user.email ?? "",
-          name: session.user.displayName ?? session.user.email ?? "",
+          // No email stand-in: the Navbar falls back to the email itself, and
+          // Profile Settings must not show an email as the name.
+          name: session.user.displayName ?? "",
           roles: session.user.roles,
           createdAt: now,
           updatedAt: now,

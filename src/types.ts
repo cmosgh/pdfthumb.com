@@ -85,15 +85,6 @@ export interface DateRange {
 }
 
 // User Settings Types
-export interface UserProfile {
-  id: string;
-  name: string;
-  email: string;
-  company?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
 export interface ApiKey {
   id: string;
   name: string;
