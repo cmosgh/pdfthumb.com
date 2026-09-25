@@ -1,3 +1,5 @@
+import type { AuthSession } from "./types";
+
 const API_BASE_URL = "/api";
 
 export default API_BASE_URL;
@@ -59,17 +61,7 @@ export const authApi = {
       body: JSON.stringify({ code }),
     });
     if (!response.ok) throw new Error("OAuth code exchange failed");
-    return response.json() as Promise<{
-      accessToken: string;
-      refreshToken: string;
-      expiresIn: string;
-      user: {
-        id: string;
-        email: string | null;
-        displayName: string | null;
-        roles: string[];
-      };
-    }>;
+    return response.json() as Promise<AuthSession>;
   },
 
   // Fetch user profile including roles from the backend

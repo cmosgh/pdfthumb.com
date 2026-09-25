@@ -2,24 +2,14 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useAuth } from "../../hooks/AuthContext";
 import { authApi } from "../../api";
+import { durationToMs } from "../../utils/duration";
 
 export const Route = createFileRoute("/auth/callback")({
   component: CallbackComponent,
 });
 
-// The backend reports token lifetime as a jsonwebtoken duration ("1h", "15m", "3600").
-const DURATION_UNITS: Record<string, number> = {
-  s: 1,
-  m: 60,
-  h: 3600,
-  d: 86400,
-};
-
-function durationToSeconds(duration: string): number {
-  const match = /^(\d+)\s*([smhd]?)$/.exec(duration.trim());
-  if (!match) return 3600;
-  return Number(match[1]) * DURATION_UNITS[match[2] || "s"];
-}
+// Used when the backend's expiresIn isn't a duration we can read.
+const FALLBACK_TOKEN_LIFETIME_MS = 60 * 60 * 1000;
 
 // A code is single-use, so every mount of the callback shares one exchange per
 // code. That covers StrictMode's double effect and a remount of this route alike.
@@ -39,19 +29,30 @@ function CallbackComponent() {
   const { login, fetchMe } = useAuth();
 
   useEffect(() => {
+    const failToLogin = () =>
+      navigate({ to: "/login", search: { error: "oauth" }, replace: true });
+
     const handleCallback = async () => {
       try {
-        const code = new URLSearchParams(window.location.search).get("code");
-        if (!code) {
-          navigate({ to: "/login", search: { error: "oauth" }, replace: true });
+        const params = new URLSearchParams(window.location.search);
+        const code = params.get("code");
+        if (!code || params.has("error")) {
+          failToLogin();
           return;
         }
 
         const session = await exchangeOnce(code);
+        const lifetimeMs = durationToMs(session.expiresIn);
+        if (lifetimeMs === null) {
+          console.warn(
+            "Unreadable expiresIn from the backend:",
+            session.expiresIn,
+          );
+        }
         const tokens = {
           accessToken: session.accessToken,
           refreshToken: session.refreshToken,
-          expiresAt: Date.now() + durationToSeconds(session.expiresIn) * 1000,
+          expiresAt: Date.now() + (lifetimeMs ?? FALLBACK_TOKEN_LIFETIME_MS),
         };
         const now = new Date().toISOString();
         const user = {
@@ -69,7 +70,7 @@ function CallbackComponent() {
         navigate({ to: "/dashboard", replace: true });
       } catch (error) {
         console.error("OAuth callback error:", error);
-        navigate({ to: "/login", search: { error: "oauth" }, replace: true });
+        failToLogin();
       }
     };
 
