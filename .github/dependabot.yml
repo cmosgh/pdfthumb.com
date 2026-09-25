@@ -13,6 +13,23 @@ updates:
       tanstack-db:
         patterns:
           - "@tanstack/*db*"
+      # The Vite plugin pins its own tailwindcss: bumping one alone leaves
+      # two copies, and the build keeps the old one (#116).
+      tailwind:
+        patterns:
+          - "tailwindcss"
+          - "@tailwindcss/*"
+      # The CLI and its config move together (#70, #107).
+      commitlint:
+        patterns:
+          - "@commitlint/*"
+      # react and react-dom must be the same version at runtime.
+      react:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
   # Bumps the digest-pinned base images in the Dockerfile.
   - package-ecosystem: "docker"
     directory: "/"
