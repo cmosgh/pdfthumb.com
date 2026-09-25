@@ -1,5 +1,4 @@
 import { createCollection, localOnlyCollectionOptions } from "@tanstack/db";
-import { queryCollectionOptions } from "@tanstack/query-db-collection";
 import { apiKeysApi } from "./api";
 import { queryClient } from "./queryClient";
 import { mockApiKeys } from "./data/dashboardMocks";
@@ -132,21 +131,22 @@ export const dbHelpers = {
     try {
       const apiKeys = await apiKeysApi.getApiKeys(token);
 
-      // Note: In a production app, you'd want to properly clear existing keys
-      // For now, we'll assume the API is the source of truth and insert new keys
-      // Duplicate keys with same IDs will be handled by the DB
-
+      // The API is the source of truth: update keys we already hold (e.g. a
+      // revoke flips `enabled`), insert new ones. Update in place: a delete
+      // followed by an insert of the same key lets the delete's transaction
+      // commit last and drop the row.
       for (const key of apiKeys) {
         try {
-          await collections.apiKeys.insert(key);
-        } catch (e) {
-          // If key already exists, try to update it (delete and re-insert)
-          try {
-            await collections.apiKeys.delete(key.id);
-            await collections.apiKeys.insert(key);
-          } catch (updateError) {
-            console.warn(`Failed to update API key ${key.id}:`, updateError);
+          if (collections.apiKeys.has(key.id)) {
+            collections.apiKeys.update(key.id, (draft) => {
+              Object.assign(draft, key);
+            });
+          } else {
+            collections.apiKeys.insert(key);
           }
+        } catch (e) {
+          // One bad key mustn't stop the rest from syncing.
+          console.warn(`Failed to sync API key ${key.id}:`, e);
         }
       }
 
