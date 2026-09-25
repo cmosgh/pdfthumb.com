@@ -48,7 +48,9 @@ export const CONTACT_EMAILS = {
   sales: "sales@pdfthumb.com",
 } as const;
 
-const HOURS_TBC = CONTACT_RENDER === "tbc" ? " [hours TBC]" : "";
+// M10's business hours are unconfirmed, whatever the mailbox's state.
+export const SLA_HOURS_CONFIRMED = false as boolean;
+const HOURS_TBC = SLA_HOURS_CONFIRMED ? "" : " [hours TBC]";
 
 const OVERAGE_NOT_YET =
   "Overage billing starts when paid plans launch. Until then, Free stops at 1,000 Thumbnails a month.";

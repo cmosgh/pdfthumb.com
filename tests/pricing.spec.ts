@@ -1,5 +1,5 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
-import { CONTACT_RENDER } from "@/constants.ts";
+import { CONTACT_RENDER, SLA_HOURS_CONFIRMED } from "@/constants.ts";
 
 // Plans & pricing copy (#118): the claims follow the driver's decisions
 // M1–M15. The copy is spelled out here, not read from constants, so a
@@ -24,7 +24,7 @@ async function expectContact(scope: Locator, address: string) {
   if (CONTACT_RENDER === "tbc") {
     await expect(scope).toContainText("[TBC]");
   } else {
-    await expect(scope).not.toContainText("TBC");
+    await expect(scope).not.toContainText("[TBC]");
   }
 }
 
@@ -85,6 +85,12 @@ test.describe("pricing page copy (#118)", () => {
       await expectContact(card(page, id), SUPPORT);
     }
     await expectContact(card(page, "enterprise"), SALES);
+  });
+
+  // The SLA hours are unconfirmed independently of the mailbox (M10).
+  test("marks the SLA hours TBC until they are confirmed", async ({ page }) => {
+    const marker = card(page, "enterprise").getByText("[hours TBC]");
+    await expect(marker).toHaveCount(SLA_HOURS_CONFIRMED ? 0 : 1);
   });
 
   test("lists what every plan includes once, below the cards", async ({
