@@ -1,4 +1,9 @@
-import { createRootRouteWithContext, Outlet, HeadContent } from "@tanstack/react-router";
+import {
+  createRootRouteWithContext,
+  Outlet,
+  HeadContent,
+  Link,
+} from "@tanstack/react-router";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { useTheme } from "../hooks/useTheme";
@@ -64,6 +69,30 @@ function RootComponent() {
   );
 }
 
+// An unknown path gets a page that says so, inside the usual frame (#144).
+function NotFound() {
+  return (
+    <div
+      className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 max-w-3xl"
+      data-testid="not-found"
+    >
+      <h1 className="text-3xl md:text-4xl font-bold text-slate-800 dark:text-slate-100">
+        Page not found
+      </h1>
+      <p className="mt-6 text-slate-600 dark:text-slate-300">
+        This page doesn't exist. Go to the{" "}
+        <Link
+          to="/"
+          className="font-medium text-indigo-600 hover:text-indigo-700 dark:text-indigo-400"
+        >
+          home page
+        </Link>
+        .
+      </p>
+    </div>
+  );
+}
+
 export const Route = createRootRouteWithContext<RouterContext>()({
   head: () => ({
     meta: [
@@ -89,4 +118,5 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       <RootComponent />
     </>
   ),
+  notFoundComponent: NotFound,
 });

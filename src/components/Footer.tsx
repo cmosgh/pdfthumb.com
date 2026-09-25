@@ -14,15 +14,15 @@ const Footer: React.FC = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
-            <a
-              href="#"
+            <Link
+              to="/"
               className="flex items-center space-x-2 text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-500 mb-4"
             >
               <DocumentIcon className="h-8 w-8" />
               <span className="font-bold text-xl text-slate-700 dark:text-slate-200">
                 {APP_NAME}
               </span>
-            </a>
+            </Link>
             <p className="text-slate-500 dark:text-slate-400 text-sm">
               Making PDF thumbnail generation simple and fast for developers.
             </p>
@@ -52,9 +52,9 @@ const Footer: React.FC = () => {
                 </Link>
               </li>
               <li>
-                <a href="#apistatus" className={linkClasses}>
+                <Link to="/status" className={linkClasses}>
                   API Status
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -64,14 +64,14 @@ const Footer: React.FC = () => {
             </h5>
             <ul className="space-y-2">
               <li>
-                <a href="#terms" className={linkClasses}>
+                <Link to="/terms" className={linkClasses}>
                   Terms of Service
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#privacy" className={linkClasses}>
+                <Link to="/privacy" className={linkClasses}>
                   Privacy Policy
-                </a>
+                </Link>
               </li>
               <li className="text-slate-500 dark:text-slate-400 text-sm">
                 Contact Us:{" "}
