@@ -2,3 +2,5 @@
 build
 coverage
 src/routeTree.gen.ts
+# Helm Go templates are not valid YAML.
+infra/**/templates
