@@ -180,14 +180,48 @@ test.describe("route reference on /docs (#126)", () => {
     ).toHaveAttribute("aria-selected", "true");
   });
 
+  test("the tabs label their panel and move with the arrow keys", async ({
+    page,
+  }) => {
+    await page.goto("/docs");
+    const section = page.getByTestId("docs-route-page");
+    const curl = section.getByRole("tab", { name: "curl" });
+    const panel = section.getByRole("tabpanel");
+    const panelId = await panel.getAttribute("id");
+    expect(panelId).toBeTruthy();
+    await expect(curl).toHaveAttribute("aria-controls", panelId!);
+    await expect(panel).toHaveAttribute(
+      "aria-labelledby",
+      (await curl.getAttribute("id"))!,
+    );
+    // Only the selected tab is in the tab order.
+    await expect(curl).toHaveAttribute("tabindex", "0");
+    await expect(section.getByRole("tab", { name: "PHP" })).toHaveAttribute(
+      "tabindex",
+      "-1",
+    );
+    await curl.focus();
+    await page.keyboard.press("ArrowRight");
+    const typescript = section.getByRole("tab", { name: "TypeScript" });
+    await expect(typescript).toBeFocused();
+    await expect(typescript).toHaveAttribute("aria-selected", "true");
+    await page.keyboard.press("ArrowLeft");
+    await page.keyboard.press("ArrowLeft");
+    await expect(section.getByRole("tab", { name: "PHP" })).toBeFocused();
+  });
+
   test("the landing page promises examples, not client libraries", async ({
     page,
   }) => {
     await page.goto("/");
     const features = page.locator("#features");
     await expect(features).not.toContainText(/client librar/i);
-    await expect(features).toContainText(
-      "Simple REST API with an OpenAPI reference and examples in seven languages",
-    );
+    // The driver's exact wording (#126).
+    await expect(
+      features.getByText(
+        "Simple REST API with an OpenAPI reference and examples in seven languages",
+        { exact: true },
+      ),
+    ).toHaveCount(1);
   });
 });

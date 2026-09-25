@@ -173,7 +173,7 @@ export const FEATURE_ITEMS: FeatureItem[] = [
     icon: React.createElement(CogIcon, { className: "h-8 w-8" }),
     title: "Easy Integration",
     description:
-      "Simple REST API with an OpenAPI reference and examples in seven languages.",
+      "Simple REST API with an OpenAPI reference and examples in seven languages",
   },
   {
     icon: React.createElement(ShieldCheckIcon, { className: "h-8 w-8" }),

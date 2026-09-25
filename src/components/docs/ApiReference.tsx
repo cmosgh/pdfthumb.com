@@ -19,6 +19,10 @@ const snippet = (route: ApiRoute, language: SnippetLanguage) => {
   return SNIPPETS[`../../../docs-snippets/${route.id}/${file}`] ?? "";
 };
 
+const tabId = (route: ApiRoute, language: SnippetLanguage) =>
+  `docs-tab-${route.id}-${language}`;
+const panelId = (route: ApiRoute) => `docs-panel-${route.id}`;
+
 // The chosen language is a per-visitor convenience, so storage may fail.
 const STORAGE_KEY = "pdfthumb.docs.language";
 
@@ -128,15 +132,33 @@ const RouteReference: React.FC<RouteReferenceProps> = ({
       aria-label={`Example language for ${route.path}`}
       className="flex flex-wrap gap-1 mb-2"
     >
-      {SNIPPET_LANGUAGES.map((l) => {
+      {SNIPPET_LANGUAGES.map((l, index) => {
         const selected = l.id === language;
         return (
           <button
             key={l.id}
+            id={tabId(route, l.id)}
             type="button"
             role="tab"
             aria-selected={selected}
+            aria-controls={panelId(route)}
+            tabIndex={selected ? 0 : -1}
             onClick={() => onLanguage(l.id)}
+            onKeyDown={(event) => {
+              // The WAI-ARIA tabs pattern: arrows move and select, wrapping.
+              const step =
+                event.key === "ArrowRight"
+                  ? 1
+                  : event.key === "ArrowLeft"
+                    ? -1
+                    : 0;
+              if (!step) return;
+              event.preventDefault();
+              const count = SNIPPET_LANGUAGES.length;
+              const next = SNIPPET_LANGUAGES[(index + step + count) % count].id;
+              onLanguage(next);
+              document.getElementById(tabId(route, next))?.focus();
+            }}
             className={`px-3 py-1 rounded-md text-sm font-medium ${
               selected
                 ? "bg-indigo-600 text-white dark:bg-indigo-500"
@@ -149,7 +171,10 @@ const RouteReference: React.FC<RouteReferenceProps> = ({
       })}
     </div>
     <pre
+      id={panelId(route)}
       role="tabpanel"
+      aria-labelledby={tabId(route, language)}
+      tabIndex={0}
       data-testid="docs-snippet"
       data-language={language}
       className="bg-slate-900 dark:bg-slate-800 border border-transparent dark:border-slate-700 text-slate-100 text-sm rounded-lg p-4 overflow-x-auto"
