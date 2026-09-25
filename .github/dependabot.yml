@@ -7,6 +7,12 @@ updates:
     commit-message:
       prefix: "deps"
     open-pull-requests-limit: 5 # Limit the number of open pull requests
+    groups:
+      # @tanstack/react-db and query-db-collection pin an exact @tanstack/db;
+      # bumping one alone leaves two copies of db in the tree (see #86).
+      tanstack-db:
+        patterns:
+          - "@tanstack/*db*"
   # Bumps the digest-pinned base images in the Dockerfile.
   - package-ecosystem: "docker"
     directory: "/"
