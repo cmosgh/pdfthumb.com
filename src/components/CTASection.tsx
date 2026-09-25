@@ -13,16 +13,15 @@ const CTASection: React.FC = () => {
           Get your API key today and start building!
         </p>
         <div className="mt-10">
-          {/* API keys wait for sign-in and plans (#71): no checkout, no
-              link, until they're ready. */}
+          {/* API keys live in the dashboard, behind sign-in; new users get
+              the Free plan. No checkout while pricing is upcoming (#71). */}
           <Button
-            href="#"
+            href="/login"
             variant="outlineWhite"
             size="lg"
-            disabled
             data-testid="cta-api-key"
           >
-            API keys: Upcoming
+            Get Your Free API Key Now
           </Button>
         </div>
       </div>
