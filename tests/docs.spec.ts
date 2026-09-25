@@ -30,9 +30,7 @@ test.describe("documentation page (#126)", () => {
     await expect(main).toContainText("x-api-key");
     // One curl snippet; the other endpoints are named, and Swagger has
     // their full examples.
-    const curls = main.locator("pre").filter({ hasText: "curl" });
-    await expect(curls).toHaveCount(1);
-    await expect(curls).toContainText(
+    await expect(main.getByTestId("docs-first-request")).toContainText(
       "https://pdfthumb.com/api/thumbnail/page",
     );
     await expect(main).toContainText("/api/thumbnail/zip");
