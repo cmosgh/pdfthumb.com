@@ -49,7 +49,12 @@ export const authApi = {
         });
       }
 
-      return response.json() as Promise<AuthSession>;
+      // Only the token pair today: no expiresIn, no user (unlike the OAuth
+      // exchange's AuthSession).
+      return response.json() as Promise<
+        Pick<AuthSession, "accessToken" | "refreshToken"> &
+          Partial<Pick<AuthSession, "expiresIn">>
+      >;
     } catch (error) {
       console.error("Token refresh API error:", error);
       throw error;
@@ -69,11 +74,16 @@ export const authApi = {
 
   // Fetch user profile including roles from the backend
   async me(accessToken: string) {
-    const response = await fetch('/api/auth/me', {
+    const response = await fetch("/api/auth/me", {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
-    if (!response.ok) throw new Error('Failed to fetch user profile');
-    return response.json() as Promise<{ id: string; email: string; roles: string[]; displayName: string | null }>;
+    if (!response.ok) throw new Error("Failed to fetch user profile");
+    return response.json() as Promise<{
+      id: string;
+      email: string;
+      roles: string[];
+      displayName: string | null;
+    }>;
   },
 
   // Logout - this would typically call the backend to invalidate the session

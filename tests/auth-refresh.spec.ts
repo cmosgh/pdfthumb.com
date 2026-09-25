@@ -189,4 +189,50 @@ test.describe("Token refresh", () => {
       page.getByRole("dialog", { name: "Your session expired" }),
     ).toHaveCount(0);
   });
+
+  // The backend's refresh answers only { accessToken, refreshToken }: no
+  // expiresIn. Reading it as a duration threw, discarding the rotated pair
+  // (#82). A non-string expiresIn must not throw either.
+  for (const [label, extra] of [
+    ["without expiresIn", {}],
+    ["with a numeric expiresIn", { expiresIn: 3600 }],
+  ] as const) {
+    test(`a refresh ${label} keeps the new tokens for an hour`, async ({
+      page,
+    }) => {
+      await seedNearlyExpiredSession(page);
+      const refreshes: Request[] = [];
+      await page.route("**/api/auth/refresh", async (route) => {
+        refreshes.push(route.request());
+        await route.fulfill({
+          status: 201,
+          json: {
+            accessToken: "access-rotated",
+            refreshToken: "refresh-rotated",
+            ...extra,
+          },
+        });
+      });
+      await mockMe(page);
+
+      await page.goto("/dashboard");
+      await expect.poll(() => refreshes.length).toBe(1);
+      const refreshedAt = Date.now();
+      await page.waitForTimeout(1500);
+
+      const tokens = await page.evaluate(() =>
+        JSON.parse(localStorage.getItem("auth_tokens") ?? "null"),
+      );
+      expect(tokens).toMatchObject({
+        accessToken: "access-rotated",
+        refreshToken: "refresh-rotated",
+      });
+      expect(tokens.expiresAt).toBeGreaterThan(refreshedAt + 3500_000);
+      expect(tokens.expiresAt).toBeLessThan(refreshedAt + 3700_000);
+      expect(refreshes).toHaveLength(1);
+      await expect(
+        page.getByRole("dialog", { name: "Your session expired" }),
+      ).toHaveCount(0);
+    });
+  }
 });

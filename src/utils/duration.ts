@@ -34,10 +34,15 @@ const FALLBACK_TOKEN_LIFETIME_MS = 60 * 60 * 1000;
 /**
  * Turns a session's `expiresIn` (from the OAuth exchange or a refresh) into
  * the timestamp the access token expires at.
- * @param expiresIn - The jsonwebtoken duration from the backend
- * @returns Epoch milliseconds; one hour from now if expiresIn is unreadable
+ * @param expiresIn - The jsonwebtoken duration from the backend. POST
+ *   /api/auth/refresh sends none today, only { accessToken, refreshToken }.
+ * @returns Epoch milliseconds; one hour from now if expiresIn is missing or
+ *   unreadable
  */
-export const sessionExpiresAt = (expiresIn: string): number => {
+export const sessionExpiresAt = (expiresIn: unknown): number => {
+  if (typeof expiresIn !== "string") {
+    return Date.now() + FALLBACK_TOKEN_LIFETIME_MS;
+  }
   const lifetimeMs = durationToMs(expiresIn);
   if (lifetimeMs === null) {
     console.warn("Unreadable expiresIn from the backend:", expiresIn);
