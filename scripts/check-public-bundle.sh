@@ -5,7 +5,7 @@
 #
 # Usage: scripts/check-public-bundle.sh [dist-dir]
 #
-# POSIX sh: it also runs inside the Docker build stage (node:22-alpine).
+# POSIX sh: it also runs inside the Docker build stage (node:*-alpine).
 
 set -eu
 
