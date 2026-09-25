@@ -221,4 +221,6 @@ export const API_LIMITS = {
 };
 
 export const SWAGGER_URL = "https://pdfthumb.com/api/swagger";
-export const API_BASE_URL = "https://pdfthumb.com/api";
+// The public API origin, for examples readers copy. The app itself calls
+// the same-origin /api (src/api.ts).
+export const PUBLIC_API_URL = "https://pdfthumb.com/api";

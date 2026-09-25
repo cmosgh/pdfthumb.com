@@ -1,5 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { API_BASE_URL, API_LIMITS, APP_NAME, SWAGGER_URL } from "../constants";
+import {
+  PUBLIC_API_URL,
+  API_LIMITS,
+  APP_NAME,
+  SWAGGER_URL,
+} from "../constants";
 
 export const Route = createFileRoute("/docs")({
   head: () => ({
@@ -10,7 +15,7 @@ export const Route = createFileRoute("/docs")({
 
 // The quickstart follows the backend's thumbnail controller and the live
 // OpenAPI spec (#126). Swagger has the full examples and "Try it out".
-const FIRST_REQUEST = `curl -X POST "${API_BASE_URL}/thumbnail/page?page=1&width=400" \\
+const FIRST_REQUEST = `curl -X POST "${PUBLIC_API_URL}/thumbnail/page?page=1&width=400" \\
   -H "x-api-key: $PDFTHUMB_API_KEY" \\
   -F "file=@document.pdf" \\
   -o page-1.jpg`;
