@@ -9,7 +9,6 @@ export const DashboardSidebar: React.FC = () => {
 
   const navItems = [
     { path: "/dashboard/overview", label: "Overview", icon: "📊" },
-    { path: "/dashboard/analytics", label: "Analytics", icon: "📈" },
     { path: "/dashboard/settings", label: "Settings", icon: "⚙️" },
   ];
 

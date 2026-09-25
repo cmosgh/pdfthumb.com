@@ -15,8 +15,9 @@ test.describe("Dashboard Navigation", () => {
 
     // Check if sidebar navigation links are present
     await expect(page.locator('aside a:has-text("Overview")')).toBeVisible();
-    await expect(page.locator('aside a:has-text("Analytics")')).toBeVisible();
     await expect(page.locator('aside a:has-text("Settings")')).toBeVisible();
+    // Analytics showed invented data; it's hidden until the rework (#112).
+    await expect(page.locator('aside a:has-text("Analytics")')).toHaveCount(0);
   });
 
   test("should navigate between dashboard sections", async ({ page }) => {
@@ -26,49 +27,29 @@ test.describe("Dashboard Navigation", () => {
     await page.click('aside a:has-text("Overview")');
     await expect(page.locator('h1:text("Dashboard Overview")')).toBeVisible();
 
-    // Navigate to Analytics
-    await page.click('aside a:has-text("Analytics")');
-    await expect(page.locator('h1:text("Analytics")')).toBeVisible();
-
     // Navigate to Settings
     await page.click('aside a:has-text("Settings")');
     await expect(page.locator('h1:text("Settings")')).toBeVisible();
   });
 
-  test("should display overview metrics", async ({ page }) => {
+  // Overview used to render mock totals and Math.random() trends to real
+  // users (#112). Until real usage data exists, it shows none.
+  test("overview shows no invented usage numbers", async ({ page }) => {
     await page.goto("/dashboard/overview");
-
-    // Check if metric cards are displayed using data attributes
-    const metricCards = page.locator('[data-testid="metric-card"]');
-    await expect(metricCards.first()).toBeVisible();
-
-    // Check if metric titles are present (should be 4 cards)
-    const metricTitles = page.locator('[data-testid="metric-title"]');
-    await expect(metricTitles).toHaveCount(4);
-
-    // Check if metric values are present
-    const metricValues = page.locator('[data-testid="metric-value"]');
-    await expect(metricValues).toHaveCount(4);
-
-    // Check if trend indicators are present (should be 4 trends)
-    const metricTrends = page.locator('[data-testid="metric-trend"]');
-    await expect(metricTrends).toHaveCount(4);
+    await expect(page.locator('h1:text("Dashboard Overview")')).toBeVisible();
+    await expect(page.getByTestId("usage-coming-soon")).toBeVisible();
+    await expect(page.getByTestId("metric-card")).toHaveCount(0);
+    await expect(page.getByTestId("usage-chart")).toHaveCount(0);
+    for (const mockValue of ["125,847", "251,694", "892,341", "-5.2"]) {
+      await expect(page.locator("body")).not.toContainText(mockValue);
+    }
   });
 
-  test("should display usage trends chart", async ({ page }) => {
-    await page.goto("/dashboard/overview");
-
-    // Check if chart container is present using data attribute
-    await expect(page.locator('[data-testid="usage-chart"]')).toBeVisible();
-
-    // Check if chart title is present
-    await expect(page.locator('[data-testid="chart-title"]')).toBeVisible();
-
-    // Check if chart container is present
-    await expect(page.locator('[data-testid="chart-container"]')).toBeVisible();
-
-    // Check if Recharts responsive container is present (implementation detail)
-    await expect(page.locator(".recharts-responsive-container")).toBeVisible();
+  test("the Analytics URL leads back to the overview", async ({ page }) => {
+    await page.goto("/dashboard/analytics");
+    await expect(page).toHaveURL(/\/dashboard\/overview$/);
+    await expect(page.locator('h1:text("Dashboard Overview")')).toBeVisible();
+    await expect(page.getByTestId("usage-by-file-type-chart")).toHaveCount(0);
   });
 
   test("should be responsive on mobile", async ({ page }) => {
@@ -82,33 +63,5 @@ test.describe("Dashboard Navigation", () => {
     // Check if sidebar is hidden by default on mobile
     const sidebar = page.locator("aside");
     await expect(sidebar).not.toBeInViewport();
-  });
-
-  test("should have proper metric card structure", async ({ page }) => {
-    await page.goto("/dashboard/overview");
-
-    // Get all metric cards
-    const metricCards = page.locator('[data-testid="metric-card"]');
-    const cardCount = await metricCards.count();
-
-    // Verify each card has the required structure
-    for (let i = 0; i < cardCount; i++) {
-      const card = metricCards.nth(i);
-
-      // Each card should have a title
-      await expect(card.locator('[data-testid="metric-title"]')).toBeVisible();
-
-      // Each card should have a value
-      await expect(card.locator('[data-testid="metric-value"]')).toBeVisible();
-
-      // Check if trend section exists (should be present in all cards)
-      const trendSection = card.locator('[data-testid="metric-trend"]');
-      await expect(trendSection).toBeVisible();
-
-      // Trend section should have trend value
-      await expect(
-        trendSection.locator('[data-testid="metric-trend-value"]'),
-      ).toBeVisible();
-    }
   });
 });
