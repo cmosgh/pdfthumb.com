@@ -38,20 +38,6 @@ export interface ChartDataPoint {
   date: string;
 }
 
-export interface DashboardSummary {
-  totalPdfsProcessed: number;
-  totalThumbnailsGenerated: number;
-  totalApiCalls: number;
-  monthlyGrowth: number;
-}
-
-export interface UsageTrendData extends ChartDataPoint {
-  date: string;
-  pdfsProcessed: number;
-  thumbnailsGenerated: number;
-  apiCalls: number;
-}
-
 export interface TooltipProps {
   active?: boolean;
   payload?: Array<{
@@ -60,35 +46,6 @@ export interface TooltipProps {
     color: string;
   }>;
   label?: string;
-}
-
-// Detailed Analytics Types
-export interface FileTypeData extends ChartDataPoint {
-  date: string;
-  pdf: number;
-  png: number;
-  jpg: number;
-  other: number;
-}
-
-export interface ErrorLogData {
-  id: string;
-  timestamp: string;
-  errorType: string;
-  message: string;
-  fileName?: string;
-  userId?: string;
-}
-
-export interface GeographicData {
-  country: string;
-  requests: number;
-  percentage: number;
-}
-
-export interface DateRange {
-  start: Date;
-  end: Date;
 }
 
 // User Settings Types
@@ -100,14 +57,6 @@ export interface ApiKey {
   expiresAt: string | null;
   lastUsedAt?: string;
   enabled: boolean;
-}
-
-export interface DetailedAnalytics {
-  usageByFileType: FileTypeData[];
-  errorLogs: ErrorLogData[];
-  geographicDistribution: GeographicData[];
-  totalErrors: number;
-  errorRate: number;
 }
 
 // Authentication Types

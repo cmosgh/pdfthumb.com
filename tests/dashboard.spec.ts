@@ -27,6 +27,46 @@ async function mockAnalyticsSummary(page: Page, dailyBuckets: object[]) {
   return { request };
 }
 
+// Answers /api/users/:id/subscription with `subscription` (null: the empty
+// 200 the API sends when there is none); `request` resolves with the request.
+async function mockSubscription(page: Page, subscription: object | null) {
+  let answered!: (request: Request) => void;
+  const request = new Promise<Request>((resolve) => (answered = resolve));
+  await page.route("**/api/users/*/subscription", (route) => {
+    answered(route.request());
+    return subscription
+      ? route.fulfill({ json: subscription })
+      : route.fulfill({ status: 200, body: "" });
+  });
+  return { request };
+}
+
+function subscription(
+  plan: { name: string; monthlyThumbnailLimit: number; isHardLimit: boolean },
+  used: number,
+) {
+  return {
+    id: "sub-1",
+    userId: "test-user-123",
+    currentMonthlyUsage: used,
+    currentPeriodStart: "2026-09-16T00:00:00.000Z",
+    currentPeriodEnd: "2026-10-16T00:00:00.000Z",
+    status: "active",
+    subscriptionType: {
+      id: "type-1",
+      description: "For trying the API",
+      rateLimitPerMinute: 10,
+      maxPdfSizeMB: 10,
+      zipPageCap: 20,
+      overusageCostPerThumbnail: plan.isHardLimit ? null : "0.0040",
+      ...plan,
+    },
+  };
+}
+
+// 2026-09-25 12:00 UTC: 20.5 days before the period ends.
+const NOW = new Date("2026-09-25T12:00:00Z");
+
 test.describe("Dashboard Navigation", () => {
   test.beforeEach(async ({ page }) => {
     // Mock authentication before each test
@@ -124,6 +164,87 @@ test.describe("Dashboard Navigation", () => {
       "Requests per day couldn't be loaded. Try again later.",
     );
     await expect(page.getByTestId("requests-total")).toHaveCount(0);
+  });
+
+  // #119: the plan, its quota and when it resets, from the subscription.
+  test("overview shows the plan and its quota", async ({ page }) => {
+    await page.clock.setFixedTime(NOW);
+    const sub = await mockSubscription(
+      page,
+      subscription(
+        { name: "Free", monthlyThumbnailLimit: 1000, isHardLimit: true },
+        640,
+      ),
+    );
+    await page.goto("/dashboard/overview");
+
+    const widget = page.getByTestId("plan-quota");
+    await expect(widget.getByTestId("plan-quota-summary")).toHaveText(
+      "Free · 640 of 1,000 Thumbnails used · resets 16 Oct (in 21 days)",
+    );
+    await expect(widget.getByTestId("plan-quota-limit")).toHaveText(
+      "Hard limit: requests past the quota are refused until it resets.",
+    );
+    const bar = widget.getByRole("progressbar");
+    await expect(bar).toHaveAttribute("aria-valuenow", "640");
+    await expect(bar).toHaveAttribute("aria-valuemax", "1000");
+
+    const request = await sub.request;
+    expect(new URL(request.url()).pathname).toBe(
+      "/api/users/test-user-123/subscription",
+    );
+    expect(request.headers()["authorization"]).toBe("Bearer mock-access-token");
+  });
+
+  test("a plan with overage says so, without the price", async ({ page }) => {
+    await page.clock.setFixedTime(NOW);
+    await mockSubscription(
+      page,
+      subscription(
+        { name: "Basic", monthlyThumbnailLimit: 10000, isHardLimit: false },
+        10400,
+      ),
+    );
+    await page.goto("/dashboard/overview");
+
+    const widget = page.getByTestId("plan-quota");
+    await expect(widget.getByTestId("plan-quota-summary")).toHaveText(
+      "Basic · 10,400 of 10,000 Thumbnails used · resets 16 Oct (in 21 days)",
+    );
+    await expect(widget.getByTestId("plan-quota-limit")).toHaveText(
+      "Past the quota, each Thumbnail is billed as overage.",
+    );
+    // Prices aren't public.
+    await expect(widget).not.toContainText("0.004");
+    await expect(widget).not.toContainText("€");
+    // A bar can't run past full.
+    await expect(widget.getByRole("progressbar")).toHaveAttribute(
+      "aria-valuenow",
+      "10000",
+    );
+  });
+
+  test("overview says so when there is no plan", async ({ page }) => {
+    await mockSubscription(page, null);
+    await page.goto("/dashboard/overview");
+    await expect(page.getByTestId("plan-quota-empty")).toHaveText(
+      "You don't have a plan yet. See plans",
+    );
+    await expect(
+      page.getByTestId("plan-quota-empty").getByRole("link"),
+    ).toHaveAttribute("href", "/#pricing");
+    await expect(page.getByTestId("plan-quota-summary")).toHaveCount(0);
+  });
+
+  test("overview says so when the plan can't be loaded", async ({ page }) => {
+    await page.route("**/api/users/*/subscription", (route) =>
+      route.fulfill({ status: 500, json: { message: "boom" } }),
+    );
+    await page.goto("/dashboard/overview");
+    await expect(page.getByTestId("plan-quota-error")).toHaveText(
+      "Your plan couldn't be loaded. Try again later.",
+    );
+    await expect(page.getByTestId("plan-quota-summary")).toHaveCount(0);
   });
 
   test("the Analytics URL leads back to the overview", async ({ page }) => {
