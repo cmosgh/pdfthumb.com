@@ -154,6 +154,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         await doRefresh();
       } catch (err) {
         console.error('Proactive token refresh failed:', err);
+        // The refresh token is spent, so drop the stored session: otherwise
+        // every reload treats it as valid and retries the dead refresh, and
+        // the modal loops (#79). Other tabs clear theirs via the storage event.
+        refreshTimerRef.current = null;
+        localStorage.removeItem(TOKEN_STORAGE_KEY);
+        localStorage.removeItem(USER_STORAGE_KEY);
         // Per user decision: show session expired UI, do NOT silently log out
         setSessionExpired(true);
       }

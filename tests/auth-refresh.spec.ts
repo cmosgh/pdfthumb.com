@@ -66,4 +66,65 @@ test.describe("Token refresh", () => {
     expect(tokens.expiresAt).toBeGreaterThan(refreshedAt + 3500_000);
     expect(tokens.expiresAt).toBeLessThan(refreshedAt + 3700_000);
   });
+
+  // #79: a refresh that fails for good must not leave the dead session in
+  // storage, or every reload retries it and the modal loops.
+  test("a failed refresh clears the session, and Log in again reaches a clean /login", async ({
+    page,
+  }) => {
+    // Seeded once per tab (sessionStorage flag), so reloads see real storage.
+    // Four minutes from expiry: inside the 5-minute refresh buffer but past
+    // the 60-second one, which is when the loop happened.
+    await page.addInitScript(() => {
+      if (sessionStorage.getItem("seeded")) return;
+      sessionStorage.setItem("seeded", "1");
+      localStorage.setItem(
+        "auth_tokens",
+        JSON.stringify({
+          accessToken: "access-dead",
+          refreshToken: "refresh-already-rotated",
+          expiresAt: Date.now() + 4 * 60 * 1000,
+        }),
+      );
+      localStorage.setItem(
+        "auth_user",
+        JSON.stringify({
+          id: "user-42",
+          email: "ada@example.com",
+          name: "Ada",
+        }),
+      );
+    });
+    const refreshes: Request[] = [];
+    await page.route("**/api/auth/refresh", async (route) => {
+      refreshes.push(route.request());
+      await route.fulfill({
+        status: 401,
+        json: { statusCode: 401, message: "Invalid refresh token" },
+      });
+    });
+    await page.route("**/api/auth/me", (route) =>
+      route.fulfill({ json: refreshed.user }),
+    );
+
+    await page.goto("/dashboard");
+    const modal = page.getByRole("dialog", { name: "Your session expired" });
+    await expect(modal).toBeVisible();
+    expect(
+      await page.evaluate(() => [
+        localStorage.getItem("auth_tokens"),
+        localStorage.getItem("auth_user"),
+      ]),
+    ).toEqual([null, null]);
+
+    await modal.getByRole("link", { name: "Log in again" }).click();
+    await expect(page).toHaveURL(/\/login$/);
+    await expect(
+      page.getByRole("heading", { name: "Sign in to your account" }),
+    ).toBeVisible();
+    // Long enough for an immediate retry (delay 0) to have fired.
+    await page.waitForTimeout(1500);
+    await expect(modal).toHaveCount(0);
+    expect(refreshes).toHaveLength(1);
+  });
 });
