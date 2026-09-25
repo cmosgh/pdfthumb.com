@@ -243,6 +243,7 @@ test.describe("Token refresh", () => {
   // pair in storage. Only one refresh may go out, and neither tab expires.
   test("two tabs refreshing at once send one refresh and both keep the session", async ({
     context,
+    browserName,
   }) => {
     const presented: string[] = [];
     await context.route("**/api/auth/refresh", async (route) => {
@@ -281,7 +282,13 @@ test.describe("Token refresh", () => {
       .toBe("refresh-rotated");
     await second.waitForTimeout(1000);
 
-    expect(presented).toEqual(["refresh-already-rotated"]);
+    // Firefox can show the second tab the old pair for a moment after the
+    // first stored the new one, so that tab may spend the old token on a
+    // 401 before adopting the new pair. Elsewhere the lock allows one refresh.
+    expect(presented[0]).toBe("refresh-already-rotated");
+    expect(presented.length).toBeLessThanOrEqual(
+      browserName === "firefox" ? 2 : 1,
+    );
     for (const tab of [first, second]) {
       expect(await storedRefreshToken(tab)).toBe("refresh-rotated");
       await expect(
@@ -308,5 +315,89 @@ test.describe("Token refresh", () => {
     await expect(
       page.getByRole("dialog", { name: "Your session expired" }),
     ).toHaveCount(0);
+  });
+
+  // Firefox hands another tab's localStorage write to this one
+  // asynchronously, so a 401 can arrive while storage still shows the token
+  // this tab spent. The winner's pair is on its way: wait for it, adopt it.
+  test("a 401 whose winning pair reaches this tab a moment later adopts it", async ({
+    context,
+  }) => {
+    // "The other tab" only stores the winning pair: park it on a
+    // same-origin script, so no app of its own reacts to storage.
+    const winner = await context.newPage();
+    await winner.goto("/");
+    await winner.goto(
+      await winner.evaluate(
+        () =>
+          document.querySelector<HTMLScriptElement>('script[type="module"]')!
+            .src,
+      ),
+    );
+    await context.route("**/api/auth/refresh", async (route) => {
+      setTimeout(() => {
+        void winner.evaluate(() =>
+          localStorage.setItem(
+            "auth_tokens",
+            JSON.stringify({
+              accessToken: "access-from-other-tab",
+              refreshToken: "refresh-from-other-tab",
+              expiresAt: Date.now() + 60 * 60 * 1000,
+            }),
+          ),
+        );
+      }, 300);
+      await route.fulfill({
+        status: 401,
+        json: { statusCode: 401, message: "Invalid refresh token" },
+      });
+    });
+    const tab = await context.newPage();
+    await seedNearlyExpiredSession(tab);
+    await mockMe(tab);
+
+    await tab.goto("/dashboard");
+    await tab.waitForTimeout(1500);
+    expect(await storedRefreshToken(tab)).toBe("refresh-from-other-tab");
+    await expect(
+      tab.getByRole("dialog", { name: "Your session expired" }),
+    ).toHaveCount(0);
+  });
+
+  test("logging out while another tab refreshes doesn't bring the session back", async ({
+    context,
+  }) => {
+    let refreshes = 0;
+    await context.route("**/api/auth/refresh", async (route) => {
+      if (++refreshes > 1) {
+        await route.fulfill({
+          status: 401,
+          json: { statusCode: 401, message: "Invalid refresh token" },
+        });
+        return;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await route.fulfill({
+        json: {
+          accessToken: "access-rotated",
+          refreshToken: "refresh-rotated",
+        },
+      });
+    });
+    await context.route("**/api/auth/logout", (route) =>
+      route.fulfill({ json: {} }),
+    );
+    const refreshing = await context.newPage();
+    await seedNearlyExpiredSession(refreshing);
+    await mockMe(refreshing);
+    await refreshing.goto("/dashboard");
+
+    const other = await context.newPage();
+    await mockMe(other);
+    await other.goto("/");
+    await other.getByRole("button", { name: "Logout" }).click();
+
+    await refreshing.waitForTimeout(2000);
+    expect(await storedRefreshToken(refreshing)).toBeNull();
   });
 });

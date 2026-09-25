@@ -40,6 +40,9 @@ export const authApi = {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ refreshToken }),
+        // The refresh holds a lock every tab waits on: don't let a stalled
+        // connection hold it. A timeout counts as a passing failure.
+        signal: AbortSignal.timeout(15_000),
       });
 
       if (!response.ok) {
