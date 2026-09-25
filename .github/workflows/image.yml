@@ -57,6 +57,8 @@ jobs:
           expect /dashboard/settings 200 '^cache-control: no-cache'
           expect "/assets/$ASSET" 200 '^cache-control: public, max-age=31536000, immutable'
           expect /assets/missing.js 404
+          expect / 200 '^strict-transport-security: max-age=31536000'
+          expect /assets/missing.js 404 '^strict-transport-security: max-age=31536000'
           expect / 200 '^x-content-type-options: nosniff'
           expect / 200 "^content-security-policy: frame-ancestors 'none'"
 
