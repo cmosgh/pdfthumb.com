@@ -1,18 +1,15 @@
 import { expect, test } from "@playwright/test";
 import { PRICING_TIERS } from "@/constants.ts";
 
-// Adjust the URL if your dev server runs on a different port
-const BASE_URL = "http://localhost:4173";
-
 test.describe("index.tsx basic render", () => {
   test("should load the app and display the root element", async ({ page }) => {
-    await page.goto(BASE_URL);
+    await page.goto("/");
     const root = await page.$("#root");
     expect(root).not.toBeNull();
   });
 
   test("should render the Hero section", async ({ page }) => {
-    await page.goto(BASE_URL);
+    await page.goto("/");
     // Assuming the Hero section contains a heading with a unique text, e.g., "PDF Thumbnail Pro"
     await expect(
       page.getByRole("heading", { name: /Instant PDF Thumbnails/i }),
@@ -20,7 +17,7 @@ test.describe("index.tsx basic render", () => {
   });
 
   test("should render the Navbar and Footer", async ({ page, isMobile }) => {
-    await page.goto(BASE_URL);
+    await page.goto("/");
 
     if (isMobile) {
       // Click the mobile menu button
@@ -41,7 +38,7 @@ test.describe("index.tsx basic render", () => {
   test("shows Upcoming instead of a price on every priced plan", async ({
     page,
   }) => {
-    await page.goto(BASE_URL);
+    await page.goto("/");
     const pricingSection = page.getByTestId("pricing-section");
     await expect(pricingSection).toContainText(
       "Flexible Pricing for Every Scale",
@@ -63,7 +60,7 @@ test.describe("index.tsx basic render", () => {
   test("shows no price amounts anywhere on the landing page", async ({
     page,
   }) => {
-    await page.goto(BASE_URL);
+    await page.goto("/");
     await expect(page.getByTestId("pricing-section")).toContainText("Upcoming");
     const text = await page.locator("body").textContent();
     expect(text).not.toMatch(/[$€£]\s?\d/);
@@ -74,7 +71,7 @@ test.describe("index.tsx basic render", () => {
   });
 
   test("shows Upcoming for the overage rates", async ({ page }) => {
-    await page.goto(BASE_URL);
+    await page.goto("/");
     const row = page
       .locator("#overage-pricing tr")
       .filter({ hasText: "Cost per Additional Thumbnail" });
@@ -89,7 +86,7 @@ test.describe("index.tsx basic render", () => {
       dialogs.push(dialog.message());
       await dialog.dismiss();
     });
-    await page.goto(BASE_URL);
+    await page.goto("/");
     for (const tier of pricedTiers) {
       const button = page
         .getByTestId(`pricing-card-${tier.id}`)
@@ -109,7 +106,7 @@ test.describe("index.tsx basic render", () => {
         dialogs.push(dialog.message());
         await dialog.dismiss();
       });
-      await page.goto(BASE_URL);
+      await page.goto("/");
       const cta = page.getByTestId(testId);
       await expect(cta).toBeEnabled();
       await cta.click();
@@ -121,7 +118,7 @@ test.describe("index.tsx basic render", () => {
   test("the API-key calls to action keep their original labels", async ({
     page,
   }) => {
-    await page.goto(BASE_URL);
+    await page.goto("/");
     await expect(page.getByTestId("navbar-api-key")).toHaveText("Get API Key");
     await expect(page.getByTestId("cta-api-key")).toHaveText(
       "Get Your Free API Key Now",

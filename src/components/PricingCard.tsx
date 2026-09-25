@@ -2,7 +2,6 @@ import React from "react";
 import type { PricingTier } from "../types";
 import { CheckCircleIcon, InformationCircleIcon } from "./icons";
 import Button from "./Button";
-import { handleInitiateCheckout } from "../paymentUtils";
 
 interface PricingCardProps {
   tier: PricingTier;
@@ -28,21 +27,6 @@ const PricingCard: React.FC<PricingCardProps> = ({ tier }) => {
 
   const featuredBadgeBg = tier.highlightColor || "bg-indigo-600";
   const featuredBadgeText = "text-white";
-
-  const handleCtaClick = () => {
-    if (tier.isComingSoon) return;
-
-    if (
-      tier.id === "enterprise" &&
-      tier.ctaText.toLowerCase().includes("contact sales")
-    ) {
-      // For Enterprise "Contact Sales", let the href handle it (if needed) or do nothing if it's just a link.
-      // This button is typically an anchor tag leading to a contact page/form.
-      return;
-    }
-
-    handleInitiateCheckout(tier.id);
-  };
 
   return (
     <div
@@ -98,8 +82,7 @@ const PricingCard: React.FC<PricingCardProps> = ({ tier }) => {
         ))}
       </ul>
       <Button
-        href={tier.id === "enterprise" ? tier.ctaLink : "#"} // Enterprise might link, others use onClick
-        onClick={handleCtaClick} // Simplified: onClick handles action for non-enterprise
+        href={tier.id === "enterprise" ? tier.ctaLink : "#"}
         variant={tier.isFeatured ? "primary" : "secondary"}
         className={`w-full mt-auto ${tier.isComingSoon ? "opacity-70 cursor-not-allowed" : ""} 
                     ${
