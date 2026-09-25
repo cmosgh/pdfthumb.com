@@ -6,7 +6,7 @@ Vite/React SPA. It calls the backend API through a relative `/api` base, so brow
 
 ### Issue tracker
 
-Issues live in the **backend repo's** GitHub Issues (`cmosgh/pdfthumbnailpro-be`), driven by `gh -R cmosgh/pdfthumbnailpro-be`; PRs are opened here. See `docs/agents/issue-tracker.md`.
+Issues live in this repo's GitHub Issues (`cmosgh/pdfthumb.com`), driven by `gh`. See `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 
