@@ -30,9 +30,7 @@ spec:
       automountServiceAccountToken: false
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
-        {{- range . }}
-        - name: {{ . }}
-        {{- end }}
+        {{- toYaml . | nindent 8 }}
       {{- end }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
@@ -43,9 +41,11 @@ spec:
           configMap:
             name: {{ include "pdfthumb-dashboard.fullname" . }}-nginx
         - name: nginx-cache
-          emptyDir: {}
+          emptyDir:
+            sizeLimit: 64Mi
         - name: nginx-run
-          emptyDir: {}
+          emptyDir:
+            sizeLimit: 1Mi
       containers:
         - name: nginx
           securityContext:
@@ -70,6 +70,7 @@ spec:
               path: /
               port: http
             periodSeconds: 5
+            timeoutSeconds: 2
             failureThreshold: 3
           livenessProbe:
             httpGet:
@@ -77,6 +78,7 @@ spec:
               port: http
             initialDelaySeconds: 5
             periodSeconds: 10
+            timeoutSeconds: 2
             failureThreshold: 3
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
@@ -98,6 +100,8 @@ spec:
         - topologyKey: {{ .topologyKey }}
           maxSkew: {{ .maxSkew }}
           whenUnsatisfiable: {{ .whenUnsatisfiable }}
+          nodeAffinityPolicy: {{ .nodeAffinityPolicy }}
+          nodeTaintsPolicy: {{ .nodeTaintsPolicy }}
           labelSelector:
             matchLabels:
               {{- include "pdfthumb-dashboard.selectorLabels" $ | nindent 14 }}

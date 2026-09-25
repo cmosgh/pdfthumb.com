@@ -46,7 +46,8 @@ metadata:
     {{- include "pdfthumb-dashboard.labels" . | nindent 4 }}
 spec:
   redirectRegex:
-    regex: ^https?://www\.{{ regexQuoteMeta $host }}/(.*)
+    # The port is optional: a Host header may carry one (www.<host>:443).
+    regex: ^https?://www\.{{ regexQuoteMeta $host }}(?::\d+)?/(.*)
     replacement: https://{{ $host }}/${1}
     # 301
     permanent: true

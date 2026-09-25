@@ -33,11 +33,13 @@ jobs:
       - name: Lint
         run: helm lint "$CHART_DIR" --strict -n "$NAMESPACE"
       - name: Render
-        run: helm template pdfthumb-dashboard "$CHART_DIR" -n "$NAMESPACE"
+        run: helm template pdfthumb-dashboard "$CHART_DIR" -n "$NAMESPACE" > /dev/null
+      # A deploy pins the image by digest; any well-formed one exercises that path.
       - name: Render pinned to a digest
         run: >-
           helm template pdfthumb-dashboard "$CHART_DIR" -n "$NAMESPACE"
           --set image.tag="$GITHUB_SHA"
-          --set image.digest="sha256:$(printf '0%.0s' $(seq 64))"
+          --set image.digest=sha256:0000000000000000000000000000000000000000000000000000000000000000
+          > /dev/null
       - name: Assert the pod meets Pod Security "restricted"
         run: "$CHART_DIR/assert-security-context.sh"

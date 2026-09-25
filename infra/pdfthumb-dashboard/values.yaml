@@ -12,8 +12,8 @@ image:
   digest: ""
   pullPolicy: IfNotPresent
 
-# Names of existing pull Secrets, if the GHCR package is private. The chart
-# never creates a Secret.
+# Existing pull Secrets ([{name: ...}]), if the GHCR package is private. The
+# chart never creates a Secret.
 imagePullSecrets: []
 
 nameOverride: ""
@@ -77,6 +77,10 @@ topologySpread:
   topologyKey: kubernetes.io/hostname
   maxSkew: 1
   whenUnsatisfiable: ScheduleAnyway
+  # Only nodes the pods may run on count as domains: not control-plane-1
+  # (excluded by affinity), not a cordoned or tainted node.
+  nodeAffinityPolicy: Honor
+  nodeTaintsPolicy: Honor
   matchLabelKeys:
     - pod-template-hash
 
@@ -89,7 +93,9 @@ ingress:
   redirectWww: true
   entryPoints:
     - websecure
-  # PathPrefix(`/api`) goes to the backend unmodified (no prefix strip).
+  # PathPrefix(`/api`) goes to the backend unmodified (no prefix strip). The
+  # name is the backend release's fullname, so it changes if that release or
+  # its chart is renamed.
   backend:
     serviceName: pdfthumbnailpro-be-release-pdfthumbnailpro-be-chart
     servicePort: 80
