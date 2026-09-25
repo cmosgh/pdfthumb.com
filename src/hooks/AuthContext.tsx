@@ -30,18 +30,60 @@ const clearStoredSession = () => {
   localStorage.removeItem(USER_STORAGE_KEY);
 };
 
-const readStoredTokens = (): AuthTokens | null => {
+const readStored = <T,>(key: string): T | null => {
   try {
-    return JSON.parse(localStorage.getItem(TOKEN_STORAGE_KEY) ?? "null");
+    return JSON.parse(localStorage.getItem(key) ?? "null");
   } catch {
     return null;
   }
 };
+const readStoredTokens = () => readStored<AuthTokens>(TOKEN_STORAGE_KEY);
+const readStoredUser = () => readStored<User>(USER_STORAGE_KEY);
+
+// Another tab refreshed since `presented` was read: a rotated token, or the
+// same token with a later expiry.
+const supersedes = (stored: AuthTokens, presented: AuthTokens) =>
+  stored.refreshToken !== presented.refreshToken ||
+  stored.expiresAt > presented.expiresAt;
+
+// Firefox hands one tab's localStorage write to the others asynchronously,
+// so a 401 can arrive while storage here still shows the spent pair. Give
+// the winning tab's pair a moment to land before calling the session spent.
+const ROTATION_GRACE_MS = 2000;
+const waitForNewerTokens = (presented: AuthTokens) =>
+  new Promise<AuthTokens | null>((resolve) => {
+    const newer = () => {
+      const stored = readStoredTokens();
+      return stored && supersedes(stored, presented) ? stored : null;
+    };
+    const done = (tokens: AuthTokens | null) => {
+      clearTimeout(timer);
+      window.removeEventListener("storage", onStorage);
+      resolve(tokens);
+    };
+    const onStorage = (event: StorageEvent) => {
+      const tokens = event.key === TOKEN_STORAGE_KEY ? newer() : null;
+      if (tokens) done(tokens);
+    };
+    const timer = setTimeout(() => done(newer()), ROTATION_GRACE_MS);
+    window.addEventListener("storage", onStorage);
+    const already = newer();
+    if (already) done(already);
+  });
 
 // Only a 401 means the refresh token is spent; a 5xx or a network error may
 // pass, and a reload can still renew the session.
 const isSpentRefreshToken = (err: unknown) =>
   (err as { status?: number } | null)?.status === 401;
+
+// Tabs share one refresh token and the server accepts it once (#81), so
+// refreshes (and logout's clear) run one at a time across tabs. Without Web
+// Locks, the re-read of storage and the 401 grace are the only guards.
+const REFRESH_LOCK = "pdfthumb-refresh";
+const withRefreshLock = async <T,>(fn: () => Promise<T>): Promise<T> =>
+  typeof navigator !== "undefined" && navigator.locks
+    ? await navigator.locks.request(REFRESH_LOCK, fn)
+    : fn();
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -107,8 +149,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Continue with local logout even if API call fails
     }
 
-    // Clear local storage
-    clearStoredSession();
+    // Under the refresh lock: a refresh in flight in another tab stores its
+    // pair first, and this clears it, instead of it landing after the clear.
+    await withRefreshLock(async () => clearStoredSession());
 
     setAuthState({
       user: null,
@@ -122,27 +165,34 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     window.location.href = "/";
   }, []);
 
-  // doRefresh defined first so scheduleRefresh can reference it
-  const doRefresh = useCallback(async (): Promise<void> => {
-    const tokensJson = localStorage.getItem(TOKEN_STORAGE_KEY);
-    if (!tokensJson) throw new Error('No tokens in storage');
+  // doRefresh defined first so scheduleRefresh can reference it.
+  // `presented` is the pair the caller meant to refresh: if another tab
+  // refreshed it while this one waited for the lock, adopt the stored pair
+  // instead of spending the old token on a certain 401.
+  const doRefresh = useCallback(async (presented?: AuthTokens): Promise<void> => {
+    const session = await withRefreshLock(async (): Promise<AuthTokens> => {
+      const tokens = readStoredTokens();
+      if (!tokens) throw new Error('No tokens in storage');
+      if (!tokens.refreshToken) throw new Error('No refresh token');
 
-    const tokens: AuthTokens = JSON.parse(tokensJson);
-    if (!tokens.refreshToken) throw new Error('No refresh token');
+      if (presented && supersedes(tokens, presented)) return tokens;
 
-    const response = await authApi.refresh(tokens.refreshToken);
+      const response = await authApi.refresh(tokens.refreshToken);
 
-    const newTokens: AuthTokens = {
-      accessToken: response.accessToken,
-      refreshToken: response.refreshToken || tokens.refreshToken,
-      expiresAt: sessionExpiresAt(response.expiresIn),
-    };
+      const rotated: AuthTokens = {
+        accessToken: response.accessToken,
+        refreshToken: response.refreshToken || tokens.refreshToken,
+        expiresAt: sessionExpiresAt(response.expiresIn),
+      };
 
-    localStorage.setItem(TOKEN_STORAGE_KEY, JSON.stringify(newTokens));
+      localStorage.setItem(TOKEN_STORAGE_KEY, JSON.stringify(rotated));
+      return rotated;
+    });
 
     setAuthState(prev => ({
       ...prev,
-      tokens: newTokens,
+      tokens: session,
+      user: readStoredUser() ?? prev.user,
       isAuthenticated: true,
       isLoading: false,
       isRoleLoading: false,
@@ -150,7 +200,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     // Reschedule after successful refresh — scheduleRefresh is called via ref
     // to avoid circular dependency with useCallback deps
-    scheduleRefreshRef.current(newTokens.expiresAt);
+    scheduleRefreshRef.current(session.expiresAt);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -168,17 +218,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     refreshTimerRef.current = setTimeout(async () => {
       refreshTimerRef.current = null;
-      const usedRefreshToken = readStoredTokens()?.refreshToken;
+      const presented = readStoredTokens() ?? undefined;
       try {
-        await doRefresh();
+        await doRefresh(presented);
       } catch (err) {
         console.error('Proactive token refresh failed:', err);
         if (isSpentRefreshToken(err)) {
-          const stored = readStoredTokens();
-          if (stored && stored.refreshToken !== usedRefreshToken) {
+          const stored = presented ? await waitForNewerTokens(presented) : null;
+          if (stored) {
             // Another tab refreshed first and stored a new session: use it
             // rather than wiping it, which would log that tab out silently.
-            setAuthState(prev => ({ ...prev, tokens: stored }));
+            setAuthState(prev => ({
+              ...prev,
+              tokens: stored,
+              user: readStoredUser() ?? prev.user,
+            }));
             scheduleRefreshRef.current(stored.expiresAt);
             return;
           }
