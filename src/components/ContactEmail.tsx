@@ -14,6 +14,14 @@ interface ContactEmailProps {
 // A contact address, rendered the way Q1 decides (CONTACT_RENDER).
 const ContactEmail: React.FC<ContactEmailProps> = ({ kind, className }) => {
   const address = CONTACT_EMAILS[kind];
+  // In a narrow card the address wraps after the "@", not mid-domain.
+  const [local, domain] = address.split("@");
+  const text = (
+    <>
+      {local}@<wbr />
+      {domain}
+    </>
+  );
   const href = contactHref(kind);
   return (
     <>
@@ -25,10 +33,10 @@ const ContactEmail: React.FC<ContactEmailProps> = ({ kind, className }) => {
             "text-indigo-600 dark:text-indigo-400 hover:underline break-words"
           }
         >
-          {address}
+          {text}
         </a>
       ) : (
-        <span className={className ?? "break-words"}>{address}</span>
+        <span className={className ?? "break-words"}>{text}</span>
       )}
       {CONTACT_RENDER === "tbc" && " [TBC]"}
     </>
