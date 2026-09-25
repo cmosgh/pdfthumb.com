@@ -51,8 +51,11 @@ test.describe("index.tsx basic render", () => {
       await expect(card.getByTestId("pricing-card-price")).toHaveText(
         "Upcoming",
       );
+      await expect(card).toContainText(tier.quota);
       for (const feature of tier.features) {
-        await expect(card).toContainText(feature);
+        await expect(card).toContainText(
+          typeof feature === "string" ? feature : feature.text,
+        );
       }
     }
   });
@@ -76,7 +79,7 @@ test.describe("index.tsx basic render", () => {
       .locator("#overage-pricing tr")
       .filter({ hasText: "Cost per Additional Thumbnail" });
     await expect(row).not.toContainText("$");
-    // Basic and Pro had per-thumbnail rates; Developer is N/A, Enterprise Custom.
+    // Basic and Pro had per-thumbnail rates; Free is N/A, Enterprise Custom.
     await expect(row.getByText("Upcoming")).toHaveCount(2);
   });
 

@@ -7,11 +7,7 @@ const OveragePricingSection: React.FC = () => {
   const overageFeatures = [
     {
       name: "Monthly Included Thumbnails",
-      // Assuming the first feature in the tier.features array is the thumbnail count
-      getValue: (tier: PricingTier) =>
-        tier.features.find((f) =>
-          f.toLowerCase().includes("thumbnails/month"),
-        ) || (tier.id === "enterprise" ? "Unlimited" : "N/A"),
+      getValue: (tier: PricingTier) => tier.quota,
     },
     {
       name: "Cost per Additional Thumbnail",
@@ -83,10 +79,8 @@ const OveragePricingSection: React.FC = () => {
           </div>
         </div>
         <p className="text-center mt-10 text-sm text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">
-          Note: Overages for Basic and Pro plans are billed automatically at the
-          end of your monthly cycle. Developer plan users will be prompted to
-          upgrade if limits are reached. Enterprise plan overages are subject to
-          your specific service agreement.
+          Overage billing starts when paid plans launch. Until then, Free stops
+          at 1,000 Thumbnails a month.
         </p>
       </div>
     </section>

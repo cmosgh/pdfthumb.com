@@ -1,6 +1,8 @@
 import React from "react";
-import { PRICING_TIERS } from "../constants.ts"; // Added .ts
+import { EVERY_PLAN_INCLUDES, ON_PREM, PRICING_TIERS } from "../constants.ts"; // Added .ts
 import PricingCard from "./PricingCard.tsx"; // Added .tsx
+import ContactEmail from "./ContactEmail.tsx";
+import { CheckCircleIcon } from "./icons.tsx";
 
 const PricingSection: React.FC = () => {
   return (
@@ -24,6 +26,39 @@ const PricingSection: React.FC = () => {
           {PRICING_TIERS.map((tier) => (
             <PricingCard key={tier.id} tier={tier} />
           ))}
+        </div>
+        <div
+          className="mt-12 max-w-3xl mx-auto"
+          data-testid="pricing-every-plan"
+        >
+          <h3 className="text-lg font-semibold text-slate-800 dark:text-white text-center mb-4">
+            Every plan includes
+          </h3>
+          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {EVERY_PLAN_INCLUDES.map((line) => (
+              <li key={line} className="flex items-start">
+                <CheckCircleIcon className="h-6 w-6 text-indigo-600 dark:text-indigo-400 mr-2 flex-shrink-0" />
+                <span className="text-slate-600 dark:text-slate-300">
+                  {line}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div
+          className="mt-12 max-w-3xl mx-auto rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 p-6 sm:p-8"
+          data-testid="pricing-on-prem"
+        >
+          <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">
+            {ON_PREM.title}
+          </h3>
+          <p className="text-slate-600 dark:text-slate-300">{ON_PREM.text}</p>
+          <p className="mt-3 font-semibold text-slate-800 dark:text-slate-100">
+            {ON_PREM.price}
+          </p>
+          <p className="mt-3 text-slate-600 dark:text-slate-300">
+            Contact sales: <ContactEmail kind="sales" />
+          </p>
         </div>
         <p className="text-center mt-12 text-sm text-slate-500 dark:text-slate-400">
           Pricing is upcoming. Custom plans available for high-volume needs.

@@ -2,6 +2,7 @@ import React from "react";
 // Removed: import { Link } from '@tanstack/react-router';
 import { DocumentIcon } from "./icons.tsx";
 import { APP_NAME } from "../constants.ts";
+import ContactEmail from "./ContactEmail.tsx";
 
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
@@ -68,10 +69,9 @@ const Footer: React.FC = () => {
                   Privacy Policy
                 </a>
               </li>
-              <li>
-                <a href="#contact" className={linkClasses}>
-                  Contact Us
-                </a>
+              <li className="text-slate-500 dark:text-slate-400 text-sm">
+                Contact Us:{" "}
+                <ContactEmail kind="support" className={linkClasses} />
               </li>
             </ul>
           </div>
