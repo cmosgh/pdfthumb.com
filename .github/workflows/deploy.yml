@@ -111,10 +111,11 @@ jobs:
           kubectl version --client
           helm version --short
 
-      # The cluster pulls without credentials, so the package must be public.
-      # A new GHCR package starts private and can only be made public after
-      # its first push; stop here rather than let a rollout that can't pull
-      # the image time out and roll back.
+      # The cluster pulls without credentials, so the package must stay public.
+      # GHCR created it public on the first push (pushed by GITHUB_TOKEN from a
+      # public repo, it took the repo's visibility). If it is ever made private,
+      # stop here rather than let a rollout sit in ImagePullBackOff until
+      # --atomic rolls it back.
       - name: Check the image is publicly pullable
         run: |
           set -euo pipefail
@@ -125,7 +126,7 @@ jobs:
             -H "Authorization: Bearer ${TOKEN}" \
             -H "Accept: application/vnd.oci.image.manifest.v1+json, application/vnd.docker.distribution.manifest.v2+json, application/vnd.oci.image.index.v1+json, application/vnd.docker.distribution.manifest.list.v2+json" \
             "https://ghcr.io/v2/${REPO}/manifests/${IMAGE_DIGEST}"; then
-            echo "::error::${IMAGE_REPOSITORY}@${IMAGE_DIGEST} is not pullable anonymously. Make the GHCR package public, then re-run this job."
+            echo "::error::${IMAGE_REPOSITORY}@${IMAGE_DIGEST} is not pullable anonymously, so the cluster cannot pull it. The GHCR package must be public: check its visibility, then re-run this job."
             exit 1
           fi
           echo "${IMAGE_REPOSITORY}@${IMAGE_DIGEST} is publicly pullable"

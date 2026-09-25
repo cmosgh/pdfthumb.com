@@ -3,7 +3,9 @@
 # Stage 1: build the SPA. It runs on the build machine's own platform (the
 # x86_64 runner), not under emulation: the output is static files, the same
 # for any target.
-FROM --platform=$BUILDPLATFORM node:22-alpine AS build
+# Base images are pinned by digest (a multi-arch index), so a rebuild can't
+# silently change what ships; Dependabot's docker ecosystem bumps them.
+FROM --platform=$BUILDPLATFORM node:22-alpine@sha256:0a7108bf6c7bf5de370ffb1a3ed6be93d405b43ff159f681a8d18c0e2bc2e402 AS build
 
 WORKDIR /app
 
@@ -17,7 +19,7 @@ RUN npm run build && sh scripts/check-public-bundle.sh dist
 
 # Stage 2: serve it. This is the only stage built for the target platform
 # (linux/arm64 in production), and it has no RUN step, so no emulation.
-FROM nginx:stable-alpine
+FROM nginx:stable-alpine@sha256:985220252f3863977e468f611ef118ebd01421289dd86ee1ae99cb068c3bce2b
 
 # Replaces the stock server block, which listens on :80.
 COPY nginx/default.conf /etc/nginx/conf.d/default.conf
