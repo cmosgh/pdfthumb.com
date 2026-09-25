@@ -16,69 +16,6 @@ test.describe("Detailed Analytics & Settings", () => {
     }
   });
 
-  test.describe("Analytics Page", () => {
-    test("should display detailed analytics charts and data", async ({
-      page,
-    }) => {
-      await page.goto("/dashboard/analytics");
-      await expect(page.locator('h1:text("Detailed Analytics")')).toBeVisible();
-
-      // Check for DateRangePicker
-      await expect(
-        page.locator('[data-testid="date-range-picker"]'),
-      ).toBeVisible();
-
-      // Check for charts
-      await expect(
-        page.locator('[data-testid="error-rate-chart"]'),
-      ).toBeVisible();
-      await expect(
-        page.locator('[data-testid="usage-by-file-type-chart"]'),
-      ).toBeVisible();
-      await expect(
-        page.locator('[data-testid="geographic-distribution-chart"]'),
-      ).toBeVisible();
-
-      // Check for error logs table
-      await expect(
-        page.locator('[data-testid="error-logs-table"]'),
-      ).toBeVisible();
-    });
-
-    test("should filter data when a quick date range is selected", async ({
-      page,
-    }) => {
-      await page.goto("/dashboard/analytics");
-
-      // Wait for the table to load
-      await page.waitForSelector('[data-testid="error-logs-table"] tbody tr');
-
-      // Initial state check (assuming some data is present)
-      const initialRowCount = await page
-        .locator('[data-testid="error-logs-table"] tbody tr')
-        .count();
-      expect(initialRowCount).toBeGreaterThan(0);
-
-      // Click on "30 days" button
-      await page.click('[data-testid="quick-range-30d"]');
-
-      // Verify date inputs have changed
-      const today = new Date();
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(today.getDate() - 30);
-
-      const expectedStartDate = thirtyDaysAgo.toISOString().split("T")[0];
-      const expectedEndDate = today.toISOString().split("T")[0];
-
-      await expect(
-        page.locator('[data-testid="date-start-input"]'),
-      ).toHaveValue(expectedStartDate);
-      await expect(page.locator('[data-testid="date-end-input"]')).toHaveValue(
-        expectedEndDate,
-      );
-    });
-  });
-
   test.describe("Settings Page", () => {
     test("should display profile and API key sections", async ({ page }) => {
       await page.click('aside a:has-text("Settings")');

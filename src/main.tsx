@@ -3,7 +3,6 @@ import ReactDOM from "react-dom/client";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider } from "@tanstack/react-router";
 import { router } from "./router";
-import { dbHelpers } from "./db";
 import { queryClient } from "./queryClient";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import { AuthProvider, useAuth } from "./hooks/AuthContext";
@@ -32,9 +31,12 @@ if (!rootElement) {
 
 const root = ReactDOM.createRoot(rootElement);
 
-// Initialize database with mock data before rendering
-dbHelpers
-  .initializeWithMockData()
+// Mock dashboard data is for local development only: production users must
+// never see invented numbers (#112).
+(import.meta.env.DEV
+  ? import("./data/loadMockData").then((m) => m.loadMockData())
+  : Promise.resolve()
+)
   .then(() => {
     root.render(
       <QueryClientProvider client={queryClient}>

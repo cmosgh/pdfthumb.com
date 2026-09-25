@@ -34,13 +34,18 @@ export const authApi = {
   // Refresh access token using refresh token
   async refresh(refreshToken: string) {
     try {
+      // The refresh holds a lock every tab waits on: don't let a stalled
+      // connection hold it. A timeout counts as a passing failure.
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15_000);
       const response = await fetch("/api/auth/refresh", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ refreshToken }),
-      });
+        signal: controller.signal,
+      }).finally(() => clearTimeout(timeoutId));
 
       if (!response.ok) {
         // The status tells a spent refresh token (401) from a passing failure.
