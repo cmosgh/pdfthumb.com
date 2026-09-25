@@ -30,6 +30,13 @@ const PricingCard: React.FC<PricingCardProps> = ({ tier }) => {
   const ctaDisabled = tier.isComingSoon || (!!tier.ctaContact && !ctaHref);
   const lines = [tier.quota, ...tier.features];
 
+  // A word in the price slot ("Upcoming", "Custom") is wider than an
+  // amount, so it gets a smaller size, smallest while four narrow cards
+  // share a row (#131). The line height keeps the slot as tall as a price.
+  const priceSize = /\d/.test(tier.price)
+    ? "text-5xl"
+    : "text-3xl lg:text-2xl xl:text-3xl leading-[3rem]";
+
   const featuredBadgeBg = tier.highlightColor || "bg-indigo-600";
   const featuredBadgeText = "text-white";
 
@@ -61,11 +68,14 @@ const PricingCard: React.FC<PricingCardProps> = ({ tier }) => {
       <h3 className={`text-2xl font-bold ${highlightTextColorClass} mb-2`}>
         {tier.name}
       </h3>
-      <p className="text-slate-500 dark:text-slate-400 mb-1 h-12 min-h-[3rem]">
+      {/* Three lines from lg, so the prices of a row line up. */}
+      <p className="text-slate-500 dark:text-slate-400 mb-1 min-h-[3rem] lg:min-h-[4.5rem]">
         {tier.description}
       </p>
       <div className="mb-6" data-testid="pricing-card-price">
-        <span className={`text-5xl font-extrabold ${highlightTextColorClass}`}>
+        <span
+          className={`${priceSize} font-extrabold whitespace-nowrap ${highlightTextColorClass}`}
+        >
           {tier.price}
         </span>
         {tier.priceFrequency && (
@@ -80,7 +90,8 @@ const PricingCard: React.FC<PricingCardProps> = ({ tier }) => {
             <CheckCircleIcon
               className={`h-6 w-6 ${highlightTextColorClass.split(" ")[0]} ${highlightTextColorClass.split(" ")[1] || ""} mr-2 flex-shrink-0`}
             />
-            <span className="text-slate-600 dark:text-slate-300">
+            {/* min-w-0 lets a long address wrap inside a narrow card. */}
+            <span className="min-w-0 break-words text-slate-600 dark:text-slate-300">
               {typeof feature === "string" ? (
                 feature
               ) : (
