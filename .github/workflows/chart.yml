@@ -1,0 +1,45 @@
+name: Helm Chart
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "infra/**"
+      - ".github/workflows/chart.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "infra/**"
+      - ".github/workflows/chart.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  chart:
+    runs-on: ubuntu-latest
+    env:
+      CHART_DIR: infra/pdfthumb-dashboard
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.16.4
+      # The chart only renders in its own namespace, which lives in values.yaml.
+      - name: Read the chart's namespace
+        run: echo "NAMESPACE=$(yq eval '.namespace' "$CHART_DIR/values.yaml")" >> "$GITHUB_ENV"
+      - name: Lint
+        run: helm lint "$CHART_DIR" --strict -n "$NAMESPACE"
+      - name: Render
+        run: helm template pdfthumb-dashboard "$CHART_DIR" -n "$NAMESPACE" > /dev/null
+      # A deploy pins the image by digest; any well-formed one exercises that path.
+      - name: Render pinned to a digest
+        run: >-
+          helm template pdfthumb-dashboard "$CHART_DIR" -n "$NAMESPACE"
+          --set image.tag="$GITHUB_SHA"
+          --set image.digest=sha256:0000000000000000000000000000000000000000000000000000000000000000
+          > /dev/null
+      - name: Assert the pod meets Pod Security "restricted"
+        run: "$CHART_DIR/assert-security-context.sh"

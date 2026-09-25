@@ -1,0 +1,105 @@
+# The only namespace this chart deploys to. The deploy credential's Role is
+# scoped to it, so templates fail fast when `helm -n` names another one.
+namespace: pdfthumbnailpro
+
+replicaCount: 2
+
+image:
+  repository: ghcr.io/cmosgh/pdfthumb.com
+  # The deploy sets both: the tag names the build (the commit SHA) and the
+  # digest pins it. Without a tag the chart's appVersion is used.
+  tag: ""
+  digest: ""
+  pullPolicy: IfNotPresent
+
+# Existing pull Secrets ([{name: ...}]), if the GHCR package is private. The
+# chart never creates a Secret.
+imagePullSecrets: []
+
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+
+# Pod Security Standards "restricted". nginx:alpine's nginx user is 101:101.
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 101
+  runAsGroup: 101
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  privileged: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+# nginx listens here (unprivileged, so no root and no NET_BIND_SERVICE).
+containerPort: 8080
+
+service:
+  type: ClusterIP
+  port: 80
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 32Mi
+  limits:
+    cpu: 200m
+    memory: 64Mi
+
+podDisruptionBudget:
+  # Refuses a voluntary eviction (a node drain) that would leave no
+  # dashboard pod standing.
+  minAvailable: 1
+
+# Keep the dashboard off the control plane, as the backend does.
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: NotIn
+              values:
+                - control-plane-1
+
+# Prefer one replica per node. ScheduleAnyway, not DoNotSchedule: a pod the
+# spread can't place still runs, doubled up, rather than staying Pending.
+# pod-template-hash makes a rolling update count only the new ReplicaSet's
+# pods, so the old ones about to go don't skew the placement.
+topologySpread:
+  enabled: true
+  topologyKey: kubernetes.io/hostname
+  maxSkew: 1
+  whenUnsatisfiable: ScheduleAnyway
+  # Only nodes the pods may run on count as domains: not control-plane-1
+  # (excluded by affinity), not a cordoned or tainted node.
+  nodeAffinityPolicy: Honor
+  nodeTaintsPolicy: Honor
+  matchLabelKeys:
+    - pod-template-hash
+
+nodeSelector: {}
+tolerations: []
+
+ingress:
+  # The canonical origin. www.<host> 301s to it.
+  host: pdfthumb.com
+  redirectWww: true
+  entryPoints:
+    - websecure
+  # PathPrefix(`/api`) goes to the backend unmodified (no prefix strip). The
+  # name is the backend release's fullname, so it changes if that release or
+  # its chart is renamed.
+  backend:
+    serviceName: pdfthumbnailpro-be-release-pdfthumbnailpro-be-chart
+    servicePort: 80
+  tls:
+    issuerRef:
+      name: letsencrypt-prod
+      kind: ClusterIssuer

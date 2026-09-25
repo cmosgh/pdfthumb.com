@@ -1,0 +1,6 @@
+apiVersion: v2
+name: pdfthumb-dashboard
+description: The PDF Thumbnail Pro SaaS dashboard (static SPA served by nginx)
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
