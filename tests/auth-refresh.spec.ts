@@ -235,4 +235,78 @@ test.describe("Token refresh", () => {
       ).toHaveCount(0);
     });
   }
+
+  // Tabs share one localStorage, and a refresh token is single-use: of
+  // concurrent refreshes with it, the server lets exactly one through and
+  // answers the rest 401 at once (#81). Here the winner's 200 is still in
+  // flight when the loser's 401 arrives, so the loser can't yet see the new
+  // pair in storage. Only one refresh may go out, and neither tab expires.
+  test("two tabs refreshing at once send one refresh and both keep the session", async ({
+    context,
+  }) => {
+    const presented: string[] = [];
+    await context.route("**/api/auth/refresh", async (route) => {
+      const { refreshToken } = route.request().postDataJSON();
+      presented.push(refreshToken);
+      if (presented.filter((t) => t === refreshToken).length > 1) {
+        await route.fulfill({
+          status: 401,
+          json: { statusCode: 401, message: "Invalid refresh token" },
+        });
+        return;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await route.fulfill({
+        json: {
+          accessToken: "access-rotated",
+          refreshToken: "refresh-rotated",
+        },
+      });
+    });
+    await context.route("**/api/auth/me", (route) =>
+      route.fulfill({
+        json: { id: "user-42", email: "ada@example.com", roles: ["user"] },
+      }),
+    );
+
+    const first = await context.newPage();
+    await seedNearlyExpiredSession(first);
+    await first.goto("/dashboard");
+    // The second tab opens while the first tab's refresh is in flight.
+    const second = await context.newPage();
+    await second.goto("/dashboard");
+
+    await expect
+      .poll(() => storedRefreshToken(first), { timeout: 5000 })
+      .toBe("refresh-rotated");
+    await second.waitForTimeout(1000);
+
+    expect(presented).toEqual(["refresh-already-rotated"]);
+    for (const tab of [first, second]) {
+      expect(await storedRefreshToken(tab)).toBe("refresh-rotated");
+      await expect(
+        tab.getByRole("dialog", { name: "Your session expired" }),
+      ).toHaveCount(0);
+    }
+  });
+
+  // Very old browsers have no Web Locks: refreshing must still work there.
+  test("refreshes without navigator.locks", async ({ page }) => {
+    await page.addInitScript(() =>
+      Object.defineProperty(navigator, "locks", { value: undefined }),
+    );
+    await seedNearlyExpiredSession(page);
+    await page.route("**/api/auth/refresh", (route) =>
+      route.fulfill({ json: refreshed }),
+    );
+    await mockMe(page);
+
+    await page.goto("/dashboard");
+    await expect
+      .poll(() => storedRefreshToken(page))
+      .toBe("refresh-from-refresh");
+    await expect(
+      page.getByRole("dialog", { name: "Your session expired" }),
+    ).toHaveCount(0);
+  });
 });

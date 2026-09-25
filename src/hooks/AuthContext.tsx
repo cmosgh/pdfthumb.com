@@ -43,6 +43,15 @@ const readStoredTokens = (): AuthTokens | null => {
 const isSpentRefreshToken = (err: unknown) =>
   (err as { status?: number } | null)?.status === 401;
 
+// Tabs share one refresh token and the server accepts it once (#81), so
+// refreshes run one at a time across tabs. Without Web Locks, the re-read of
+// storage in doRefresh is the only guard.
+const REFRESH_LOCK = "pdfthumb-refresh";
+const withRefreshLock = async <T,>(fn: () => Promise<T>): Promise<T> =>
+  typeof navigator !== "undefined" && navigator.locks
+    ? await navigator.locks.request(REFRESH_LOCK, fn)
+    : fn();
+
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
@@ -122,23 +131,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     window.location.href = "/";
   }, []);
 
-  // doRefresh defined first so scheduleRefresh can reference it
-  const doRefresh = useCallback(async (): Promise<void> => {
-    const tokensJson = localStorage.getItem(TOKEN_STORAGE_KEY);
-    if (!tokensJson) throw new Error('No tokens in storage');
+  // doRefresh defined first so scheduleRefresh can reference it.
+  // `presented` is the refresh token the caller meant to use: if another tab
+  // rotated it while this one waited for the lock, adopt the stored pair
+  // instead of spending the old token on a certain 401.
+  const doRefresh = useCallback(async (presented?: string): Promise<void> => {
+    const newTokens = await withRefreshLock(async (): Promise<AuthTokens> => {
+      const tokens = readStoredTokens();
+      if (!tokens) throw new Error('No tokens in storage');
+      if (!tokens.refreshToken) throw new Error('No refresh token');
 
-    const tokens: AuthTokens = JSON.parse(tokensJson);
-    if (!tokens.refreshToken) throw new Error('No refresh token');
+      if (presented && tokens.refreshToken !== presented) return tokens;
 
-    const response = await authApi.refresh(tokens.refreshToken);
+      const response = await authApi.refresh(tokens.refreshToken);
 
-    const newTokens: AuthTokens = {
-      accessToken: response.accessToken,
-      refreshToken: response.refreshToken || tokens.refreshToken,
-      expiresAt: sessionExpiresAt(response.expiresIn),
-    };
+      const rotated: AuthTokens = {
+        accessToken: response.accessToken,
+        refreshToken: response.refreshToken || tokens.refreshToken,
+        expiresAt: sessionExpiresAt(response.expiresIn),
+      };
 
-    localStorage.setItem(TOKEN_STORAGE_KEY, JSON.stringify(newTokens));
+      localStorage.setItem(TOKEN_STORAGE_KEY, JSON.stringify(rotated));
+      return rotated;
+    });
 
     setAuthState(prev => ({
       ...prev,
@@ -170,7 +185,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       refreshTimerRef.current = null;
       const usedRefreshToken = readStoredTokens()?.refreshToken;
       try {
-        await doRefresh();
+        await doRefresh(usedRefreshToken);
       } catch (err) {
         console.error('Proactive token refresh failed:', err);
         if (isSpentRefreshToken(err)) {
