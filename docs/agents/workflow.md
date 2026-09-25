@@ -32,7 +32,7 @@ Without the fonts, text renders 0px tall and every text `toBeVisible` fails.
 
 ## Dependabot
 
-- **Node stays on LTS (even) majors.** `.github/dependabot.yml` ignores the odd ones.
+- **Node stays on LTS (even) majors.** `.github/dependabot.yml` ignores the odd ones. `.nvmrc` is the one Node version: a Dependabot bump of the Dockerfile's `node` image fails `scripts/check-node-pins.sh` until you update `.nvmrc` on that PR to match.
 - **The `tanstack-db` group** keeps `@tanstack/db`, `react-db` and `query-db-collection` together; they pin each other's exact version.
 - **One PR at a time:** `@dependabot rebase`, wait until the head contains `origin/main`, then run the merge gate above. A major that needs code changes becomes its own ticket.
 - **A dropped security group:** if Dependabot closes a security PR without the fix landing, land it yourself as a lockfile-only `npm update <pkgs>` / `npm audit fix` (see #96).
