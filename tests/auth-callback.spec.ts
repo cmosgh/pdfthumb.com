@@ -129,7 +129,7 @@ test.describe("OAuth callback", () => {
       history.pushState({}, "", "/");
       dispatchEvent(new PopStateEvent("popstate"));
     });
-    // The heading is laid out 0px tall, so check it is mounted, not visible.
+    // Mounting is what matters here, so check the callback is attached.
     const signingIn = page.getByText("Signing you in");
     await expect(signingIn).not.toBeAttached();
     await page.evaluate(() => {
