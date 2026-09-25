@@ -12,6 +12,10 @@ dotenv.config({
   path: path.resolve(dirname(fileURLToPath(import.meta.url)), ".env"),
 });
 
+// Set PLAYWRIGHT_BASE_URL to run the suite against a deployed site (e.g.
+// https://pdfthumb.com); no local server is started then.
+const externalBaseURL = process.env.PLAYWRIGHT_BASE_URL;
+
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
@@ -32,7 +36,7 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: "http://localhost:4173",
+    baseURL: externalBaseURL ?? "http://localhost:4173",
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on-first-retry",
@@ -88,9 +92,11 @@ export default defineConfig({
   ],
 
   /* Run your local dev server before starting the tests */
-  webServer: {
-    command: "npm run build && npm run preview",
-    url: "http://localhost:4173",
-    reuseExistingServer: true,
-  },
+  webServer: externalBaseURL
+    ? undefined
+    : {
+        command: "npm run build && npm run preview",
+        url: "http://localhost:4173",
+        reuseExistingServer: true,
+      },
 });
