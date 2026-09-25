@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { APP_NAME } from "../../../constants";
+import { Heading, Text } from "@/components/ui";
 
 export const Route = createFileRoute("/dashboard/_admin/admin")({
   head: () => ({
@@ -11,8 +12,10 @@ export const Route = createFileRoute("/dashboard/_admin/admin")({
 function AdminIndexComponent() {
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold text-fg mb-4">Admin Panel</h1>
-      <p className="text-fg-caption">Admin features are coming in Phase 6.</p>
+      <Heading as="h1" size="2xl" weight="bold" tone="fg" className="mb-4">
+        Admin Panel
+      </Heading>
+      <Text tone="fg-caption">Admin features are coming in Phase 6.</Text>
     </div>
   );
 }

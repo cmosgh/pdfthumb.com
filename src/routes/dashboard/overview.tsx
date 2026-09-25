@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PlanQuota } from "../../components/dashboard/PlanQuota";
 import { RequestsPerDay } from "../../components/dashboard/RequestsPerDay";
 import { APP_NAME } from "../../constants";
+import { Heading } from "@/components/ui";
 
 export const Route = createFileRoute("/dashboard/overview")({
   head: () => ({
@@ -14,7 +15,9 @@ export const Route = createFileRoute("/dashboard/overview")({
 function OverviewComponent() {
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-fg">Dashboard Overview</h1>
+      <Heading as="h1" size="3xl" weight="bold" tone="fg">
+        Dashboard Overview
+      </Heading>
       <PlanQuota />
       <RequestsPerDay />
     </div>

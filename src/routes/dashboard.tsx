@@ -3,6 +3,7 @@ import { DashboardLayout } from "../components/dashboard/DashboardLayout";
 import { useAuth } from "../hooks/AuthContext";
 import { useEffect } from "react";
 import { APP_NAME } from "../constants";
+import { Spinner, Surface, Text } from "@/components/ui";
 
 // Extend Window interface for Cypress
 declare global {
@@ -56,12 +57,17 @@ function DashboardComponent() {
     !(typeof window !== "undefined" && window.Cypress)
   ) {
     return (
-      <div className="min-h-screen bg-page flex items-center justify-center">
+      <Surface
+        tone="page"
+        className="min-h-screen flex items-center justify-center"
+      >
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto"></div>
-          <p className="mt-4 text-fg-caption">Loading dashboard...</p>
+          <Spinner />
+          <Text tone="fg-caption" className="mt-4">
+            Loading dashboard...
+          </Text>
         </div>
-      </div>
+      </Surface>
     );
   }
 

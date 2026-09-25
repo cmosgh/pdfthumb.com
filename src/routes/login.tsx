@@ -1,6 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { APP_NAME } from "../constants";
 import googleMark from "../assets/google-g.svg";
+import {
+  Button,
+  Callout,
+  Card,
+  Heading,
+  Surface,
+  Text,
+} from "../components/ui";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -23,38 +31,50 @@ function LoginComponent() {
   };
 
   return (
-    <div className="min-h-screen bg-page flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <Surface
+      tone="page"
+      className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8"
+    >
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-heading">
+        <Heading
+          as="h2"
+          size="3xl"
+          weight="extrabold"
+          tone="heading"
+          className="mt-6 text-center"
+        >
           Sign in to your account
-        </h2>
-        <p className="mt-2 text-center text-sm text-fg-caption">
+        </Heading>
+        <Text size="sm" tone="fg-caption" className="mt-2 text-center">
           Sign in with your Google account to access the dashboard
-        </p>
+        </Text>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-surface py-8 px-4 shadow sm:rounded-lg sm:px-10">
+        <Card variant="login" className="py-8 px-4 sm:px-10">
           <div className="space-y-6">
             {error && (
-              <p
+              <Callout
+                as="p"
+                variant="dangerCompact"
                 role="alert"
-                className="rounded-md bg-danger-soft p-3 text-sm text-danger-fg"
+                className="p-3"
               >
                 Google sign-in didn't complete. Please try again.
-              </p>
+              </Callout>
             )}
-            <button
+            <Button
+              variant="google"
               onClick={handleGoogleLogin}
-              className="w-full flex justify-center items-center py-3 px-4 border border-line-input rounded-md shadow-sm bg-surface-raised text-sm font-medium text-fg-2 hover:bg-neutral focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-focus transition-colors"
+              className="w-full"
             >
               {/* Google's own colours: the mark isn't themed (#137). */}
               <img src={googleMark} alt="" className="w-5 h-5 mr-3" />
               Continue with Google
-            </button>
+            </Button>
           </div>
-        </div>
+        </Card>
       </div>
-    </div>
+    </Surface>
   );
 }

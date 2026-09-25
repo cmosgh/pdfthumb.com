@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import {
   PUBLIC_API_URL,
   API_LIMITS,
@@ -6,6 +6,16 @@ import {
   SWAGGER_URL,
 } from "../constants";
 import ApiReference from "../components/docs/ApiReference";
+import {
+  buttonClasses,
+  Code,
+  CodeBlock,
+  Container,
+  Heading,
+  RouterTextLink,
+  Text,
+  TextLink,
+} from "../components/ui";
 
 export const Route = createFileRoute("/docs")({
   head: () => ({
@@ -28,7 +38,7 @@ const ENDPOINTS = [
     path: "/api/thumbnail/page",
     text: (
       <>
-        one page as a JPEG. <code>page</code> is 1-based and required.
+        one page as a JPEG. <Code>page</Code> is 1-based and required.
       </>
     ),
   },
@@ -42,147 +52,186 @@ const ENDPOINTS = [
     path: "/api/thumbnail/count",
     text: (
       <>
-        the page count as <code>{`{"pageCount":12}`}</code>; it doesn't use your
+        the page count as <Code>{`{"pageCount":12}`}</Code>; it doesn't use your
         quota.
       </>
     ),
   },
 ];
 
-const h2 = "text-2xl font-bold text-heading mb-4";
-const p = "text-fg-muted mb-4";
-// Inline code only: the curl block keeps its own dark background.
-const code =
-  "[&_:is(p,li,td)_code]:font-mono [&_:is(p,li,td)_code]:text-sm [&_:is(p,li,td)_code]:bg-muted [&_:is(p,li,td)_code]:px-1 [&_:is(p,li,td)_code]:rounded";
-const link = "text-link hover:underline";
-const pre =
-  "bg-code border border-code-line text-code-fg text-sm rounded-lg p-4 overflow-x-auto mb-6";
-
 function DocsPage() {
   const { maxUploadMB, minWidthPx, maxWidthPx } = API_LIMITS;
   return (
-    <div
-      className={`container mx-auto px-4 sm:px-6 lg:px-8 py-16 max-w-3xl ${code}`}
-      data-testid="docs-page"
-    >
-      <h1 className="text-4xl font-extrabold text-heading mb-4">
+    <Container className="py-16 max-w-3xl" data-testid="docs-page">
+      <Heading
+        as="h1"
+        size="4xl"
+        weight="extrabold"
+        tone="heading"
+        className="mb-4"
+      >
         Documentation
-      </h1>
-      <p className={p}>
+      </Heading>
+      <Text tone="fg-muted" className="mb-4">
         {APP_NAME} turns PDFs into thumbnails over a REST API. This page gets
         you to a first thumbnail; the API reference lists every endpoint,
         parameter and response.
-      </p>
+      </Text>
       <a
         href={SWAGGER_URL}
-        className="inline-flex items-center font-semibold rounded-md shadow-sm px-6 py-3 mb-12 bg-accent text-on-accent hover:bg-accent-hover"
+        className={`${buttonClasses({ variant: "swagger" })} mb-12`}
         data-testid="docs-swagger-link"
       >
         Open the API reference (Swagger)
       </a>
 
       <section className="mb-12">
-        <h2 className={h2}>1. Get an API key</h2>
-        <p className={p}>
+        <Heading
+          as="h2"
+          size="2xl"
+          weight="bold"
+          tone="heading"
+          className="mb-4"
+        >
+          1. Get an API key
+        </Heading>
+        <Text tone="fg-muted" className="mb-4">
           Sign in and create a key under{" "}
-          <Link to="/dashboard/settings" className={link}>
+          <RouterTextLink to="/dashboard/settings" tone="underline">
             Dashboard → Settings
-          </Link>
+          </RouterTextLink>
           . The full key is shown only once, when you create it, so store it
           somewhere safe. You can revoke it there at any time.
-        </p>
+        </Text>
       </section>
 
       <section className="mb-12">
-        <h2 className={h2}>2. Authenticate</h2>
-        <p className={p}>
-          Send the key in the <code>x-api-key</code> header on every request.
+        <Heading
+          as="h2"
+          size="2xl"
+          weight="bold"
+          tone="heading"
+          className="mb-4"
+        >
+          2. Authenticate
+        </Heading>
+        <Text tone="fg-muted" className="mb-4">
+          Send the key in the <Code>x-api-key</Code> header on every request.
           The examples below read it from an environment variable:
-        </p>
-        <pre className={pre}>
-          <code>export PDFTHUMB_API_KEY="your-api-key"</code>
-        </pre>
+        </Text>
+        <CodeBlock className="mb-6">
+          {'export PDFTHUMB_API_KEY="your-api-key"'}
+        </CodeBlock>
       </section>
 
       <section className="mb-12">
-        <h2 className={h2}>3. Make a request</h2>
-        <p className={p}>
-          Upload the PDF as multipart form data in the <code>file</code> field.
+        <Heading
+          as="h2"
+          size="2xl"
+          weight="bold"
+          tone="heading"
+          className="mb-4"
+        >
+          3. Make a request
+        </Heading>
+        <Text tone="fg-muted" className="mb-4">
+          Upload the PDF as multipart form data in the <Code>file</Code> field.
           This renders page 1 at 400 px wide:
-        </p>
-        <pre className={pre} data-testid="docs-first-request">
-          <code>{FIRST_REQUEST}</code>
-        </pre>
-        <p className={p}>
-          <code>width</code> is optional, and the height follows the page's
+        </Text>
+        <CodeBlock className="mb-6" data-testid="docs-first-request">
+          {FIRST_REQUEST}
+        </CodeBlock>
+        <Text tone="fg-muted" className="mb-4">
+          <Code>width</Code> is optional, and the height follows the page's
           aspect ratio. The API has three endpoints, each answering{" "}
-          <code>201 Created</code>:
-        </p>
-        <ul className="list-disc pl-6 space-y-2 mb-4 text-fg-muted">
+          <Code>201 Created</Code>:
+        </Text>
+        <Text
+          as="ul"
+          list="disc"
+          tone="fg-muted"
+          className="pl-6 space-y-2 mb-4"
+        >
           {ENDPOINTS.map((endpoint) => (
             <li key={endpoint.path}>
-              <a href={`#ref-${endpoint.id}`} className={link}>
-                <code>POST {endpoint.path}</code>
-              </a>
+              <TextLink href={`#ref-${endpoint.id}`} tone="underline">
+                <Code>POST {endpoint.path}</Code>
+              </TextLink>
               : {endpoint.text}
             </li>
           ))}
-        </ul>
-        <p className={p}>
+        </Text>
+        <Text tone="fg-muted" className="mb-4">
           The{" "}
-          <a href="#reference" className={link}>
+          <TextLink href="#reference" tone="underline">
             reference
-          </a>{" "}
+          </TextLink>{" "}
           below documents each one, with examples in curl, TypeScript, Python,
           C#, Java, Go and PHP. In the{" "}
-          <a href={SWAGGER_URL} className={link}>
+          <TextLink href={SWAGGER_URL} tone="underline">
             Swagger API reference
-          </a>{" "}
+          </TextLink>{" "}
           you can run them with your key.
-        </p>
+        </Text>
       </section>
 
       <section className="mb-12" data-testid="docs-limits">
-        <h2 className={h2}>Limits and errors</h2>
-        <ul className="list-disc pl-6 space-y-3 text-fg-muted">
+        <Heading
+          as="h2"
+          size="2xl"
+          weight="bold"
+          tone="heading"
+          className="mb-4"
+        >
+          Limits and errors
+        </Heading>
+        <Text as="ul" list="disc" tone="fg-muted" className="pl-6 space-y-3">
           <li>
-            A missing or invalid key gets <code>401 Unauthorized</code>.
+            A missing or invalid key gets <Code>401 Unauthorized</Code>.
           </li>
           <li>
             PDFs up to {maxUploadMB} MB. A larger upload gets{" "}
-            <code>413 Payload Too Large</code>.
+            <Code>413 Payload Too Large</Code>.
           </li>
           <li>
-            <code>width</code> is a whole number of pixels from{" "}
+            <Code>width</Code> is a whole number of pixels from{" "}
             {minWidthPx.toLocaleString("en-US")} to{" "}
             {maxWidthPx.toLocaleString("en-US")}. Anything else gets{" "}
-            <code>400 Bad Request</code>, as do a file that isn't a PDF and a
+            <Code>400 Bad Request</Code>, as do a file that isn't a PDF and a
             page number past the end of the document.
           </li>
           <li>
             Each plan includes a monthly number of Thumbnails (see{" "}
-            <a href="/#pricing" className={link}>
+            <TextLink href="/#pricing" tone="underline">
               pricing
-            </a>
+            </TextLink>
             ) and caps the pages in one ZIP: a larger document gets{" "}
-            <code>413 Payload Too Large</code>, with a message naming the cap.
+            <Code>413 Payload Too Large</Code>, with a message naming the cap.
             When a plan with a hard monthly limit runs out, requests get{" "}
-            <code>403 Forbidden</code> with{" "}
-            <code>Monthly thumbnail limit reached.</code> The quota resets
+            <Code>403 Forbidden</Code> with{" "}
+            <Code>Monthly thumbnail limit reached.</Code> The quota resets
             monthly, on the day your plan started, at 00:00 UTC.
           </li>
           <li>
             Requests are rate-limited per minute. Past the limit you get{" "}
-            <code>429 Too Many Requests</code> with a <code>Retry-After</code>{" "}
+            <Code>429 Too Many Requests</Code> with a <Code>Retry-After</Code>{" "}
             header saying how many seconds to wait.
           </li>
-        </ul>
+        </Text>
       </section>
 
       <section id="reference" className="scroll-mt-24">
-        <h2 className={h2}>API reference</h2>
+        <Heading
+          as="h2"
+          size="2xl"
+          weight="bold"
+          tone="heading"
+          className="mb-4"
+        >
+          API reference
+        </Heading>
         <ApiReference />
       </section>
-    </div>
+    </Container>
   );
 }

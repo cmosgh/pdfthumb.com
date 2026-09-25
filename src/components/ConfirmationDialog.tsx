@@ -1,4 +1,12 @@
-import React, { useEffect, useRef } from "react";
+import React, { useRef } from "react";
+import {
+  Button,
+  Dialog,
+  Heading,
+  Icon,
+  SpinnerIcon,
+  Text,
+} from "@/components/ui";
 
 interface ConfirmationDialogProps {
   isOpen: boolean;
@@ -21,106 +29,58 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
   onCancel,
   isLoading = false,
 }) => {
-  const dialogRef = useRef<HTMLDivElement>(null);
+  // Focused when the dialog opens.
   const confirmButtonRef = useRef<HTMLButtonElement>(null);
 
-  // Handle escape key
-  useEffect(() => {
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && isOpen) {
-        onCancel();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener("keydown", handleEscape);
-      // Focus the confirm button when dialog opens
-      setTimeout(() => confirmButtonRef.current?.focus(), 100);
-    }
-
-    return () => {
-      document.removeEventListener("keydown", handleEscape);
-    };
-  }, [isOpen, onCancel]);
-
-  // Handle backdrop click
-  const handleBackdropClick = (event: React.MouseEvent) => {
-    if (event.target === event.currentTarget) {
-      onCancel();
-    }
-  };
-
-  if (!isOpen) return null;
-
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm"
-      onClick={handleBackdropClick}
-      role="dialog"
-      aria-modal="true"
+    <Dialog
+      open={isOpen}
+      variant="md"
+      onClose={onCancel}
+      initialFocusRef={confirmButtonRef}
       aria-labelledby="confirmation-title"
       aria-describedby="confirmation-message"
     >
-      <div
-        ref={dialogRef}
-        className="bg-surface rounded-lg shadow-xl max-w-md w-full mx-4 p-6 border border-line"
-      >
-        <div className="mb-4">
-          <h3
-            id="confirmation-title"
-            className="text-lg font-semibold text-fg-strong mb-2"
-          >
-            {title}
-          </h3>
-          <p id="confirmation-message" className="text-sm text-fg-muted">
-            {message}
-          </p>
-        </div>
-
-        <div className="flex justify-end space-x-3">
-          <button
-            onClick={onCancel}
-            disabled={isLoading}
-            className="px-4 py-2 text-sm font-medium text-fg-2 bg-neutral rounded-md hover:bg-neutral-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-focus disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {cancelText}
-          </button>
-          <button
-            ref={confirmButtonRef}
-            onClick={onConfirm}
-            disabled={isLoading}
-            className="px-4 py-2 text-sm font-medium text-on-accent bg-danger rounded-md hover:bg-danger-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-danger disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isLoading ? (
-              <div className="flex items-center">
-                <svg
-                  className="animate-spin -ml-1 mr-2 h-4 w-4 text-on-accent"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  />
-                </svg>
-                Processing...
-              </div>
-            ) : (
-              confirmText
-            )}
-          </button>
-        </div>
+      <div className="mb-4">
+        <Heading
+          as="h3"
+          id="confirmation-title"
+          size="lg"
+          weight="semibold"
+          tone="fg-strong"
+          className="mb-2"
+        >
+          {title}
+        </Heading>
+        <Text id="confirmation-message" size="sm" tone="fg-muted">
+          {message}
+        </Text>
       </div>
-    </div>
+
+      <div className="flex justify-end space-x-3">
+        <Button variant="neutral" onClick={onCancel} disabled={isLoading}>
+          {cancelText}
+        </Button>
+        <Button
+          ref={confirmButtonRef}
+          variant="danger"
+          onClick={onConfirm}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <div className="flex items-center">
+              <Icon
+                as={SpinnerIcon}
+                tone="on-accent"
+                className="animate-spin -ml-1 mr-2 h-4 w-4"
+              />
+              Processing...
+            </div>
+          ) : (
+            confirmText
+          )}
+        </Button>
+      </div>
+    </Dialog>
   );
 };

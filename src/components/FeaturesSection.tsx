@@ -1,33 +1,38 @@
 import React from "react";
 import { FEATURE_ITEMS } from "../constants.ts"; // Added .ts
 import type { FeatureItem } from "../types.ts"; // Added .ts
+import { Card, Container, Heading, IconTile, Section, Text } from "./ui";
 
 const FeatureCard: React.FC<FeatureItem> = ({ icon, title, description }) => (
-  <div className="bg-surface-raised p-6 rounded-lg shadow-lg hover:shadow-xl shadow-elevation-deep/50 hover:shadow-elevation-deep/60 transition-shadow duration-300">
-    <div className="flex items-center justify-center h-12 w-12 rounded-md bg-accent-tint text-link mb-4">
+  <Card variant="feature" className="p-6">
+    <IconTile className="mb-4">
       {/* The 'icon' prop already contains necessary size classes (h-8 w-8 from constants.ts).
-          Color is inherited from this parent div's text colour (text-link)
+          Color is inherited from the tile's text colour (text-link)
           because the SVG icons in icons.tsx use stroke="currentColor".
       */}
       {icon}
-    </div>
-    <h3 className="text-xl font-semibold text-fg mb-2">{title}</h3>
-    <p className="text-fg-muted text-base">{description}</p>
-  </div>
+    </IconTile>
+    <Heading as="h3" size="xl" weight="semibold" tone="fg" className="mb-2">
+      {title}
+    </Heading>
+    <Text tone="fg-muted" size="base">
+      {description}
+    </Text>
+  </Card>
 );
 
 const FeaturesSection: React.FC = () => {
   return (
-    <section id="features" className="py-16 sm:py-24 bg-band">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+    <Section tone="band" id="features" className="py-16 sm:py-24">
+      <Container>
         <div className="text-center mb-12">
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-heading">
+          <Heading as="h2" size="section" weight="extrabold" tone="heading">
             Why Choose Our PDFThumb API?
-          </h2>
-          <p className="mt-4 text-lg text-fg-muted max-w-2xl mx-auto">
+          </Heading>
+          <Text size="lg" tone="fg-muted" className="mt-4 max-w-2xl mx-auto">
             We provide a comprehensive solution for all your PDF thumbnail
             needs, packed with powerful features.
-          </p>
+          </Text>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {FEATURE_ITEMS.map((feature) => (
@@ -39,8 +44,8 @@ const FeaturesSection: React.FC = () => {
             />
           ))}
         </div>
-      </div>
-    </section>
+      </Container>
+    </Section>
   );
 };
 

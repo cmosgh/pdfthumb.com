@@ -1,6 +1,18 @@
 import React from "react";
 import { PRICING_TIERS } from "../constants.ts"; // Added .ts
 import type { PricingTier } from "../types.ts"; // Added .ts
+import {
+  Container,
+  Heading,
+  Section,
+  TBody,
+  THead,
+  Table,
+  TableFrame,
+  Td,
+  Text,
+  Th,
+} from "./ui";
 
 const OveragePricingSection: React.FC = () => {
   // Define the features to display in the table
@@ -21,66 +33,64 @@ const OveragePricingSection: React.FC = () => {
   ];
 
   return (
-    <section id="overage-pricing" className="py-16 sm:py-24 bg-page">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+    <Section tone="page" id="overage-pricing" className="py-16 sm:py-24">
+      <Container>
         <div className="text-center mb-12">
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-heading">
+          <Heading as="h2" size="section" weight="extrabold" tone="heading">
             Flexible Overages: Pay Only For What You Exceed
-          </h2>
-          <p className="mt-4 text-lg text-fg-muted max-w-2xl mx-auto">
+          </Heading>
+          <Text size="lg" tone="fg-muted" className="mt-4 max-w-2xl mx-auto">
             Our plans are designed to grow with you. If you go over your monthly
             allowance, you're covered with transparent, pay-as-you-go pricing.
-          </p>
+          </Text>
         </div>
 
         <div className="max-w-5xl mx-auto">
-          <div className="overflow-x-auto rounded-lg shadow-lg bg-surface border border-line">
-            <table className="min-w-full divide-y divide-line">
-              <thead className="bg-muted">
+          <TableFrame variant="overage">
+            <Table density="responsive">
+              <THead>
                 <tr>
-                  <th
-                    scope="col"
-                    className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-fg-label uppercase tracking-wider w-1/3 sm:w-1/4"
-                  >
+                  <Th scope="col" className="text-left w-1/3 sm:w-1/4">
                     Feature
-                  </th>
+                  </Th>
                   {PRICING_TIERS.map((tier) => (
-                    <th
-                      key={tier.id}
-                      scope="col"
-                      className={`px-4 sm:px-6 py-3 text-center text-xs font-medium text-fg-label uppercase tracking-wider ${tier.isFeatured ? "font-bold" : ""}`}
-                    >
+                    <Th key={tier.id} scope="col" className="text-center">
                       {tier.name}
-                    </th>
+                    </Th>
                   ))}
                 </tr>
-              </thead>
-              <tbody className="bg-surface divide-y divide-line">
+              </THead>
+              <TBody surface>
                 {overageFeatures.map((feature) => (
                   <tr key={feature.name}>
-                    <td className="px-4 sm:px-6 py-4 whitespace-normal text-sm font-medium text-fg">
+                    <Td weight="medium" tone="fg" className="whitespace-normal">
                       {feature.name}
-                    </td>
+                    </Td>
                     {PRICING_TIERS.map((tier) => (
-                      <td
+                      <Td
                         key={`${tier.id}-${feature.name}`}
-                        className="px-4 sm:px-6 py-4 text-center text-sm text-fg-muted whitespace-normal"
+                        tone="fg-muted"
+                        className="text-center whitespace-normal"
                       >
                         {feature.getValue(tier)}
-                      </td>
+                      </Td>
                     ))}
                   </tr>
                 ))}
-              </tbody>
-            </table>
-          </div>
+              </TBody>
+            </Table>
+          </TableFrame>
         </div>
-        <p className="text-center mt-10 text-sm text-fg-subtle max-w-2xl mx-auto">
+        <Text
+          size="sm"
+          tone="fg-subtle"
+          className="text-center mt-10 max-w-2xl mx-auto"
+        >
           Overage billing starts when paid plans launch. Until then, Free stops
           at 1,000 Thumbnails a month.
-        </p>
-      </div>
-    </section>
+        </Text>
+      </Container>
+    </Section>
   );
 };
 

@@ -5,6 +5,19 @@ import {
   type ApiRoute,
   type SnippetLanguage,
 } from "@/docs/apiReference.ts";
+import {
+  Code,
+  CodeBlock,
+  Heading,
+  Table,
+  TableFrame,
+  Tabs,
+  TBody,
+  Td,
+  Text,
+  Th,
+  THead,
+} from "@/components/ui";
 
 // The examples are real files in docs-snippets/, which CI compiles
 // (scripts/check-doc-snippets.sh); the page shows them verbatim.
@@ -38,10 +51,6 @@ function storedLanguage(): SnippetLanguage {
   return "curl";
 }
 
-const cell = "px-3 py-2 align-top text-sm text-fg-muted";
-const head =
-  "px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-fg-label";
-
 interface RouteReferenceProps {
   route: ApiRoute;
   language: SnippetLanguage;
@@ -58,121 +67,107 @@ const RouteReference: React.FC<RouteReferenceProps> = ({
     data-testid={`docs-route-${route.id}`}
     className="mb-16 scroll-mt-24"
   >
-    <h3 className="text-xl font-bold text-heading mb-2 font-mono">
+    <Heading
+      as="h3"
+      size="xl"
+      weight="bold"
+      tone="heading"
+      mono
+      className="mb-2"
+    >
       {route.method} {route.path}
-    </h3>
-    <p className="text-fg-muted mb-4">{route.summary}</p>
-    <p className="text-fg-muted mb-4">
-      Authenticate with the <code>x-api-key</code> header.
-    </p>
+    </Heading>
+    <Text tone="fg-muted" className="mb-4">
+      {route.summary}
+    </Text>
+    <Text tone="fg-muted" className="mb-4">
+      Authenticate with the <Code>x-api-key</Code> header.
+    </Text>
 
-    <h4 className="font-semibold text-heading mb-2">Request</h4>
-    <div className="overflow-x-auto mb-6 rounded-lg border border-line">
-      <table
-        className="min-w-full divide-y divide-line"
-        data-testid="docs-fields"
-      >
-        <thead className="bg-muted">
+    <Heading as="h4" weight="semibold" tone="heading" className="mb-2">
+      Request
+    </Heading>
+    <TableFrame variant="docs" className="mb-6">
+      <Table density="compact" data-testid="docs-fields">
+        <THead>
           <tr>
-            <th className={head}>Field</th>
-            <th className={head}>In</th>
-            <th className={head}>Type</th>
-            <th className={head}>Description</th>
+            <Th className="text-left">Field</Th>
+            <Th className="text-left">In</Th>
+            <Th className="text-left">Type</Th>
+            <Th className="text-left">Description</Th>
           </tr>
-        </thead>
-        <tbody className="divide-y divide-line">
+        </THead>
+        <TBody>
           {route.fields.map((field) => (
             <tr key={field.name}>
-              <td className={cell}>
-                <code>{field.name}</code>
-                <div className="text-xs mt-1">
+              <Td tone="fg-muted" className="align-top">
+                <Code>{field.name}</Code>
+                <Text as="div" size="xs" className="mt-1">
                   {field.required ? "required" : "optional"}
-                </div>
-              </td>
-              <td className={cell}>
+                </Text>
+              </Td>
+              <Td tone="fg-muted" className="align-top">
                 {field.in === "form" ? "form data" : "query"}
-              </td>
-              <td className={cell}>{field.type}</td>
-              <td className={cell}>{field.description}</td>
+              </Td>
+              <Td tone="fg-muted" className="align-top">
+                {field.type}
+              </Td>
+              <Td tone="fg-muted" className="align-top">
+                {field.description}
+              </Td>
             </tr>
           ))}
-        </tbody>
-      </table>
-    </div>
+        </TBody>
+      </Table>
+    </TableFrame>
 
-    <h4 className="font-semibold text-heading mb-2">Response</h4>
-    <p className="text-fg-muted mb-4">
-      <code>{route.response.status} Created</code>,{" "}
-      <code>{route.response.contentType}</code>: {route.response.description}
-    </p>
+    <Heading as="h4" weight="semibold" tone="heading" className="mb-2">
+      Response
+    </Heading>
+    <Text tone="fg-muted" className="mb-4">
+      <Code>{route.response.status} Created</Code>,{" "}
+      <Code>{route.response.contentType}</Code>: {route.response.description}
+    </Text>
 
-    <h4 className="font-semibold text-heading mb-2">Errors</h4>
-    <ul
-      className="list-disc pl-6 space-y-1 mb-6 text-fg-muted"
+    <Heading as="h4" weight="semibold" tone="heading" className="mb-2">
+      Errors
+    </Heading>
+    <Text
+      as="ul"
+      list="disc"
+      tone="fg-muted"
+      className="pl-6 space-y-1 mb-6"
       data-testid="docs-errors"
     >
       {route.errors.map((error) => (
         <li key={error.status}>
-          <code>{error.status}</code>: {error.when}
+          <Code>{error.status}</Code>: {error.when}
         </li>
       ))}
-    </ul>
+    </Text>
 
-    <h4 className="font-semibold text-heading mb-2">Example</h4>
-    <div
-      role="tablist"
-      aria-label={`Example language for ${route.path}`}
-      className="flex flex-wrap gap-1 mb-2"
-    >
-      {SNIPPET_LANGUAGES.map((l, index) => {
-        const selected = l.id === language;
-        return (
-          <button
-            key={l.id}
-            id={tabId(route, l.id)}
-            type="button"
-            role="tab"
-            aria-selected={selected}
-            aria-controls={panelId(route)}
-            tabIndex={selected ? 0 : -1}
-            onClick={() => onLanguage(l.id)}
-            onKeyDown={(event) => {
-              // The WAI-ARIA tabs pattern: arrows move and select, wrapping.
-              const step =
-                event.key === "ArrowRight"
-                  ? 1
-                  : event.key === "ArrowLeft"
-                    ? -1
-                    : 0;
-              if (!step) return;
-              event.preventDefault();
-              const count = SNIPPET_LANGUAGES.length;
-              const next = SNIPPET_LANGUAGES[(index + step + count) % count].id;
-              onLanguage(next);
-              document.getElementById(tabId(route, next))?.focus();
-            }}
-            className={`px-3 py-1 rounded-md text-sm font-medium ${
-              selected
-                ? "bg-accent text-on-accent"
-                : "bg-muted text-fg-2 hover:bg-muted-hover"
-            }`}
-          >
-            {l.label}
-          </button>
-        );
-      })}
-    </div>
-    <pre
+    <Heading as="h4" weight="semibold" tone="heading" className="mb-2">
+      Example
+    </Heading>
+    <Tabs
+      items={SNIPPET_LANGUAGES}
+      value={language}
+      onChange={onLanguage}
+      idFor={(l) => tabId(route, l)}
+      panelId={panelId(route)}
+      label={`Example language for ${route.path}`}
+      className="mb-2"
+    />
+    <CodeBlock
       id={panelId(route)}
       role="tabpanel"
       aria-labelledby={tabId(route, language)}
       tabIndex={0}
       data-testid="docs-snippet"
       data-language={language}
-      className="bg-code border border-code-line text-code-fg text-sm rounded-lg p-4 overflow-x-auto"
     >
-      <code>{snippet(route, language)}</code>
-    </pre>
+      {snippet(route, language)}
+    </CodeBlock>
   </section>
 );
 

@@ -9,6 +9,7 @@ import { maskApiKey } from "@/utils/apiKey";
 import type { ApiKey } from "@/types.ts";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/AuthContext";
+import { Button, Callout, Card, Heading, Switch, Text } from "@/components/ui";
 
 export const Route = createFileRoute("/dashboard/settings")({
   head: () => ({
@@ -102,7 +103,9 @@ function SettingsComponent() {
 
   return (
     <div className="space-y-6" data-testid="settings-page">
-      <h1 className="text-3xl font-bold text-fg">Settings</h1>
+      <Heading as="h1" size="3xl" weight="bold" tone="fg">
+        Settings
+      </Heading>
 
       {/* Profile Settings */}
       {/* Only the profile needs the user; the API keys don't wait on it. */}
@@ -111,16 +114,20 @@ function SettingsComponent() {
       {/* API Keys Management */}
       <div>
         {apiKeysError && (
-          <div className="mb-4 p-4 bg-danger-soft border border-danger-line rounded-lg">
-            <p className="text-sm text-danger-fg">{apiKeysError}</p>
-          </div>
+          <Callout variant="danger" className="mb-4 p-4">
+            <Text size="sm" tone="danger-fg">
+              {apiKeysError}
+            </Text>
+          </Callout>
         )}
         {isLoadingApiKeys ? (
-          <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
+          <Card variant="panel" className="p-6">
             <div className="flex items-center justify-center h-32">
-              <div className="text-lg text-fg-caption">Loading API keys...</div>
+              <Text as="div" size="lg" tone="fg-caption">
+                Loading API keys...
+              </Text>
             </div>
-          </div>
+          </Card>
         ) : (
           <ApiKeysManager
             apiKeys={apiKeys || []}
@@ -131,73 +138,63 @@ function SettingsComponent() {
       </div>
 
       {/* Additional Settings Sections */}
-      <div
-        className="bg-surface p-6 rounded-lg shadow-lg shadow-elevation/50 border border-line"
+      <Card
+        variant="raised"
+        className="p-6"
         data-testid="notification-preferences-section"
       >
-        <h3 className="text-lg font-semibold text-fg mb-4">
+        <Heading as="h3" size="lg" weight="semibold" tone="fg" className="mb-4">
           Notification Preferences
-        </h3>
+        </Heading>
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="text-sm font-medium text-fg-strong">
+              <Heading as="h4" size="sm" weight="medium" tone="fg-strong">
                 Email Notifications
-              </h4>
-              <p className="text-sm text-fg-muted">
+              </Heading>
+              <Text size="sm" tone="fg-muted">
                 Receive email updates about your account activity
-              </p>
+              </Text>
             </div>
-            <button
-              className="relative inline-flex h-6 w-11 items-center rounded-full bg-accent transition-colors"
-              data-testid="email-notifications-toggle"
-            >
-              <span className="inline-block h-4 w-4 transform rounded-full bg-on-accent transition-transform translate-x-6" />
-            </button>
+            <Switch checked data-testid="email-notifications-toggle" />
           </div>
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="text-sm font-medium text-fg-strong">
+              <Heading as="h4" size="sm" weight="medium" tone="fg-strong">
                 API Usage Alerts
-              </h4>
-              <p className="text-sm text-fg-muted">
+              </Heading>
+              <Text size="sm" tone="fg-muted">
                 Get notified when you approach your usage limits
-              </p>
+              </Text>
             </div>
-            <button
-              className="relative inline-flex h-6 w-11 items-center rounded-full bg-muted-hover transition-colors"
-              data-testid="api-usage-alerts-toggle"
-            >
-              <span className="inline-block h-4 w-4 transform rounded-full bg-on-accent transition-transform translate-x-1" />
-            </button>
+            <Switch checked={false} data-testid="api-usage-alerts-toggle" />
           </div>
         </div>
-      </div>
+      </Card>
 
-      <div
-        className="bg-surface p-6 rounded-lg shadow-lg shadow-elevation/50 border border-line"
-        data-testid="danger-zone-section"
-      >
-        <h3 className="text-lg font-semibold text-fg mb-4">Danger Zone</h3>
+      <Card variant="raised" className="p-6" data-testid="danger-zone-section">
+        <Heading as="h3" size="lg" weight="semibold" tone="fg" className="mb-4">
+          Danger Zone
+        </Heading>
         <div className="space-y-4">
-          <div className="flex items-center justify-between p-4 bg-danger-soft rounded-lg border border-danger-line">
+          <Callout
+            variant="danger"
+            className="flex items-center justify-between p-4"
+          >
             <div>
-              <h4 className="text-sm font-medium text-danger-fg">
+              <Heading as="h4" size="sm" weight="medium" tone="danger-fg">
                 Delete Account
-              </h4>
-              <p className="text-sm text-danger-fg">
+              </Heading>
+              <Text size="sm" tone="danger-fg">
                 Permanently delete your account and all associated data
-              </p>
+              </Text>
             </div>
-            <button
-              className="px-4 py-2 text-sm font-medium text-danger-fg bg-danger-muted rounded-md hover:bg-danger-muted-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-danger"
-              data-testid="delete-account-button"
-            >
+            <Button variant="dangerSoft" data-testid="delete-account-button">
               Delete Account
-            </button>
-          </div>
+            </Button>
+          </Callout>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

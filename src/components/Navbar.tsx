@@ -1,9 +1,19 @@
 import React, { useState } from "react";
-import { Link } from "@tanstack/react-router";
 import { APP_NAME, HOME_LINK, NAV_LINKS } from "@/constants.ts";
 import { DocumentIcon, MoonIcon, SunIcon } from "./icons.tsx";
 import type { Theme } from "../hooks/useTheme.ts";
 import { useAuth } from "../hooks/AuthContext";
+import {
+  Container,
+  IconButton,
+  MenuIcon,
+  RouterButtonLink,
+  RouterTextLink,
+  Surface,
+  Text,
+  TextButton,
+  XMarkIcon,
+} from "./ui";
 
 interface NavbarProps {
   theme: Theme;
@@ -23,18 +33,22 @@ const Navbar: React.FC<NavbarProps> = ({ theme, toggleTheme }) => {
   };
 
   return (
-    <header className="bg-surface shadow-sm shadow-elevation sticky top-0 z-50">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+    <Surface as="header" tone="bar" className="sticky top-0 z-50">
+      <Container>
         <div className="flex items-center justify-between h-16">
           {/* Brand logo and name */}
           <div className="flex-none">
-            <Link
+            <RouterTextLink
               {...HOME_LINK}
-              className="flex items-center space-x-2 text-link hover:text-link-hover"
+              tone="link"
+              className="flex items-center space-x-2"
             >
               <DocumentIcon className="h-8 w-8" />
-              <span
-                className="font-bold text-xl text-fg"
+              <Text
+                as="span"
+                weight="bold"
+                size="xl"
+                tone="fg"
                 data-testid="brand-name-wrapper"
               >
                 <span
@@ -49,173 +63,154 @@ const Navbar: React.FC<NavbarProps> = ({ theme, toggleTheme }) => {
                 >
                   {APP_NAME}
                 </span>
-              </span>
-            </Link>
+              </Text>
+            </RouterTextLink>
           </div>
           <nav className="hidden md:flex space-x-8">
             {NAV_LINKS.map((link) => (
-              <Link
-                key={link.name}
-                {...link.linkOptions}
-                className="font-medium text-fg-muted hover:text-link transition-colors"
-              >
+              <RouterTextLink key={link.name} {...link.linkOptions} tone="nav">
                 {link.name}
-              </Link>
+              </RouterTextLink>
             ))}
           </nav>
           <div className="flex items-center space-x-4">
-            <button
+            <IconButton
+              variant="round"
               onClick={toggleTheme}
               aria-label={
                 theme === "light"
                   ? "Switch to dark mode"
                   : "Switch to light mode"
               }
-              className="p-2 rounded-full text-fg-subtle hover:bg-muted focus-visible:outline-none"
             >
               {theme === "light" ? (
                 <MoonIcon className="h-6 w-6" />
               ) : (
                 <SunIcon className="h-6 w-6" />
               )}
-            </button>
+            </IconButton>
 
             {isAuthenticated ? (
               <>
-                <Link
+                <RouterTextLink
                   to="/dashboard"
-                  className="text-sm font-medium text-fg-muted hover:text-link mr-2 hidden sm:block"
+                  tone="navSm"
+                  className="mr-2 hidden sm:block"
                 >
                   Dashboard
-                </Link>
+                </RouterTextLink>
                 <div className="flex items-center space-x-2">
-                  <span className="text-sm text-fg-muted hidden sm:block">
+                  <Text
+                    as="span"
+                    size="sm"
+                    tone="fg-muted"
+                    className="hidden sm:block"
+                  >
                     {user?.name || user?.email}
-                  </span>
-                  <button
+                  </Text>
+                  <TextButton
                     onClick={handleLogout}
-                    className="text-sm font-medium text-fg-muted hover:text-link mr-2"
+                    tone="navSm"
+                    className="mr-2"
                   >
                     Logout
-                  </button>
+                  </TextButton>
                 </div>
               </>
             ) : (
               <>
-                <Link
+                <RouterTextLink
                   to="/login"
-                  className="text-sm font-medium text-fg-muted hover:text-link mr-2 hidden sm:block"
+                  tone="navSm"
+                  className="mr-2 hidden sm:block"
                 >
                   Log In
-                </Link>
+                </RouterTextLink>
                 {/* API keys live in the dashboard, behind sign-in. No checkout
                     while pricing is upcoming (#71). */}
-                <Link
+                <RouterButtonLink
                   to="/login"
+                  variant="navCta"
                   data-testid="navbar-api-key"
-                  className="cursor-pointer bg-accent hover:bg-accent-hover text-on-accent font-semibold py-2 px-4 rounded-md shadow-md transition-transform transform hover:scale-105 text-sm"
                 >
                   Get API Key
-                </Link>
+                </RouterButtonLink>
               </>
             )}
           </div>
           {/* Mobile menu button */}
           <div className="md:hidden flex items-center">
-            <button
+            <IconButton
+              variant="bare"
               onClick={toggleMobileMenu}
-              className="text-fg-subtle focus:outline-none focus:text-fg-muted"
               aria-label="Toggle mobile menu"
             >
               {isMobileMenuOpen ? (
-                <svg
-                  className="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
+                <XMarkIcon className="h-6 w-6" />
               ) : (
-                <svg
-                  className="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 6h16M4 12h16M4 18h16"
-                  />
-                </svg>
+                <MenuIcon className="h-6 w-6" />
               )}
-            </button>
+            </IconButton>
           </div>
         </div>
-      </div>
+      </Container>
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-surface shadow-lg pb-4">
+        <Surface tone="menu" className="md:hidden pb-4">
           <nav
             className="flex flex-col items-center space-y-4"
             aria-label="Mobile Menu"
           >
             {NAV_LINKS.map((link) => (
-              <Link
+              <RouterTextLink
                 key={link.name}
                 {...link.linkOptions}
-                className="font-medium text-fg-muted hover:text-link transition-colors"
+                tone="nav"
                 onClick={toggleMobileMenu} // Close menu on link click
               >
                 {link.name}
-              </Link>
+              </RouterTextLink>
             ))}
 
             {isAuthenticated ? (
               <>
-                <Link
+                <RouterTextLink
                   to="/dashboard"
-                  className="font-medium text-fg-muted hover:text-link transition-colors"
+                  tone="nav"
                   onClick={toggleMobileMenu}
                 >
                   Dashboard
-                </Link>
+                </RouterTextLink>
                 <div className="text-center">
-                  <span className="block text-sm text-fg-muted mb-2">
+                  <Text
+                    as="span"
+                    size="sm"
+                    tone="fg-muted"
+                    className="block mb-2"
+                  >
                     {user?.name || user?.email}
-                  </span>
-                  <button
+                  </Text>
+                  <TextButton
+                    tone="nav"
                     onClick={() => {
                       handleLogout();
                       toggleMobileMenu();
                     }}
-                    className="font-medium text-fg-muted hover:text-link transition-colors"
                   >
                     Logout
-                  </button>
+                  </TextButton>
                 </div>
               </>
             ) : (
-              <Link
-                to="/login"
-                className="font-medium text-fg-muted hover:text-link transition-colors"
-                onClick={toggleMobileMenu}
-              >
+              <RouterTextLink to="/login" tone="nav" onClick={toggleMobileMenu}>
                 Log In
-              </Link>
+              </RouterTextLink>
             )}
           </nav>
-        </div>
+        </Surface>
       )}
-    </header>
+    </Surface>
   );
 };
 

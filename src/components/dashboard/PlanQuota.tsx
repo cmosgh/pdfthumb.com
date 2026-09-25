@@ -1,9 +1,9 @@
 import React from "react";
-import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { subscriptionApi } from "@/api";
 import { useAuth } from "@/hooks/AuthContext";
 import { count, dayMonth } from "@/utils/format";
+import { Card, Heading, Progress, RouterTextLink, Text } from "@/components/ui";
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
@@ -26,24 +26,24 @@ export const PlanQuota: React.FC = () => {
   let body: React.ReactNode;
   if (isError) {
     body = (
-      <p className="mt-2 text-fg-caption" data-testid="plan-quota-error">
+      <Text tone="fg-caption" className="mt-2" data-testid="plan-quota-error">
         Your plan couldn't be loaded. Try again later.
-      </p>
+      </Text>
     );
   } else if (isPending) {
-    body = <p className="mt-2 text-fg-caption">Loading…</p>;
+    body = (
+      <Text tone="fg-caption" className="mt-2">
+        Loading…
+      </Text>
+    );
   } else if (!data) {
     body = (
-      <p className="mt-2 text-fg-caption" data-testid="plan-quota-empty">
+      <Text tone="fg-caption" className="mt-2" data-testid="plan-quota-empty">
         You don't have a plan yet.{" "}
-        <Link
-          to="/"
-          hash="pricing"
-          className="font-medium text-link hover:text-link-hover"
-        >
+        <RouterTextLink to="/" hash="pricing" weight="medium">
           See plans
-        </Link>
-      </p>
+        </RouterTextLink>
+      </Text>
     );
   } else {
     const {
@@ -60,48 +60,51 @@ export const PlanQuota: React.FC = () => {
     const shown = Math.min(used, limit);
     body = (
       <>
-        <p className="mt-1 text-fg-2" data-testid="plan-quota-summary">
+        <Text tone="fg-2" className="mt-1" data-testid="plan-quota-summary">
           {name} · {count(used)} of {count(limit)} Thumbnails used · resets{" "}
           {dayMonth(end)} (in {daysLeft} {daysLeft === 1 ? "day" : "days"})
-        </p>
-        <div
-          role="progressbar"
+        </Text>
+        <Progress
+          percent={limit > 0 ? (shown / limit) * 100 : 100}
+          tone={used >= limit ? "chart-2" : "chart-1"}
           aria-label="Thumbnails used this period"
           aria-valuemin={0}
           aria-valuemax={limit}
           aria-valuenow={shown}
-          className="mt-4 h-3 w-full overflow-hidden rounded-full bg-muted"
-        >
-          <div
-            className={`h-full rounded-full ${used >= limit ? "bg-chart-2" : "bg-chart-1"}`}
-            style={{ width: `${limit > 0 ? (shown / limit) * 100 : 100}%` }}
-          />
-        </div>
-        <p
-          className="mt-3 text-sm text-fg-caption"
+          className="mt-4"
+        />
+        <Text
+          size="sm"
+          tone="fg-caption"
+          className="mt-3"
           data-testid="plan-quota-limit"
         >
           {isHardLimit
             ? "Hard limit: requests past the quota are refused until it resets."
             : "Past the quota, each Thumbnail is billed as overage."}
-        </p>
+        </Text>
       </>
     );
   }
 
   return (
-    <section
-      className="bg-surface rounded-lg shadow-sm border border-line p-6"
+    <Card
+      as="section"
+      variant="panel"
+      className="p-6"
       data-testid="plan-quota"
       aria-labelledby="plan-quota-heading"
     >
-      <h2
+      <Heading
+        as="h2"
         id="plan-quota-heading"
-        className="text-lg font-semibold text-fg-strong"
+        size="lg"
+        weight="semibold"
+        tone="fg-strong"
       >
         Plan and quota
-      </h2>
+      </Heading>
       {body}
-    </section>
+    </Card>
   );
 };

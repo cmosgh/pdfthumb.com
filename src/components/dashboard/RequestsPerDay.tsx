@@ -2,15 +2,15 @@ import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { analyticsApi } from "@/api";
 import { useAuth } from "@/hooks/AuthContext";
-import { BarChartComponent } from "@/components/dashboard/BarChart";
+import { BarChart, Card, Heading, Text, type BarSeries } from "@/components/ui";
 import { formatDay, toDailyRequests } from "@/utils/requestsPerDay";
 import { count } from "@/utils/format";
 
 const DAYS = 30;
 
-const SERIES = [
-  { key: "successful", name: "Successful", color: "var(--color-chart-1)" },
-  { key: "failed", name: "Failed", color: "var(--color-chart-2)" },
+const SERIES: BarSeries[] = [
+  { key: "successful", name: "Successful", color: "chart-1" },
+  { key: "failed", name: "Failed", color: "chart-2" },
 ];
 
 // Requests to the thumbnail routes per day, successful vs failed (#119).
@@ -30,35 +30,44 @@ export const RequestsPerDay: React.FC = () => {
   const failed = days.reduce((sum, d) => sum + d.failed, 0);
 
   return (
-    <section
-      className="bg-surface rounded-lg shadow-sm border border-line p-6"
+    <Card
+      as="section"
+      variant="panel"
+      className="p-6"
       data-testid="requests-per-day"
       aria-labelledby="requests-per-day-heading"
     >
-      <h2
+      <Heading
+        as="h2"
         id="requests-per-day-heading"
-        className="text-lg font-semibold text-fg-strong"
+        size="lg"
+        weight="semibold"
+        tone="fg-strong"
       >
         Requests per day
-      </h2>
+      </Heading>
       {isError ? (
-        <p className="mt-2 text-fg-caption" data-testid="requests-error">
+        <Text tone="fg-caption" className="mt-2" data-testid="requests-error">
           Requests per day couldn't be loaded. Try again later.
-        </p>
+        </Text>
       ) : isPending ? (
-        <p className="mt-2 text-fg-caption">Loading…</p>
+        <Text tone="fg-caption" className="mt-2">
+          Loading…
+        </Text>
       ) : (
         <>
-          <p
-            className="mt-1 mb-4 text-sm text-fg-caption"
+          <Text
+            size="sm"
+            tone="fg-caption"
+            className="mt-1 mb-4"
             data-testid="requests-total"
           >
             {successful + failed === 0
               ? `No requests in the last ${DAYS} days.`
               : `${count(successful + failed)} requests in the last ${DAYS} days: ${count(successful)} successful, ${count(failed)} failed`}
-          </p>
+          </Text>
           <div aria-hidden="true">
-            <BarChartComponent data={days} series={SERIES} stacked />
+            <BarChart data={days} series={SERIES} stacked />
           </div>
           <table className="sr-only">
             <caption>Requests per day, last {DAYS} days (UTC)</caption>
@@ -81,6 +90,6 @@ export const RequestsPerDay: React.FC = () => {
           </table>
         </>
       )}
-    </section>
+    </Card>
   );
 };

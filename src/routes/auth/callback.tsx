@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { useAuth } from "../../hooks/AuthContext";
 import { authApi } from "../../api";
 import { sessionExpiresAt } from "../../utils/duration";
+import { Heading, Spinner, Surface, Text } from "../../components/ui";
 
 export const Route = createFileRoute("/auth/callback")({
   component: CallbackComponent,
@@ -70,18 +71,27 @@ function CallbackComponent() {
   }, [login, fetchMe, navigate]);
 
   return (
-    <div className="min-h-screen bg-page flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <Surface
+      tone="page"
+      className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8"
+    >
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto"></div>
-          <h2 className="mt-6 text-center text-2xl font-extrabold text-heading">
+          <Spinner />
+          <Heading
+            as="h2"
+            size="2xl"
+            weight="extrabold"
+            tone="heading"
+            className="mt-6 text-center"
+          >
             Signing you in...
-          </h2>
-          <p className="mt-2 text-center text-sm text-fg-caption">
+          </Heading>
+          <Text size="sm" tone="fg-caption" className="mt-2 text-center">
             Please wait while we complete your authentication.
-          </p>
+          </Text>
         </div>
       </div>
-    </div>
+    </Surface>
   );
 }
