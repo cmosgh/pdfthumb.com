@@ -1,5 +1,5 @@
 import React from "react";
-// Removed: import { Link } from '@tanstack/react-router';
+import { Link } from "@tanstack/react-router";
 import { DocumentIcon } from "./icons.tsx";
 import { APP_NAME } from "../constants.ts";
 import ContactEmail from "./ContactEmail.tsx";
@@ -33,19 +33,23 @@ const Footer: React.FC = () => {
             </h5>
             <ul className="space-y-2">
               <li>
-                <a href="#features" className={linkClasses}>
+                <a href="/#features" className={linkClasses}>
                   Features
                 </a>
               </li>
               <li>
-                <a href="#pricing" className={linkClasses}>
+                <a href="/#pricing" className={linkClasses}>
                   Pricing
                 </a>
               </li>
               <li>
-                <a href="#features" className={linkClasses}>
+                <Link
+                  to="/docs"
+                  className={linkClasses}
+                  data-testid="footer-docs-link"
+                >
                   Documentation
-                </a>
+                </Link>
               </li>
               <li>
                 <a href="#apistatus" className={linkClasses}>
