@@ -31,19 +31,10 @@ if (!rootElement) {
 
 const root = ReactDOM.createRoot(rootElement);
 
-// Mock dashboard data is for local development only: production users must
-// never see invented numbers (#112).
-(import.meta.env.DEV
-  ? import("./data/loadMockData").then((m) => m.loadMockData())
-  : Promise.resolve()
-)
-  .then(() => {
-    root.render(
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <AuthedApp />
-        </AuthProvider>
-      </QueryClientProvider>,
-    );
-  })
-  .catch(console.error);
+root.render(
+  <QueryClientProvider client={queryClient}>
+    <AuthProvider>
+      <AuthedApp />
+    </AuthProvider>
+  </QueryClientProvider>,
+);

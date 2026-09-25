@@ -176,3 +176,34 @@ export const analyticsApi = {
     return response.json() as Promise<{ dailyBuckets: AnalyticsDailyBucket[] }>;
   },
 };
+
+// The caller's subscription, as far as the dashboard shows it. The API also
+// returns overusageCostPerThumbnail; prices aren't public, so it's left out.
+export interface Subscription {
+  currentMonthlyUsage: number;
+  // ISO, exclusive, 00:00 UTC: when the quota resets
+  currentPeriodEnd: string;
+  subscriptionType: {
+    name: string;
+    monthlyThumbnailLimit: number;
+    isHardLimit: boolean;
+  };
+}
+
+// API functions for the user's subscription
+export const subscriptionApi = {
+  // The user's own subscription, or null when they have none (the API
+  // answers that with an empty 200)
+  async getSubscription(
+    userId: string,
+    token?: string,
+  ): Promise<Subscription | null> {
+    const response = await fetch(
+      `${API_BASE_URL}/users/${encodeURIComponent(userId)}/subscription`,
+      { headers: getHeaders(token) },
+    );
+    if (!response.ok) throw new Error("Failed to fetch subscription");
+    const body = await response.text();
+    return body.trim() ? (JSON.parse(body) as Subscription) : null;
+  },
+};

@@ -1,51 +1,7 @@
 import { createCollection, localOnlyCollectionOptions } from "@tanstack/db";
 import { apiKeysApi } from "./api";
 import { queryClient } from "./queryClient";
-import type {
-  ApiKey,
-  DashboardSummary,
-  DetailedAnalytics,
-  ErrorLogData,
-  FileTypeData,
-  GeographicData,
-  UsageTrendData,
-} from "./types";
-
-// Define collections for different data types
-export const dashboardSummaryCollection = createCollection(
-  localOnlyCollectionOptions({
-    id: "dashboardSummary",
-    getKey: (item: DashboardSummary & { id: string }) => item.id,
-  }),
-);
-
-export const usageTrendsCollection = createCollection(
-  localOnlyCollectionOptions({
-    id: "usageTrends",
-    getKey: (item: UsageTrendData & { id: string }) => item.id,
-  }),
-);
-
-export const fileTypeDataCollection = createCollection(
-  localOnlyCollectionOptions({
-    id: "fileTypeData",
-    getKey: (item: FileTypeData & { id: string }) => item.id,
-  }),
-);
-
-export const errorLogsCollection = createCollection(
-  localOnlyCollectionOptions({
-    id: "errorLogs",
-    getKey: (item: ErrorLogData) => item.id,
-  }),
-);
-
-export const geographicDataCollection = createCollection(
-  localOnlyCollectionOptions({
-    id: "geographicData",
-    getKey: (item: GeographicData & { id: string }) => item.id,
-  }),
-);
+import type { ApiKey } from "./types";
 
 export const apiKeysCollection = createCollection(
   localOnlyCollectionOptions({
@@ -54,22 +10,9 @@ export const apiKeysCollection = createCollection(
   }),
 );
 
-export const detailedAnalyticsCollection = createCollection(
-  localOnlyCollectionOptions({
-    id: "detailedAnalytics",
-    getKey: (item: DetailedAnalytics & { id: string }) => item.id,
-  }),
-);
-
 // Export collections object for easier access
 export const collections = {
-  dashboardSummary: dashboardSummaryCollection,
-  usageTrends: usageTrendsCollection,
-  fileTypeData: fileTypeDataCollection,
-  errorLogs: errorLogsCollection,
-  geographicData: geographicDataCollection,
   apiKeys: apiKeysCollection,
-  detailedAnalytics: detailedAnalyticsCollection,
 };
 
 // Helper functions for common operations
