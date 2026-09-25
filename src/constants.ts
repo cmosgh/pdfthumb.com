@@ -48,10 +48,6 @@ export const CONTACT_EMAILS = {
   sales: "sales@pdfthumb.com",
 } as const;
 
-// M10's business hours are unconfirmed, whatever the mailbox's state.
-export const SLA_HOURS_CONFIRMED = false as boolean;
-const HOURS_TBC = SLA_HOURS_CONFIRMED ? "" : " [hours TBC]";
-
 const OVERAGE_NOT_YET =
   "Overage billing starts when paid plans launch. Until then, Free stops at 1,000 Thumbnails a month.";
 
@@ -129,7 +125,7 @@ export const PRICING_TIERS: PricingTier[] = [
     quota: "Volume by contract",
     features: [
       "PDFs up to 10 MB",
-      `Contract SLA: business hours (09:00–17:00 Romanian time, EET/EEST, Mon–Fri${HOURS_TBC}), next-business-day first response · integration help`,
+      "Contract SLA · integration help",
       { text: "Talk to sales", contact: "sales" },
     ],
     ctaText: "Contact Sales",
