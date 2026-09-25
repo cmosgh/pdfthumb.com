@@ -8,6 +8,7 @@ import {
 import ApiReference from "../components/docs/ApiReference";
 import {
   buttonClasses,
+  cx,
   Code,
   CodeBlock,
   Container,
@@ -79,7 +80,7 @@ function DocsPage() {
       </Text>
       <a
         href={SWAGGER_URL}
-        className={`${buttonClasses({ variant: "swagger" })} mb-12`}
+        className={cx(buttonClasses({ variant: "swagger" }), "mb-12")}
         data-testid="docs-swagger-link"
       >
         Open the API reference (Swagger)

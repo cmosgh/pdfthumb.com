@@ -10,6 +10,8 @@ for (const width of WIDTHS) {
     await page.goto("/");
     const hero = page.locator("section").filter({ has: page.locator("h1") });
     await expect(hero.locator("h1")).toBeVisible();
+    // Measure with the web font in place: the fallback font is wider.
+    await page.evaluate(() => document.fonts.ready);
     // The boxes of every line of text in the hero, headline to buttons.
     const lines = await hero.evaluate((section) => {
       const boxes: { text: string; left: number; right: number }[] = [];

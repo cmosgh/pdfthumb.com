@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { DashboardSidebar } from "./DashboardSidebar";
-import { Heading, IconButton, MenuIcon, Surface } from "@/components/ui";
+import { cx, Heading, IconButton, MenuIcon, Surface } from "@/components/ui";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -28,7 +28,10 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
       {/* Sidebar */}
       <div
-        className={`${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 fixed md:static inset-y-0 left-0 z-50 w-64 transition-transform duration-300 ease-in-out`}
+        className={cx(
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full",
+          "md:translate-x-0 fixed md:static inset-y-0 left-0 z-50 w-64 transition-transform duration-300 ease-in-out",
+        )}
       >
         <DashboardSidebar />
       </div>

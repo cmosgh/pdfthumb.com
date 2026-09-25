@@ -88,7 +88,7 @@ function styleClasses(text) {
   if (!words.length || !words.every((w) => CLASS_WORD.test(w))) return [];
   return words.filter((w) => {
     const base = w
-      .replace(/^(?:[^:[\]]+:|\[[^\]]*\]:)*/, "")
+      .replace(/^(?:(?:[^:[\]]|\[[^\]]*\])+:)*/, "")
       .replace(/^[!-]/, "");
     return STYLE.test(base);
   });
