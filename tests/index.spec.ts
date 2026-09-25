@@ -32,8 +32,11 @@ test.describe("index.tsx basic render", () => {
     await expect(page.getByRole("contentinfo")).toBeVisible();
   });
 
-  // Prices are withheld for now (#71): every amount reads "Upcoming".
-  const pricedTiers = PRICING_TIERS.filter((tier) => tier.price !== "Custom");
+  // Paid prices are withheld for now (#71): every amount reads "Upcoming".
+  // Free is live at €0 (#129), and Enterprise is Custom.
+  const pricedTiers = PRICING_TIERS.filter(
+    (tier) => tier.price !== "Custom" && tier.id !== "free",
+  );
 
   test("shows Upcoming instead of a price on every priced plan", async ({
     page,
@@ -60,12 +63,17 @@ test.describe("index.tsx basic render", () => {
     }
   });
 
-  test("shows no price amounts anywhere on the landing page", async ({
+  test("shows no paid price amounts anywhere on the landing page", async ({
     page,
   }) => {
     await page.goto("/");
     await expect(page.getByTestId("pricing-section")).toContainText("Upcoming");
-    const text = await page.locator("body").textContent();
+    // Free's €0 is the one amount shown (#129).
+    const free = await page.getByTestId("pricing-card-free").textContent();
+    const text = (await page.locator("body").textContent())?.replace(
+      free ?? "",
+      "",
+    );
     expect(text).not.toMatch(/[$€£]\s?\d/);
     // Without prices there is nothing to switch between.
     await expect(page.getByRole("button", { name: /annually/i })).toHaveCount(
@@ -98,6 +106,22 @@ test.describe("index.tsx basic render", () => {
       await button.click({ force: true });
     }
     expect(dialogs).toEqual([]);
+  });
+
+  // Free is live (BE #331): €0, and its button starts sign-up (#129).
+  test("the Free card is €0 and Start free leads to sign-in", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    const card = page.getByTestId("pricing-card-free");
+    await expect(card.getByTestId("pricing-card-price")).toHaveText("€0");
+    await expect(card).not.toContainText(/soon/i);
+    await expect(card).toContainText("1,000 Thumbnails a month");
+    const start = card.getByRole("link", { name: "Start free" });
+    await expect(start).toBeEnabled();
+    await expect(start).not.toHaveAttribute("aria-disabled", "true");
+    await start.click();
+    await expect(page).toHaveURL(/\/login$/);
   });
 
   // Sign-in works and new users get the Free plan (#75): both calls to

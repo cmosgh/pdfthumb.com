@@ -93,10 +93,9 @@ const PricingCard: React.FC<PricingCardProps> = ({ tier }) => {
         ))}
       </ul>
       <Button
-        // Paid tiers are coming soon, so the disabled button swallows the
-        // click. A tier that launches needs a real ctaLink here, or it links
-        // to "#". Enterprise's button mails sales.
-        href={ctaHref ?? "#"}
+        // A disabled button keeps "#" and swallows the click.
+        // A live tier follows its ctaLink; Enterprise's button mails sales.
+        href={ctaHref ?? (ctaDisabled ? "#" : tier.ctaLink)}
         variant={tier.isFeatured ? "primary" : "secondary"}
         className={`w-full mt-auto ${ctaDisabled ? "opacity-70 cursor-not-allowed" : ""} 
                     ${
