@@ -1,28 +1,30 @@
-# Stage 1: Build the application
-FROM node:22-alpine AS build
+# syntax=docker/dockerfile:1
+
+# Stage 1: build the SPA. It runs on the build machine's own platform (the
+# x86_64 runner), not under emulation: the output is static files, the same
+# for any target.
+FROM --platform=$BUILDPLATFORM node:22-alpine AS build
 
 WORKDIR /app
 
-# Copy package.json and package-lock.json
-COPY package*.json ./
+COPY package.json package-lock.json ./
+RUN npm ci
 
-# Install dependencies
-RUN npm install
-
-# Copy the rest of the application
 COPY . .
+# The image is public: refuse to build one whose bundle holds a source map,
+# an env file or a secret-shaped string.
+RUN npm run build && sh scripts/check-public-bundle.sh dist
 
-# Build the application
-RUN npm run build
-
-# Stage 2: Serve the application
+# Stage 2: serve it. This is the only stage built for the target platform
+# (linux/arm64 in production), and it has no RUN step, so no emulation.
 FROM nginx:stable-alpine
 
-# Copy the built files from the build stage
+# Replaces the stock server block, which listens on :80.
+COPY nginx/default.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# Expose port 80
-EXPOSE 80
-
-# Start Nginx
-CMD ["nginx", "-g", "daemon off;"]
+# The image's nginx user. nginx writes its pid to /var/run and temp files
+# under /var/cache/nginx; the chart mounts emptyDirs there under a read-only
+# root filesystem (docker run: --read-only --tmpfs /var/run --tmpfs /var/cache/nginx).
+USER 101:101
+EXPOSE 8080

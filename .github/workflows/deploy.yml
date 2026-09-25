@@ -1,0 +1,215 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# One deploy at a time, in push order. Later runs queue instead of being
+# cancelled, so every push to main ends up deployed.
+concurrency:
+  group: deploy-dashboard-production
+  cancel-in-progress: false
+  queue: max
+
+permissions:
+  contents: read
+
+env:
+  IMAGE_REPOSITORY: ghcr.io/${{ github.repository }}
+  BUILD_SHA: ${{ github.sha }}
+  CHART_DIR: infra/pdfthumb-dashboard
+  RELEASE_NAME: pdfthumb-dashboard
+
+jobs:
+  build:
+    runs-on: [self-hosted, pdfthumb-dashboard]
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      digest: ${{ steps.build.outputs.digest }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Registry auth in its own persistent DOCKER_CONFIG, so the runner user's
+      # ~/.docker is untouched and the buildx builder below survives between
+      # runs. The token arrives through env, never interpolated into the
+      # script, and the derived base64 auth is masked: GitHub only masks the
+      # raw secret, not encodings of it.
+      - name: Prepare Docker auth
+        env:
+          GHCR_USERNAME: ${{ github.actor }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          umask 077
+          DOCKER_CFG="$HOME/.docker-ci-pdfthumb-dashboard"
+          mkdir -p "$DOCKER_CFG"
+          chmod 700 "$DOCKER_CFG"
+          AUTH=$(printf '%s:%s' "$GHCR_USERNAME" "$GHCR_TOKEN" | base64 | tr -d '\n')
+          echo "::add-mask::$AUTH"
+          printf '{ "auths": { "ghcr.io": { "auth": "%s" } } }\n' "$AUTH" > "$DOCKER_CFG/config.json"
+          chmod 600 "$DOCKER_CFG/config.json"
+          echo "DOCKER_CONFIG=$DOCKER_CFG" >> "$GITHUB_ENV"
+
+      # One long-lived builder: its BuildKit layer cache persists across runs,
+      # so an unchanged `npm ci` layer is never rebuilt.
+      - name: Set up persistent Docker Buildx builder
+        run: |
+          set -euo pipefail
+          docker buildx inspect pdfthumb-dashboard-builder >/dev/null 2>&1 \
+            || docker buildx create --name pdfthumb-dashboard-builder --driver docker-container --bootstrap
+          docker buildx use pdfthumb-dashboard-builder
+
+      # Only :<commit SHA> is pushed. A tag can be re-pointed by a rebuild, so
+      # the deploy pins the digest read back from the build.
+      # --provenance=false keeps the pushed manifest a plain arm64 image: an
+      # attestation index adds an unknown/unknown platform entry.
+      - name: Build and push the arm64 image
+        id: build
+        run: |
+          set -euo pipefail
+          META="${RUNNER_TEMP}/buildx-metadata.json"
+          docker buildx build \
+            --platform linux/arm64 \
+            --provenance=false \
+            --metadata-file "$META" \
+            -t "${IMAGE_REPOSITORY}:${BUILD_SHA}" \
+            --push .
+
+          DIGEST=$(sed -n 's/.*"containerimage.digest": *"\([^"]*\)".*/\1/p' "$META" | head -1)
+          if [ -z "$DIGEST" ]; then
+            echo "::error::could not read containerimage.digest from the buildx metadata file"
+            exit 1
+          fi
+          echo "digest=$DIGEST" >> "$GITHUB_OUTPUT"
+          echo "Built ${IMAGE_REPOSITORY}@${DIGEST}"
+
+      - name: Remove registry credentials
+        if: always()
+        run: rm -f "$HOME/.docker-ci-pdfthumb-dashboard/config.json"
+
+  deploy:
+    needs: build
+    runs-on: [self-hosted, pdfthumb-dashboard]
+    environment: production
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    env:
+      IMAGE_DIGEST: ${{ needs.build.outputs.digest }}
+      HELM_DRIVER: configmap
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check tools
+        run: |
+          kubectl version --client
+          helm version --short
+
+      # The cluster pulls without credentials, so the package must be public.
+      # A new GHCR package starts private and can only be made public after
+      # its first push; stop here rather than let a rollout that can't pull
+      # the image time out and roll back.
+      - name: Check the image is publicly pullable
+        run: |
+          set -euo pipefail
+          REPO="${IMAGE_REPOSITORY#ghcr.io/}"
+          TOKEN=$(curl -sf "https://ghcr.io/token?scope=repository:${REPO}:pull" \
+            | sed -n 's/.*"token" *: *"\([^"]*\)".*/\1/p')
+          if [ -z "$TOKEN" ] || ! curl -sf -o /dev/null \
+            -H "Authorization: Bearer ${TOKEN}" \
+            -H "Accept: application/vnd.oci.image.manifest.v1+json, application/vnd.docker.distribution.manifest.v2+json, application/vnd.oci.image.index.v1+json, application/vnd.docker.distribution.manifest.list.v2+json" \
+            "https://ghcr.io/v2/${REPO}/manifests/${IMAGE_DIGEST}"; then
+            echo "::error::${IMAGE_REPOSITORY}@${IMAGE_DIGEST} is not pullable anonymously. Make the GHCR package public, then re-run this job."
+            exit 1
+          fi
+          echo "${IMAGE_REPOSITORY}@${IMAGE_DIGEST} is publicly pullable"
+
+      # The kubeconfig is a secret: it arrives through env, goes to a 0600
+      # temp file, and the last step removes it even when the deploy fails.
+      - name: Write kubeconfig
+        env:
+          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+        run: |
+          set -euo pipefail
+          umask 077
+          KUBECONFIG_FILE="$(mktemp)"
+          printf '%s' "$KUBE_CONFIG" > "$KUBECONFIG_FILE"
+          echo "KUBECONFIG=$KUBECONFIG_FILE" >> "$GITHUB_ENV"
+
+      # The pods are pinned to the digest just pushed. No digest, no deploy:
+      # never fall back to the tag. image.tag only names the build.
+      - name: Deploy with Helm
+        run: |
+          set -euo pipefail
+          if ! printf '%s' "$IMAGE_DIGEST" | grep -Eq '^sha256:[0-9a-f]{64}$'; then
+            echo "::error::build digest is missing or malformed ('${IMAGE_DIGEST}'); refusing to deploy by tag alone"
+            exit 1
+          fi
+          NAMESPACE="$(yq eval '.namespace' "$CHART_DIR/values.yaml")"
+          echo "NAMESPACE=$NAMESPACE" >> "$GITHUB_ENV"
+          echo "Deploying ${IMAGE_REPOSITORY}:${BUILD_SHA}@${IMAGE_DIGEST}"
+
+          helm upgrade --install "$RELEASE_NAME" "$CHART_DIR" \
+            --namespace "$NAMESPACE" \
+            --set image.repository="$IMAGE_REPOSITORY" \
+            --set image.tag="$BUILD_SHA" \
+            --set image.digest="$IMAGE_DIGEST" \
+            --wait \
+            --atomic \
+            --timeout 10m
+
+      # Confirm what actually runs: every Ready pod of the Deployment's current
+      # ReplicaSet must report an imageID ending in the pushed digest. The pod
+      # spec alone would only echo back the values passed to helm.
+      - name: Verify the running image digest
+        run: |
+          set -euo pipefail
+          DEPLOYMENT="$RELEASE_NAME"
+          EXPECTED_IMAGE="${IMAGE_REPOSITORY}:${BUILD_SHA}@${IMAGE_DIGEST}"
+          SPEC_IMAGE=$(kubectl get deployment "$DEPLOYMENT" -n "$NAMESPACE" \
+            -o jsonpath='{.spec.template.spec.containers[?(@.name=="nginx")].image}')
+          if [ "$SPEC_IMAGE" != "$EXPECTED_IMAGE" ]; then
+            echo "::error::Deployment spec names '${SPEC_IMAGE}', expected '${EXPECTED_IMAGE}'"
+            exit 1
+          fi
+          REVISION=$(kubectl get deployment "$DEPLOYMENT" -n "$NAMESPACE" \
+            -o jsonpath='{.metadata.annotations.deployment\.kubernetes\.io/revision}')
+          # The current ReplicaSet: owned by this Deployment, same revision.
+          POD_TEMPLATE_HASH=$(kubectl get replicasets -n "$NAMESPACE" \
+            -l "app.kubernetes.io/instance=${RELEASE_NAME}" \
+            -o jsonpath='{range .items[*]}{.metadata.ownerReferences[0].name}{" "}{.metadata.annotations.deployment\.kubernetes\.io/revision}{" "}{.metadata.labels.pod-template-hash}{"\n"}{end}' \
+            | awk -v d="$DEPLOYMENT" -v r="$REVISION" '$1 == d && $2 == r { print $3 }')
+          if [ -z "$REVISION" ] || [ -z "$POD_TEMPLATE_HASH" ]; then
+            echo "::error::could not find the current ReplicaSet of ${DEPLOYMENT} (revision '${REVISION}')"
+            exit 1
+          fi
+          READY_PODS=0
+          while read -r POD READY IMAGE_ID; do
+            [ -n "$POD" ] || continue
+            [ "$READY" = "True" ] || continue
+            case "$IMAGE_ID" in
+              *"@${IMAGE_DIGEST}") READY_PODS=$((READY_PODS + 1)) ;;
+              *)
+                echo "::error::pod ${POD} runs imageID '${IMAGE_ID}', expected one ending in '@${IMAGE_DIGEST}'"
+                exit 1
+                ;;
+            esac
+          done < <(kubectl get pods -n "$NAMESPACE" \
+            -l "app.kubernetes.io/instance=${RELEASE_NAME},pod-template-hash=${POD_TEMPLATE_HASH}" \
+            -o jsonpath='{range .items[*]}{.metadata.name}{" "}{.status.conditions[?(@.type=="Ready")].status}{" "}{.status.containerStatuses[?(@.name=="nginx")].imageID}{"\n"}{end}')
+          if [ "$READY_PODS" -eq 0 ]; then
+            echo "::error::no Ready pod of ${DEPLOYMENT} revision ${REVISION} to verify"
+            exit 1
+          fi
+          echo "${READY_PODS} Ready pod(s) run ${IMAGE_REPOSITORY}@${IMAGE_DIGEST} (${BUILD_SHA})"
+
+      - name: Remove kubeconfig
+        if: always()
+        run: |
+          if [ -n "${KUBECONFIG:-}" ]; then rm -f "$KUBECONFIG"; fi

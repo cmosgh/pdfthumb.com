@@ -37,9 +37,6 @@ securityContext:
     drop:
       - ALL
 
-# nginx listens here (unprivileged, so no root and no NET_BIND_SERVICE).
-containerPort: 8080
-
 service:
   type: ClusterIP
   port: 80
