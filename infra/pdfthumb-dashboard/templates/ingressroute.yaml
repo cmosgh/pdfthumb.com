@@ -1,0 +1,53 @@
+{{- $fullname := include "pdfthumb-dashboard.fullname" . -}}
+{{- $host := .Values.ingress.host -}}
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ $fullname }}
+  namespace: {{ include "pdfthumb-dashboard.namespace" . }}
+  labels:
+    {{- include "pdfthumb-dashboard.labels" . | nindent 4 }}
+spec:
+  entryPoints:
+    {{- toYaml .Values.ingress.entryPoints | nindent 4 }}
+  routes:
+    {{- if .Values.ingress.redirectWww }}
+    - match: Host(`www.{{ $host }}`)
+      kind: Rule
+      middlewares:
+        - name: {{ $fullname }}-www-redirect
+      # Traefik wants a service on every route; the middleware answers first.
+      services:
+        - name: {{ $fullname }}
+          port: {{ .Values.service.port }}
+    {{- end }}
+    # The API keeps its /api prefix: no StripPrefix middleware.
+    - match: Host(`{{ $host }}`) && PathPrefix(`/api`)
+      kind: Rule
+      services:
+        - name: {{ .Values.ingress.backend.serviceName }}
+          port: {{ .Values.ingress.backend.servicePort }}
+    - match: Host(`{{ $host }}`)
+      kind: Rule
+      services:
+        - name: {{ $fullname }}
+          port: {{ .Values.service.port }}
+  tls:
+    # Issued by cert-manager (certificate.yaml) into this Secret.
+    secretName: {{ $fullname }}-tls
+{{- if .Values.ingress.redirectWww }}
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ $fullname }}-www-redirect
+  namespace: {{ include "pdfthumb-dashboard.namespace" . }}
+  labels:
+    {{- include "pdfthumb-dashboard.labels" . | nindent 4 }}
+spec:
+  redirectRegex:
+    regex: ^https?://www\.{{ regexQuoteMeta $host }}/(.*)
+    replacement: https://{{ $host }}/${1}
+    # 301
+    permanent: true
+{{- end }}

@@ -1,0 +1,20 @@
+{{- $fullname := include "pdfthumb-dashboard.fullname" . -}}
+# cert-manager writes the key pair into the Secret named below; the chart
+# itself creates no Secret.
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ $fullname }}-tls
+  namespace: {{ include "pdfthumb-dashboard.namespace" . }}
+  labels:
+    {{- include "pdfthumb-dashboard.labels" . | nindent 4 }}
+spec:
+  secretName: {{ $fullname }}-tls
+  issuerRef:
+    name: {{ .Values.ingress.tls.issuerRef.name }}
+    kind: {{ .Values.ingress.tls.issuerRef.kind }}
+  dnsNames:
+    - {{ .Values.ingress.host }}
+    {{- if .Values.ingress.redirectWww }}
+    - www.{{ .Values.ingress.host }}
+    {{- end }}

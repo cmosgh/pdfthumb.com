@@ -1,0 +1,12 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "pdfthumb-dashboard.fullname" . }}
+  namespace: {{ include "pdfthumb-dashboard.namespace" . }}
+  labels:
+    {{- include "pdfthumb-dashboard.labels" . | nindent 4 }}
+spec:
+  minAvailable: {{ .Values.podDisruptionBudget.minAvailable }}
+  selector:
+    matchLabels:
+      {{- include "pdfthumb-dashboard.selectorLabels" . | nindent 6 }}
