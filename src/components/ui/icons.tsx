@@ -34,6 +34,11 @@ export const CheckIcon: React.FC<SvgProps> = (props) => (
   <Outline d="M5 13l4 4L19 7" {...props} />
 );
 
+// A magnifying glass: the docs search (#142).
+export const SearchIcon: React.FC<SvgProps> = (props) => (
+  <Outline d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" {...props} />
+);
+
 // An empty circle: a step not done yet, beside CheckCircleIcon's done.
 export const CircleIcon: React.FC<SvgProps> = (props) => (
   <svg

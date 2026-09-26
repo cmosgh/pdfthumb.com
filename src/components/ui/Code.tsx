@@ -1,5 +1,6 @@
 import React from "react";
 import { cx } from "./cx";
+import { CopyButton } from "./CopyButton";
 
 const codeVariant = {
   // Inline code in docs prose (p, li, td).
@@ -30,7 +31,8 @@ export interface CodeBlockProps extends React.HTMLAttributes<HTMLPreElement> {
 }
 
 // A <pre><code> block. id, role, tabIndex, aria-* and data-* pass through
-// to the <pre> (the ApiReference tab panel needs them). No copy button.
+// to the <pre> (the ApiReference tab panel needs them). No copy button:
+// CodeSample adds one.
 export const CodeBlock: React.FC<CodeBlockProps> = ({
   className,
   children,
@@ -39,4 +41,37 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
   <pre className={cx(codeBlock, className)} {...rest}>
     <code>{children}</code>
   </pre>
+);
+
+export interface CodeSampleProps extends React.HTMLAttributes<HTMLDivElement> {
+  [dataAttribute: `data-${string}`]: string | undefined;
+  // The code, shown verbatim and copied by the button.
+  code: string;
+  // Attributes for the <pre> (a tab panel's id, role and aria-*).
+  preProps?: CodeBlockProps;
+}
+
+// A CodeBlock with a copy button in its corner (#142). className and the
+// other attributes go on the wrapper; preProps go on the <pre>.
+export const CodeSample: React.FC<CodeSampleProps> = ({
+  code,
+  preProps,
+  className,
+  ...rest
+}) => (
+  <div className={cx("relative", className)} {...rest}>
+    {/* pr-12 keeps the first line clear of the button (it follows p-4 in
+        the built CSS). */}
+    <CodeBlock {...preProps} className={cx("pr-12", preProps?.className)}>
+      {code}
+    </CodeBlock>
+    <CopyButton
+      type="button"
+      variant="code"
+      text={code}
+      ariaLabel="Copy code"
+      copiedAriaLabel="Copied"
+      className="absolute top-2 right-2"
+    />
+  </div>
 );

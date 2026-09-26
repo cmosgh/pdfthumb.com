@@ -1,22 +1,43 @@
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { API_LIMITS, APP_NAME, SWAGGER_URL } from "../constants";
-import ApiReference from "../components/docs/ApiReference";
-import { pageThumbnailCurl } from "../utils/curl";
-import { ERROR_CODES } from "../docs/apiReference";
+import { APP_NAME } from "../constants";
+import ApiReference, {
+  useSnippetLanguage,
+} from "../components/docs/ApiReference";
+import { Blocks, Spans } from "../components/docs/DocsProse";
+import { DocsNav } from "../components/docs/DocsNav";
+import { DocsSearch } from "../components/docs/DocsSearch";
+import { ANCHOR_OFFSET, DocsSection } from "../components/docs/DocsSection";
 import {
+  DOCS_INTRO,
+  DOCS_TITLE,
+  ERRORS,
+  LIMITS,
+  QUICKSTART,
+  REFERENCE,
+  SPY_IDS,
+  SWAGGER_LINK,
+  errorAnchor,
+  type ProseSection,
+} from "../docs/content";
+import { docsMarkdown } from "../docs/markdown";
+import { useScrollSpy } from "../hooks/useScrollSpy";
+import {
+  Button,
   buttonClasses,
-  cx,
   Code,
-  CodeBlock,
+  CodeSample,
   Container,
+  CopyButton,
   Heading,
-  RouterTextLink,
+  MenuIcon,
+  SearchIcon,
+  Surface,
   Table,
   TableFrame,
   TBody,
   Td,
   Text,
-  TextLink,
   Th,
   THead,
 } from "../components/ui";
@@ -28,255 +49,269 @@ export const Route = createFileRoute("/docs")({
   component: DocsPage,
 });
 
-// The quickstart follows the backend's thumbnail controller and the live
-// OpenAPI spec (#126). The reference below has an example per language,
-// and Swagger's "Try it out" runs them.
-const FIRST_REQUEST = pageThumbnailCurl("document.pdf");
+const MOBILE_NAV_ID = "docs-mobile-nav";
 
-const ENDPOINTS = [
-  {
-    id: "page",
-    path: "/api/thumbnail/page",
-    text: (
-      <>
-        one page as a JPEG. <Code>page</Code> is 1-based and required.
-      </>
-    ),
-  },
-  {
-    id: "zip",
-    path: "/api/thumbnail/zip",
-    text: <>every page as JPEGs in a ZIP; each page counts as one Thumbnail.</>,
-  },
-  {
-    id: "count",
-    path: "/api/thumbnail/count",
-    text: (
-      <>
-        the page count as <Code>{`{"pageCount":12}`}</Code>; it doesn't use your
-        quota.
-      </>
-    ),
-  },
-];
+const SectionHeading: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => (
+  <Heading as="h2" size="2xl" weight="bold" tone="heading" className="mb-4">
+    {children}
+  </Heading>
+);
 
+const ProseDocsSection: React.FC<{ section: ProseSection }> = ({ section }) => (
+  <DocsSection
+    id={section.id}
+    data-testid={section.testId}
+    heading={<SectionHeading>{section.title}</SectionHeading>}
+    panel={
+      section.code && (
+        <CodeSample
+          data-testid="docs-code"
+          code={section.code.code}
+          preProps={{ "data-testid": section.code.testId }}
+        />
+      )
+    }
+  >
+    <Blocks blocks={section.blocks} />
+  </DocsSection>
+);
+
+// A typed "/" belongs to whatever field has focus.
+const isTyping = (target: EventTarget | null) =>
+  target instanceof HTMLElement &&
+  (target.isContentEditable ||
+    ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName));
+
+// Follows an anchor as a link would; the same hash again re-scrolls.
+function jumpTo(id: string) {
+  if (window.location.hash === `#${id}`) {
+    document.getElementById(id)?.scrollIntoView();
+  } else {
+    window.location.hash = id;
+  }
+}
+
+// The documentation (#126), in three panes from lg up (#142): the table of
+// contents, the prose, and each section's code beside it. On a phone a
+// sticky bar holds the Contents menu and Search.
 function DocsPage() {
-  const { maxUploadMB, minWidthPx, maxWidthPx } = API_LIMITS;
+  const [language, setLanguage] = useSnippetLanguage();
+  const current = useScrollSpy(SPY_IDS);
+
+  // The phone's Contents menu: a disclosure over the page.
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const returnFocus = useRef<HTMLElement | null>(null);
+  // Focus goes back to the trigger on close. A clicked button is passed
+  // in, since Safari doesn't focus buttons on click.
+  const openSearch = useCallback((trigger?: HTMLElement) => {
+    returnFocus.current =
+      trigger ?? (document.activeElement as HTMLElement | null);
+    setMenuOpen(false);
+    setSearchOpen(true);
+  }, []);
+  const closeSearch = useCallback(() => {
+    setSearchOpen(false);
+    returnFocus.current?.focus({ preventScroll: true });
+  }, []);
+  const searchTo = useCallback((id: string) => {
+    setSearchOpen(false);
+    jumpTo(id);
+  }, []);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "/" || event.ctrlKey || event.metaKey || event.altKey)
+        return;
+      if (event.defaultPrevented || isTyping(event.target)) return;
+      event.preventDefault();
+      openSearch();
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [openSearch]);
+
+  const menuButton = useRef<HTMLButtonElement>(null);
+  const firstLink = useRef<HTMLAnchorElement>(null);
+  const bar = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!menuOpen) return;
+    firstLink.current?.focus();
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      setMenuOpen(false);
+      menuButton.current?.focus();
+    };
+    const onPointerDown = (event: PointerEvent) => {
+      if (!bar.current?.contains(event.target as Node)) setMenuOpen(false);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("pointerdown", onPointerDown);
+    };
+  }, [menuOpen]);
+
   return (
-    <Container className="py-16 max-w-3xl" data-testid="docs-page">
-      <Heading
-        as="h1"
-        size="4xl"
-        weight="extrabold"
-        tone="heading"
-        className="mb-4"
+    <Container className="py-8 lg:py-12" data-testid="docs-page">
+      <div
+        ref={bar}
+        className="lg:hidden sticky top-16 z-40 -mx-4 sm:-mx-6 mb-8"
       >
-        Documentation
-      </Heading>
-      <Text tone="fg-muted" className="mb-4">
-        {APP_NAME} turns PDFs into thumbnails over a REST API. This page gets
-        you to a first thumbnail; the API reference lists every endpoint,
-        parameter and response.
-      </Text>
-      <a
-        href={SWAGGER_URL}
-        className={cx(buttonClasses({ variant: "swagger" }), "mb-12")}
-        data-testid="docs-swagger-link"
-      >
-        Open the API reference (Swagger)
-      </a>
+        <Surface tone="bar" className="flex gap-2 px-4 sm:px-6 py-2">
+          <Button
+            ref={menuButton}
+            variant="neutral"
+            aria-expanded={menuOpen}
+            aria-controls={MOBILE_NAV_ID}
+            onClick={() => setMenuOpen((open) => !open)}
+            className="inline-flex items-center gap-2"
+          >
+            <MenuIcon className="w-4 h-4" aria-hidden="true" />
+            Contents
+          </Button>
+          <Button
+            variant="neutral"
+            aria-keyshortcuts="/"
+            onClick={(event) => openSearch(event.currentTarget)}
+            className="inline-flex items-center gap-2"
+          >
+            <SearchIcon className="w-4 h-4" aria-hidden="true" />
+            Search
+          </Button>
+        </Surface>
+        <Surface
+          tone="menu"
+          id={MOBILE_NAV_ID}
+          data-testid={MOBILE_NAV_ID}
+          hidden={!menuOpen}
+          className="absolute inset-x-0 top-full max-h-[70vh] overflow-y-auto px-2 py-3"
+        >
+          <DocsNav
+            current={current}
+            onNavigate={() => setMenuOpen(false)}
+            firstLinkRef={firstLink}
+          />
+        </Surface>
+      </div>
 
-      <section className="mb-12">
-        <Heading
-          as="h2"
-          size="2xl"
-          weight="bold"
-          tone="heading"
-          className="mb-4"
-        >
-          1. Get an API key
-        </Heading>
-        <Text tone="fg-muted" className="mb-4">
-          Sign in and create a key under{" "}
-          <RouterTextLink to="/dashboard/settings" tone="underline">
-            Dashboard → Settings
-          </RouterTextLink>
-          . The full key is shown only once, when you create it, so store it
-          somewhere safe. You can revoke it there at any time.
-        </Text>
-      </section>
+      <div className="lg:grid lg:grid-cols-[13rem_minmax(0,1fr)] lg:gap-10">
+        <aside className="hidden lg:block" data-testid="docs-sidebar">
+          <div className="sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto pb-8">
+            <Button
+              variant="neutral"
+              aria-keyshortcuts="/"
+              onClick={(event) => openSearch(event.currentTarget)}
+              className="flex w-full items-center gap-2 mb-6"
+            >
+              <SearchIcon className="w-4 h-4" aria-hidden="true" />
+              Search
+              <Code aria-hidden="true" className="ml-auto">
+                /
+              </Code>
+            </Button>
+            <DocsNav current={current} />
+          </div>
+        </aside>
 
-      <section className="mb-12">
-        <Heading
-          as="h2"
-          size="2xl"
-          weight="bold"
-          tone="heading"
-          className="mb-4"
-        >
-          2. Authenticate
-        </Heading>
-        <Text tone="fg-muted" className="mb-4">
-          Send the key in the <Code>x-api-key</Code> header on every request.
-          The examples below read it from an environment variable:
-        </Text>
-        <CodeBlock className="mb-6">
-          {'export PDFTHUMB_API_KEY="your-api-key"'}
-        </CodeBlock>
-      </section>
+        <div className="min-w-0">
+          <Heading
+            as="h1"
+            size="4xl"
+            weight="extrabold"
+            tone="heading"
+            className="mb-4"
+          >
+            {DOCS_TITLE}
+          </Heading>
+          <Text tone="fg-muted" className="mb-4 max-w-3xl">
+            <Spans spans={DOCS_INTRO} />
+          </Text>
+          <div className="flex flex-wrap items-center gap-3 mb-12">
+            <a
+              href={SWAGGER_LINK.href}
+              className={buttonClasses({ variant: "swagger" })}
+              data-testid="docs-swagger-link"
+            >
+              {SWAGGER_LINK.label}
+            </a>
+            <CopyButton
+              variant="neutral"
+              text={() => docsMarkdown(language, window.location.origin)}
+              label="Copy as Markdown"
+              copiedLabel="Copied as Markdown"
+            />
+          </div>
 
-      {/* The dashboard's first-thumbnail checklist links here (#143) */}
-      <section id="first-request" className="mb-12 scroll-mt-24">
-        <Heading
-          as="h2"
-          size="2xl"
-          weight="bold"
-          tone="heading"
-          className="mb-4"
-        >
-          3. Make a request
-        </Heading>
-        <Text tone="fg-muted" className="mb-4">
-          Upload the PDF as multipart form data in the <Code>file</Code> field.
-          This renders page 1 at 400 px wide:
-        </Text>
-        <CodeBlock className="mb-6" data-testid="docs-first-request">
-          {FIRST_REQUEST}
-        </CodeBlock>
-        <Text tone="fg-muted" className="mb-4">
-          <Code>width</Code> is optional, and the height follows the page's
-          aspect ratio. The API has three endpoints, each answering{" "}
-          <Code>201 Created</Code>:
-        </Text>
-        <Text
-          as="ul"
-          list="disc"
-          tone="fg-muted"
-          className="pl-6 space-y-2 mb-4"
-        >
-          {ENDPOINTS.map((endpoint) => (
-            <li key={endpoint.path}>
-              <TextLink href={`#ref-${endpoint.id}`} tone="underline">
-                <Code>POST {endpoint.path}</Code>
-              </TextLink>
-              : {endpoint.text}
-            </li>
-          ))}
-        </Text>
-        <Text tone="fg-muted" className="mb-4">
-          The{" "}
-          <TextLink href="#reference" tone="underline">
-            reference
-          </TextLink>{" "}
-          below documents each one, with examples in curl, TypeScript, Python,
-          C#, Java, Go and PHP. In the{" "}
-          <TextLink href={SWAGGER_URL} tone="underline">
-            Swagger API reference
-          </TextLink>{" "}
-          you can run them with your key.
-        </Text>
-      </section>
+          <div id="quickstart">
+            {QUICKSTART.map((section) => (
+              <ProseDocsSection key={section.id} section={section} />
+            ))}
+          </div>
 
-      <section className="mb-12" data-testid="docs-limits">
-        <Heading
-          as="h2"
-          size="2xl"
-          weight="bold"
-          tone="heading"
-          className="mb-4"
-        >
-          Limits and errors
-        </Heading>
-        <Text as="ul" list="disc" tone="fg-muted" className="pl-6 space-y-3">
-          <li>PDFs up to {maxUploadMB} MB, depending on your plan.</li>
-          <li>
-            <Code>width</Code> is a whole number of pixels from{" "}
-            {minWidthPx.toLocaleString("en-US")} to{" "}
-            {maxWidthPx.toLocaleString("en-US")}.
-          </li>
-          <li>
-            Each plan includes a monthly number of Thumbnails (see{" "}
-            <RouterTextLink to="/pricing" tone="underline">
-              pricing
-            </RouterTextLink>
-            ) and caps the pages in one ZIP. The quota resets monthly, on the
-            day your plan started, at 00:00 UTC.
-          </li>
-          <li>
-            Requests are rate-limited per minute. Past the limit you get{" "}
-            <Code>429</Code> with a <Code>Retry-After</Code> header saying how
-            many seconds to wait.
-          </li>
-        </Text>
+          <div data-testid="docs-limits">
+            <ProseDocsSection section={LIMITS} />
+            <DocsSection
+              id={ERRORS.id}
+              wide
+              heading={<SectionHeading>{ERRORS.title}</SectionHeading>}
+            >
+              <div className="max-w-3xl">
+                <Blocks blocks={ERRORS.blocks} />
+              </div>
+              <TableFrame variant="docs">
+                <Table density="compact" data-testid="docs-error-codes">
+                  <THead>
+                    <tr>
+                      {ERRORS.columns.map((column) => (
+                        <Th key={column} className="text-left">
+                          {column}
+                        </Th>
+                      ))}
+                    </tr>
+                  </THead>
+                  <TBody>
+                    {ERRORS.codes.map((error) => (
+                      <tr
+                        key={error.code}
+                        id={errorAnchor(error)}
+                        className={ANCHOR_OFFSET}
+                      >
+                        <Td tone="fg-muted" className="align-top">
+                          <Code>{error.code}</Code>
+                        </Td>
+                        <Td tone="fg-muted" className="align-top">
+                          {error.statuses.join(", ")}
+                        </Td>
+                        <Td tone="fg-muted" className="align-top">
+                          {error.meaning}
+                        </Td>
+                        <Td tone="fg-muted" className="align-top">
+                          {error.action}
+                        </Td>
+                      </tr>
+                    ))}
+                  </TBody>
+                </Table>
+              </TableFrame>
+            </DocsSection>
+          </div>
 
-        <Heading
-          as="h3"
-          size="xl"
-          weight="bold"
-          tone="heading"
-          className="mt-8 mb-4"
-        >
-          Error codes
-        </Heading>
-        <Text tone="fg-muted" className="mb-4">
-          Every error is JSON with <Code>statusCode</Code>, a human-readable{" "}
-          <Code>message</Code> and a stable <Code>code</Code>. Branch on{" "}
-          <Code>code</Code>, not on the message, whose words may change. Some
-          codes carry an extra field: <Code>retryAfterSeconds</Code>,{" "}
-          <Code>limitMB</Code> or <Code>feature</Code>.
-        </Text>
-        <Text tone="fg-muted" className="mb-4">
-          New codes may be added. A code isn&apos;t renamed or removed without
-          notice. Treat an unknown code by its HTTP status.
-        </Text>
-        <TableFrame variant="docs">
-          <Table density="compact" data-testid="docs-error-codes">
-            <THead>
-              <tr>
-                <Th className="text-left">Code</Th>
-                <Th className="text-left">Status</Th>
-                <Th className="text-left">Meaning</Th>
-                <Th className="text-left">What to do</Th>
-              </tr>
-            </THead>
-            <TBody>
-              {ERROR_CODES.map((error) => (
-                <tr
-                  key={error.code}
-                  id={`error-${error.code}`}
-                  className="scroll-mt-24"
-                >
-                  <Td tone="fg-muted" className="align-top">
-                    <Code>{error.code}</Code>
-                  </Td>
-                  <Td tone="fg-muted" className="align-top">
-                    {error.statuses.join(", ")}
-                  </Td>
-                  <Td tone="fg-muted" className="align-top">
-                    {error.meaning}
-                  </Td>
-                  <Td tone="fg-muted" className="align-top">
-                    {error.action}
-                  </Td>
-                </tr>
-              ))}
-            </TBody>
-          </Table>
-        </TableFrame>
-      </section>
+          <section id={REFERENCE.id} className={ANCHOR_OFFSET}>
+            <SectionHeading>{REFERENCE.title}</SectionHeading>
+            <ApiReference language={language} onLanguage={setLanguage} />
+          </section>
+        </div>
+      </div>
 
-      <section id="reference" className="scroll-mt-24">
-        <Heading
-          as="h2"
-          size="2xl"
-          weight="bold"
-          tone="heading"
-          className="mb-4"
-        >
-          API reference
-        </Heading>
-        <ApiReference />
-      </section>
+      <DocsSearch
+        open={searchOpen}
+        onClose={closeSearch}
+        onNavigate={searchTo}
+      />
     </Container>
   );
 }

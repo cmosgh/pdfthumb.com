@@ -305,14 +305,15 @@ export const API_ROUTES: ApiRoute[] = [
   },
 ];
 
+// fence: the language on Copy as Markdown's code fence (#142).
 export const SNIPPET_LANGUAGES = [
-  { id: "curl", label: "curl", file: "curl.sh" },
-  { id: "typescript", label: "TypeScript", file: "typescript.ts" },
-  { id: "python", label: "Python", file: "python.py" },
-  { id: "csharp", label: "C#", file: "csharp.cs" },
-  { id: "java", label: "Java", file: "Main.java" },
-  { id: "go", label: "Go", file: "main.go" },
-  { id: "php", label: "PHP", file: "php.php" },
+  { id: "curl", label: "curl", file: "curl.sh", fence: "bash" },
+  { id: "typescript", label: "TypeScript", file: "typescript.ts", fence: "ts" },
+  { id: "python", label: "Python", file: "python.py", fence: "python" },
+  { id: "csharp", label: "C#", file: "csharp.cs", fence: "csharp" },
+  { id: "java", label: "Java", file: "Main.java", fence: "java" },
+  { id: "go", label: "Go", file: "main.go", fence: "go" },
+  { id: "php", label: "PHP", file: "php.php", fence: "php" },
 ] as const;
 
 export type SnippetLanguage = (typeof SNIPPET_LANGUAGES)[number]["id"];
