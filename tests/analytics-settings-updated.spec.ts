@@ -1,10 +1,11 @@
-import { test, expect } from "@playwright/test";
-import { mockAuthentication } from "./auth-helper";
+import { test, expect } from "./fixtures";
+import { mockAuthentication, mockEmptyAccount } from "./auth-helper";
 
 test.describe("Detailed Analytics & Settings", () => {
   test.beforeEach(async ({ page }) => {
     // Mock authentication before each test
     await mockAuthentication(page);
+    await mockEmptyAccount(page);
 
     // Navigate to the dashboard before each test
     await page.goto("/dashboard");

@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 // The price must fit its card and sit below the description at every width
 // (#131). On /pricing (#141) the three self-serve cards share a row from lg
 // (1024 px) and stack below it; Enterprise sits in the band under them.

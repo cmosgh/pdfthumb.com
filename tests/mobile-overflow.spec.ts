@@ -1,4 +1,4 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect, type Page } from "./fixtures";
 import { widestOverflow, describeOverflow } from "./overflow-helper";
 
 // How far the page is wider than the viewport, in px
@@ -24,6 +24,12 @@ for (const width of WIDTHS) {
   for (const route of ROUTES) {
     test(`${route} fits a ${width} px viewport (#136)`, async ({ page }) => {
       await page.setViewportSize({ width, height: 800 });
+      // /status checks the API's health; answer it as live and ready.
+      await page.route("**/api/health/*", (route) =>
+        route.fulfill({
+          json: { status: "ok", timestamp: "2026-09-25T22:10:00Z" },
+        }),
+      );
       await page.goto(route);
       await expect(page.locator("header")).toBeVisible();
       await expect(

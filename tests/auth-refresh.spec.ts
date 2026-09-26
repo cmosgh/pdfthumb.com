@@ -1,4 +1,4 @@
-import { test, expect, Page, Request } from "@playwright/test";
+import { test, expect, Page, Request } from "./fixtures";
 
 // POST /api/auth/refresh answers with the same AuthSession as the OAuth
 // exchange, so expiresIn is a jsonwebtoken duration string.

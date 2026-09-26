@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 // Runs only in the image smoke (.github/workflows/image.yml), against the
 // built nginx image with PLAYWRIGHT_BASE_URL on a container and SERVED_THEME

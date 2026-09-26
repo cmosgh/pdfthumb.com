@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { allowUnmocked, expect, test, type Page } from "./fixtures";
 
 // #144 part 1: the trust pages exist, the footer reaches them, and no
 // internal link anywhere is a dead anchor or leads nowhere.
@@ -33,6 +33,9 @@ async function internalLinks(page: Page) {
 test.describe("internal links", () => {
   for (const path of PUBLIC_PAGES) {
     test(`every internal link on ${path} resolves (#144)`, async ({ page }) => {
+      // /status, reached from every footer, checks the API's health; only
+      // that each page renders matters here, whatever the status says.
+      allowUnmocked(page, ["/api/health/*"]);
       await page.goto(path);
       await expect(page.locator("footer")).toBeVisible();
       const links = [...new Set(await internalLinks(page))];

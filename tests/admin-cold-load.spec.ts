@@ -1,5 +1,5 @@
-import { test, expect, type Page } from "@playwright/test";
-import { mockAuthentication, mockUser } from "./auth-helper";
+import { test, expect, type Page } from "./fixtures";
+import { mockAuthentication, mockEmptyAccount, mockUser } from "./auth-helper";
 
 // A stored ADMIN session: the base mocked session, with the ADMIN role on
 // both the stored user and /api/auth/me.
@@ -29,6 +29,8 @@ async function mockAdminSession(page: Page) {
 test.describe("Admin page cold load", () => {
   test.beforeEach(async ({ page }) => {
     await mockAdminSession(page);
+    // The reload test passes through the overview first.
+    await mockEmptyAccount(page);
   });
 
   test("a direct load of /dashboard/admin keeps an admin there", async ({

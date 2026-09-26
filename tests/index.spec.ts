@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 import { PRICING_TIERS } from "@/constants.ts";
 
 test.describe("index.tsx basic render", () => {

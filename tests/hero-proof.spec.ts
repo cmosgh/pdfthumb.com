@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 // #140: the hero shows proof, not a stock picture. It has a real request and
 // the thumbnails our production API returned for it, plus the hosting claim

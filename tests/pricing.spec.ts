@@ -1,4 +1,4 @@
-import { expect, test, type Locator, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "./fixtures";
 import { CONTACT_RENDER } from "@/constants.ts";
 
 // Plans & pricing copy (#118): the claims follow the driver's decisions

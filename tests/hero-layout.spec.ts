@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 import { widestOverflow, describeOverflow } from "./overflow-helper";
 
 // The hero's text must stay inside the viewport on a phone (#134): at 390 px
