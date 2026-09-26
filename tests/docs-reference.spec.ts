@@ -58,10 +58,12 @@ test.describe("route reference against the live spec (#126)", () => {
       [...specCodes()].sort(),
     );
     await page.goto("/docs");
-    const listed = await page
+    const cells = page
       .getByTestId("docs-error-codes")
-      .locator("tbody tr td:first-child")
-      .allInnerTexts();
+      .locator("tbody tr td:first-child");
+    // allInnerTexts doesn't wait for the lazy route to render.
+    await expect(cells).toHaveCount(specCodes().length);
+    const listed = await cells.allInnerTexts();
     expect(listed.map((c) => c.trim()).sort()).toEqual([...specCodes()].sort());
   });
 
