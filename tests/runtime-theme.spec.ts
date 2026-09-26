@@ -85,6 +85,16 @@ test.describe("Runtime themes", () => {
     expect(html).toMatch(SSI_SLOT);
   });
 
+  // nginx parses every "<!--#" in index.html as an SSI directive: one
+  // anywhere else (say, in the inlined boot script) truncates the page there.
+  test("the include is the page's only SSI directive, and the page is whole", async ({
+    request,
+  }) => {
+    const html = await (await request.get("/")).text();
+    expect(html.split("<!--#")).toHaveLength(2);
+    expect(html.trimEnd()).toMatch(/<\/html>$/);
+  });
+
   test("without a theme the default tokens and logo stay", async ({ page }) => {
     await page.goto("/");
     await expect(page.locator("html")).not.toHaveAttribute("data-theme");

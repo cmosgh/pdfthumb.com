@@ -93,6 +93,10 @@ jobs:
             for path in / /dashboard/settings; do
               grep -q "\"name\": \"$2\"" <<<"$(inlined "$1" "$path")" \
                 || fail "port $1 $path: expected theme $2, got: $(inlined "$1" "$path")"
+              # SSI truncates the page at a bad directive (the #156 outage).
+              page="$(curl -sf "http://localhost:$1$path")"
+              grep -q '</html>[[:space:]]*$' <<<"$page" || fail "port $1 $path: the page is cut off"
+              grep -q '<script type="module"' <<<"$page" || fail "port $1 $path: no app module script"
             done
             curl -sfD - -o /dev/null "http://localhost:$1/theme.json" | grep -qi '^cache-control: no-cache' \
               || fail "port $1: /theme.json is not no-cache"
@@ -114,6 +118,21 @@ jobs:
           chmod -R a+rX "$RUNNER_TEMP/theme"
           hardened custom 8083 -e PDFTHUMB_THEME=evergreen -v "$RUNNER_TEMP/theme:/etc/pdfthumb:ro"
           expect_theme 8083 acme
+
+      # The same containers in a real browser: each page arrives whole and
+      # renders with its theme (tests/served-theme.spec.ts).
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Install dependencies and Chromium
+        run: npm ci && npx playwright install --with-deps chromium
+      - name: Render the served pages in a browser
+        run: |
+          set -euo pipefail
+          for served in 8080:default 8081:evergreen 8083:acme; do
+            PLAYWRIGHT_BASE_URL="http://localhost:${served%%:*}" SERVED_THEME="${served#*:}" \
+              npx playwright test tests/served-theme.spec.ts --project=chromium --retries=0
+          done
 
       # The package is public. The served tree must be exactly the built
       # bundle, and nothing else the build added may be left in the image.

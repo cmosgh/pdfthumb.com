@@ -25,6 +25,11 @@ export function runtimeTheme(): Plugin {
       }
       const tokens = tokenNames(readFileSync(tokensFile, "utf8"));
       const script = `<script>(${bootRuntimeTheme.toString()})(${JSON.stringify(tokens)});</script>`;
+      // nginx runs index.html through SSI, which reads any "<!--#" as a
+      // directive and truncates the page at a bad one.
+      if (script.includes("<!--#")) {
+        throw new Error("the theme boot script must not contain an SSI opener");
+      }
       return html.replace(SLOT, () => script);
     },
   };

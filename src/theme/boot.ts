@@ -27,9 +27,14 @@ export function bootRuntimeTheme(tokens: string[]): void {
 
   let theme: unknown;
   try {
-    const source = document.getElementById("pt-theme")?.textContent ?? "";
-    // No theme (vite dev and preview have no SSI): the default applies.
-    if (!source.trim() || source.includes("<!--#")) return;
+    const source = (
+      document.getElementById("pt-theme")?.textContent ?? ""
+    ).trim();
+    // No theme: the default applies. Under vite dev and preview, which have
+    // no SSI, the slot still holds nginx's include comment. Never write that
+    // comment's opening here: nginx would parse it as a directive in the
+    // page and cut the page off at it.
+    if (!source.startsWith("{")) return;
     theme = JSON.parse(source);
   } catch {
     warn("the theme is not valid JSON; using the default theme");
