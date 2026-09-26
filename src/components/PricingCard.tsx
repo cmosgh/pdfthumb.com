@@ -1,5 +1,6 @@
 import React from "react";
 import type { PricingTier } from "../types";
+import { priceLabel, type BillingPeriod } from "../utils/pricing";
 import { InformationCircleIcon } from "./icons";
 import ContactEmail, { contactHref } from "./ContactEmail";
 import {
@@ -14,9 +15,14 @@ import {
 
 interface PricingCardProps {
   tier: PricingTier;
+  // Monthly unless the yearly toggle (SHOW_YEARLY_TOGGLE) says otherwise.
+  period?: BillingPeriod;
 }
 
-const PricingCard: React.FC<PricingCardProps> = ({ tier }) => {
+const PricingCard: React.FC<PricingCardProps> = ({
+  tier,
+  period = "monthly",
+}) => {
   // The featured tier's name, price and ticks take the accent colour; the
   // others keep the text colour.
   const highlight = tier.isFeatured ? "link" : "inherit";
@@ -28,7 +34,9 @@ const PricingCard: React.FC<PricingCardProps> = ({ tier }) => {
   // A word in the price slot ("Upcoming", "Custom") is wider than an
   // amount, so it gets a smaller size, smallest while four narrow cards
   // share a row (#131). The line height keeps the slot as tall as a price.
-  const isAmount = /\d/.test(tier.price);
+  // The amount once #185 releases it, else the tier's word (#141).
+  const price = priceLabel(tier, period);
+  const isAmount = /\d/.test(price);
 
   return (
     <Card
@@ -75,7 +83,7 @@ const PricingCard: React.FC<PricingCardProps> = ({ tier }) => {
           tone={highlight}
           className="whitespace-nowrap"
         >
-          {tier.price}
+          {price}
         </Text>
         {tier.priceFrequency && (
           <Text as="span" tone="fg-subtle" size="lg" className="ml-1">

@@ -45,9 +45,9 @@ const Footer: React.FC = () => {
                 </TextLink>
               </li>
               <li>
-                <TextLink href="/#pricing" tone="footer">
+                <RouterTextLink to="/pricing" tone="footer">
                   Pricing
-                </TextLink>
+                </RouterTextLink>
               </li>
               <li>
                 <RouterTextLink

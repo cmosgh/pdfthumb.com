@@ -196,9 +196,9 @@ function DocsPage() {
           </li>
           <li>
             Each plan includes a monthly number of Thumbnails (see{" "}
-            <TextLink href="/#pricing" tone="underline">
+            <RouterTextLink to="/pricing" tone="underline">
               pricing
-            </TextLink>
+            </RouterTextLink>
             ) and caps the pages in one ZIP. The quota resets monthly, on the
             day your plan started, at 00:00 UTC.
           </li>

@@ -2,7 +2,6 @@ import React from "react";
 import { HOME_LINK } from "@/constants.ts";
 import HeroProof from "./HeroProof.tsx";
 import {
-  ButtonLink,
   Container,
   Heading,
   RouterButtonLink,
@@ -39,9 +38,9 @@ const Hero: React.FC = () => {
           Hosted in Germany · your files are never kept
         </Text>
         <div className="mt-10 flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4">
-          <ButtonLink href="#pricing" variant="primary" size="lg">
+          <RouterButtonLink to="/pricing" variant="primary" size="lg">
             View Pricing Plans
-          </ButtonLink>
+          </RouterButtonLink>
           <RouterButtonLink
             to="/docs"
             variant="secondary"
