@@ -136,7 +136,8 @@ const RouteReference: React.FC<RouteReferenceProps> = ({
       as="ul"
       list="disc"
       tone="fg-muted"
-      className="pl-6 space-y-1 mb-6"
+      // Long codes (NO_ACTIVE_SUBSCRIPTION) break rather than widen the page
+      className="pl-6 space-y-1 mb-6 wrap-anywhere"
       data-testid="docs-errors"
     >
       {route.errors.map((error) => (

@@ -37,12 +37,13 @@ const Navbar: React.FC<NavbarProps> = ({ theme, toggleTheme }) => {
     <Surface as="header" tone="bar" className="sticky top-0 z-50">
       <Container>
         <div className="flex items-center justify-between h-16">
-          {/* Brand logo and name */}
-          <div className="flex-none">
+          {/* Brand logo and name. It's the one part that may shrink, so the
+              row fits 320 px even in a wider fallback font (#136). */}
+          <div className="min-w-0">
             <RouterTextLink
               {...HOME_LINK}
               tone="link"
-              className="flex items-center space-x-2"
+              className="flex items-center space-x-2 min-w-0"
             >
               <BrandMark />
               <Text
@@ -50,10 +51,11 @@ const Navbar: React.FC<NavbarProps> = ({ theme, toggleTheme }) => {
                 weight="bold"
                 size="xl"
                 tone="fg"
+                className="min-w-0"
                 data-testid="brand-name-wrapper"
               >
                 <span
-                  className="block md:hidden"
+                  className="block md:hidden truncate"
                   data-testid="brand-name-mobile"
                 >
                   {APP_NAME}
@@ -74,7 +76,8 @@ const Navbar: React.FC<NavbarProps> = ({ theme, toggleTheme }) => {
               </RouterTextLink>
             ))}
           </nav>
-          <div className="flex items-center space-x-4">
+          {/* Narrower gaps below sm: at 320 px the row had no slack (#136) */}
+          <div className="flex shrink-0 items-center space-x-2 sm:space-x-4">
             <IconButton
               variant="round"
               onClick={toggleTheme}
@@ -140,7 +143,7 @@ const Navbar: React.FC<NavbarProps> = ({ theme, toggleTheme }) => {
             )}
           </div>
           {/* Mobile menu button */}
-          <div className="md:hidden flex items-center">
+          <div className="md:hidden flex shrink-0 items-center">
             <IconButton
               variant="bare"
               onClick={toggleMobileMenu}
