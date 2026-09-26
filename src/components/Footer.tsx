@@ -80,6 +80,16 @@ const Footer: React.FC = () => {
                   Privacy Policy
                 </RouterTextLink>
               </li>
+              <li>
+                <RouterTextLink to="/security" tone="footer">
+                  Security
+                </RouterTextLink>
+              </li>
+              <li>
+                <RouterTextLink to="/subprocessors" tone="footer">
+                  Subprocessors
+                </RouterTextLink>
+              </li>
               <Text as="li" tone="fg-subtle" size="sm">
                 Contact Us: <ContactEmail kind="support" tone="footer" />
               </Text>

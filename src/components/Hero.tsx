@@ -6,6 +6,7 @@ import {
   FramedImage,
   Heading,
   RouterButtonLink,
+  RouterTextLink,
   Section,
   Text,
 } from "./ui";
@@ -45,6 +46,15 @@ const Hero: React.FC = () => {
             Read Documentation
           </RouterButtonLink>
         </div>
+        <Text size="sm" tone="fg-subtle" className="mt-4">
+          <RouterTextLink
+            to="/security"
+            tone="underline"
+            data-testid="hero-security-link"
+          >
+            What happens to your files
+          </RouterTextLink>
+        </Text>
         <div className="mt-16">
           <FramedImage
             src="https://picsum.photos/seed/heroimage/800/400?grayscale&blur=1"

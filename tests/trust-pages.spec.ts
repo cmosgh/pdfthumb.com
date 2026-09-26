@@ -75,13 +75,17 @@ test.describe("internal links", () => {
 });
 
 test.describe("footer", () => {
-  test("reaches Status, Terms and Privacy", async ({ page }) => {
+  test("reaches Status, Terms, Privacy, Security and Subprocessors", async ({
+    page,
+  }) => {
     await page.goto("/");
     const footer = page.locator("footer");
     for (const [name, href] of [
       ["API Status", "/status"],
       ["Terms of Service", "/terms"],
       ["Privacy Policy", "/privacy"],
+      ["Security", "/security"],
+      ["Subprocessors", "/subprocessors"],
     ]) {
       await expect(footer.getByRole("link", { name })).toHaveAttribute(
         "href",
@@ -95,12 +99,6 @@ test.describe("holding pages", () => {
   for (const [path, heading, sentence] of [
     ["/terms", "Terms of Service", "Our Terms of Service are being finalised."],
     ["/privacy", "Privacy Policy", "Our Privacy Policy is being finalised."],
-    ["/security", "Security", "Our security overview is being written."],
-    [
-      "/subprocessors",
-      "Subprocessors",
-      "Our list of subprocessors is being written.",
-    ],
   ]) {
     test(`${path} says plainly that it isn't ready`, async ({ page }) => {
       await page.goto(path);
@@ -111,6 +109,113 @@ test.describe("holding pages", () => {
       await expect(page).toHaveTitle(new RegExp(`^${heading} \\|`));
     });
   }
+});
+
+// #144 part 2: the landing page points at /security from the hero and the
+// pricing section.
+test.describe("links to /security", () => {
+  test("sit near the hero's calls to action and in the pricing section", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    for (const testId of ["hero-security-link", "pricing-security-link"]) {
+      await expect(page.getByTestId(testId)).toHaveAttribute(
+        "href",
+        "/security",
+      );
+    }
+  });
+});
+
+// Words a trust page must not say: each one claims more than the BE
+// fact-checks on #144 allow (ZIPs touch disk; no own encryption at rest,
+// deletion endpoint, key expiry, GitHub sign-in or certification).
+const OVERCLAIMS = [
+  /never stored/i,
+  /in memory, never/i,
+  /encrypted at rest/i,
+  /is encrypted at rest/i,
+  /plaintext/i,
+  /older than 14 days/i,
+  /GitHub/i,
+  /expiry date/i,
+  /delete your account/i,
+  /SOC ?2 (certified|compliant)/i,
+  /ISO ?(27001 )?(certified|compliant)/i,
+  /GDPR[- ]compliant/i,
+];
+
+test.describe("/security", () => {
+  test("is a real page, not a holding page", async ({ page }) => {
+    await page.goto("/security");
+    await expect(page.locator("h1")).toHaveText("Security");
+    await expect(page).toHaveTitle(/^Security \|/);
+    await expect(page.getByTestId("holding-page")).toHaveCount(0);
+  });
+
+  test("has a section per topic, each reachable by anchor", async ({
+    page,
+  }) => {
+    await page.goto("/security");
+    for (const [id, heading] of [
+      ["files", "Your files"],
+      ["hosting", "Where we run"],
+      ["transport", "In transit"],
+      ["api-keys", "API keys"],
+      ["sign-in", "Sign-in and sessions"],
+      ["logs", "What we log"],
+      ["not-yet", "What we don't have yet"],
+      ["report", "Reporting a problem"],
+    ]) {
+      const section = page.locator(`section[id="${id}"]`);
+      await expect(section.locator("h2")).toHaveText(heading);
+      await expect(
+        page.getByTestId("security-toc").getByRole("link", { name: heading }),
+      ).toHaveAttribute("href", `#${id}`);
+    }
+  });
+
+  test("says what it can stand behind, and no more", async ({ page }) => {
+    await page.goto("/security");
+    const main = page.getByTestId("trust-page");
+    await expect(main).toContainText("Germany");
+    await expect(main).toContainText("support@pdfthumb.com");
+    for (const overclaim of OVERCLAIMS) {
+      await expect(main).not.toContainText(overclaim);
+    }
+  });
+});
+
+test.describe("/subprocessors", () => {
+  test("lists each subprocessor with its purpose and data", async ({
+    page,
+  }) => {
+    await page.goto("/subprocessors");
+    await expect(page.locator("h1")).toHaveText("Subprocessors");
+    await expect(page).toHaveTitle(/^Subprocessors \|/);
+    await expect(page.getByTestId("holding-page")).toHaveCount(0);
+    const table = page.getByRole("table");
+    await expect(table.getByRole("columnheader")).toHaveText([
+      "Subprocessor",
+      "Purpose",
+      "Data",
+    ]);
+    await expect(table.getByRole("rowheader")).toHaveText([
+      "Hetzner Online GmbH",
+      "Google",
+      "Namecheap",
+    ]);
+    await expect(table.locator("tbody tr").first()).toContainText("Germany");
+  });
+
+  test("says what isn't used, and no more", async ({ page }) => {
+    await page.goto("/subprocessors");
+    const main = page.getByTestId("trust-page");
+    await expect(main).not.toContainText(/Stripe/);
+    for (const overclaim of OVERCLAIMS) {
+      await expect(main).not.toContainText(overclaim);
+    }
+  });
 });
 
 test.describe("/status", () => {

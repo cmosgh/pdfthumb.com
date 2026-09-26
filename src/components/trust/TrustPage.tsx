@@ -9,7 +9,7 @@ interface TrustPageProps {
 // The frame every trust page shares: /terms, /privacy, /security,
 // /subprocessors and /status (#144).
 const TrustPage: React.FC<TrustPageProps> = ({ title, children }) => (
-  <Container className="py-16 max-w-3xl">
+  <Container className="py-16 max-w-3xl" data-testid="trust-page">
     <Heading as="h1" size="page" weight="bold" tone="fg">
       {title}
     </Heading>

@@ -8,6 +8,7 @@ import {
   CheckListItem,
   Container,
   Heading,
+  RouterTextLink,
   Section,
   Text,
 } from "./ui";
@@ -56,6 +57,16 @@ const PricingSection: React.FC = () => {
               </CheckListItem>
             ))}
           </CheckList>
+          <Text size="sm" tone="fg-muted" className="text-center mt-4">
+            How we handle your files and account:{" "}
+            <RouterTextLink
+              to="/security"
+              tone="underline"
+              data-testid="pricing-security-link"
+            >
+              Security
+            </RouterTextLink>
+          </Text>
         </div>
         <Card
           variant="band"
