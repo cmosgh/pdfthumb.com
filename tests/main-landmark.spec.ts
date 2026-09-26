@@ -1,5 +1,5 @@
-import { expect, test } from "@playwright/test";
-import { mockAuthentication } from "./auth-helper";
+import { expect, test } from "./fixtures";
+import { mockAuthentication, mockEmptyAccount } from "./auth-helper";
 
 // #166: dashboard routes rendered the dashboard layout's <main> inside the
 // site shell's <main>, so every dashboard page had two main landmarks.
@@ -28,6 +28,7 @@ for (const route of PUBLIC_ROUTES) {
 test.describe("dashboard", () => {
   test.beforeEach(async ({ page }) => {
     await mockAuthentication(page);
+    await mockEmptyAccount(page);
   });
 
   for (const route of DASHBOARD_ROUTES) {

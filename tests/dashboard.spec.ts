@@ -1,5 +1,5 @@
-import { test, expect, type Page, type Request } from "@playwright/test";
-import { mockAuthentication } from "./auth-helper";
+import { test, expect, type Page, type Request } from "./fixtures";
+import { mockAuthentication, mockEmptyAccount } from "./auth-helper";
 
 // YYYY-MM-DD, n days before today in UTC (the API's day buckets are UTC).
 function daysAgo(n: number) {
@@ -94,6 +94,7 @@ test.describe("Dashboard Navigation", () => {
   test.beforeEach(async ({ page }) => {
     // Mock authentication before each test
     await mockAuthentication(page);
+    await mockEmptyAccount(page);
   });
 
   test("should navigate to dashboard and display layout", async ({ page }) => {

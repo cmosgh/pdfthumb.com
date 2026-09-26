@@ -79,3 +79,18 @@ export async function clearAuthentication(page: Page): Promise<void> {
     localStorage.removeItem("auth_user");
   });
 }
+
+/**
+ * Answers the dashboard's reads for an account with nothing in it yet: no
+ * API keys, no requests, no plan (the empty 200 the API sends). A test that
+ * needs other data mocks it after this: the newest route wins.
+ */
+export async function mockEmptyAccount(page: Page): Promise<void> {
+  await page.route("**/api/api-key", (route) => route.fulfill({ json: [] }));
+  await page.route("**/api/analytics/summary**", (route) =>
+    route.fulfill({ json: { dailyBuckets: [] } }),
+  );
+  await page.route("**/api/users/*/subscription", (route) =>
+    route.fulfill({ status: 200, body: "" }),
+  );
+}

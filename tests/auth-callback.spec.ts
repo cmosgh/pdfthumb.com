@@ -1,4 +1,4 @@
-import { test, expect, Page, Request } from "@playwright/test";
+import { test, expect, Page, Request } from "./fixtures";
 
 // The backend's AuthSession, as returned by POST /api/auth/oauth/exchange.
 const session = {

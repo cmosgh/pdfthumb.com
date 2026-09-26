@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 // The documentation page (#126): public, links the live Swagger UI, and
 // the landing page's documentation links lead to it.

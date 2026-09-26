@@ -1,4 +1,4 @@
-import { test, expect, type Page, type Request } from "@playwright/test";
+import { test, expect, type Page, type Request } from "./fixtures";
 import { mockAuthentication } from "./auth-helper";
 
 // #120: the Usage page. Every plan sees its own usage; Pro Analytics adds

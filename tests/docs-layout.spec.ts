@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "./fixtures";
 import { API_ROUTES } from "@/docs/apiReference.ts";
 import { describeOverflow, widestOverflow } from "./overflow-helper";
 

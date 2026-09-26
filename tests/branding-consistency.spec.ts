@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 import { APP_NAME } from "@/constants.ts";
 
 test.describe("Branding Consistency", () => {

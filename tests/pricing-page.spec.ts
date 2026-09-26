@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "./fixtures";
 import { describeOverflow, widestOverflow } from "./overflow-helper";
 
 // Pricing on its own page (#141): Free, Basic and Pro as self-serve cards,

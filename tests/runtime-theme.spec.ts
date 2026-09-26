@@ -1,5 +1,5 @@
 import { readdirSync, readFileSync } from "node:fs";
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "./fixtures";
 import Ajv2020 from "ajv/dist/2020.js";
 
 // Runtime themes (#138). In the image, nginx inlines the selected theme into
