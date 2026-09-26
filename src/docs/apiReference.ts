@@ -191,7 +191,7 @@ const RATE_LIMITED: RouteError = {
   codes: ["RATE_LIMITED"],
   when: "Too many requests this minute. Retry after retryAfterSeconds, also sent as the Retry-After header.",
 };
-const INTERNAL: RouteError = {
+const INTERNAL_ERROR: RouteError = {
   status: 500,
   codes: ["INTERNAL_ERROR"],
   when: "Something failed on our side.",
@@ -246,7 +246,7 @@ export const API_ROUTES: ApiRoute[] = [
         when: `${TOO_LARGE.when} Or the page would render too large.`,
       },
       RATE_LIMITED,
-      INTERNAL,
+      INTERNAL_ERROR,
       ...RENDER_ERRORS,
     ],
   },
@@ -275,7 +275,7 @@ export const API_ROUTES: ApiRoute[] = [
         when: `${TOO_LARGE.when} Or a page would render too large, or the document has more pages than your plan allows in one ZIP.`,
       },
       RATE_LIMITED,
-      INTERNAL,
+      INTERNAL_ERROR,
       ...RENDER_ERRORS,
     ],
   },
@@ -300,7 +300,7 @@ export const API_ROUTES: ApiRoute[] = [
       ...AUTH_ERRORS,
       TOO_LARGE,
       RATE_LIMITED,
-      INTERNAL,
+      INTERNAL_ERROR,
     ],
   },
 ];

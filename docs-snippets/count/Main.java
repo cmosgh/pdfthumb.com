@@ -33,10 +33,10 @@ public class Main {
         if (response.statusCode() != 201) {
             String errorBody = response.body();
             // No JSON parser in the stdlib; pull "code" out with a regex.
-            Matcher codeMatch = Pattern.compile("\"code\":\"([^\"]+)\"").matcher(errorBody);
+            Matcher codeMatch = Pattern.compile("\"code\"\\s*:\\s*\"([^\"]+)\"").matcher(errorBody);
             String code = codeMatch.find() ? codeMatch.group(1) : "UNKNOWN";
             if (code.equals("RATE_LIMITED")) {
-                Matcher retryMatch = Pattern.compile("\"retryAfterSeconds\":(\\d+)").matcher(errorBody);
+                Matcher retryMatch = Pattern.compile("\"retryAfterSeconds\"\\s*:\\s*(\\d+)").matcher(errorBody);
                 throw new RuntimeException("Rate limited: retry in " + (retryMatch.find() ? retryMatch.group(1) : "?") + " s");
             }
             throw new RuntimeException(response.statusCode() + " " + code + ": " + errorBody);
