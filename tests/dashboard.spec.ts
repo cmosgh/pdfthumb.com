@@ -270,7 +270,7 @@ test.describe("Dashboard Navigation", () => {
     );
     await expect(
       page.getByTestId("plan-quota-empty").getByRole("link"),
-    ).toHaveAttribute("href", "/#pricing");
+    ).toHaveAttribute("href", "/pricing");
     await expect(page.getByTestId("plan-quota-summary")).toHaveCount(0);
   });
 

@@ -33,7 +33,8 @@ test.describe("index.tsx basic render", () => {
   });
 
   // Paid prices are withheld for now (#71): every amount reads "Upcoming".
-  // Free is live at €0 (#129), and Enterprise is Custom.
+  // Free is live at €0 (#129), and Enterprise is Custom. The plans live on
+  // /pricing (#141).
   const pricedTiers = PRICING_TIERS.filter(
     (tier) => tier.price !== "Custom" && tier.id !== "free",
   );
@@ -41,11 +42,9 @@ test.describe("index.tsx basic render", () => {
   test("shows Upcoming instead of a price on every priced plan", async ({
     page,
   }) => {
-    await page.goto("/");
-    const pricingSection = page.getByTestId("pricing-section");
-    await expect(pricingSection).toContainText(
-      "Flexible Pricing for Every Scale",
-    );
+    await page.goto("/pricing");
+    const pricingSection = page.getByTestId("pricing-page");
+    await expect(page.locator("h1")).toHaveText("Pricing");
     for (const tier of pricedTiers) {
       const card = pricingSection.getByTestId(`pricing-card-${tier.id}`);
       await expect(card.getByRole("heading", { name: tier.name })).toHaveCount(
@@ -63,26 +62,36 @@ test.describe("index.tsx basic render", () => {
     }
   });
 
-  test("shows no paid price amounts anywhere on the landing page", async ({
-    page,
-  }) => {
-    await page.goto("/");
-    await expect(page.getByTestId("pricing-section")).toContainText("Upcoming");
-    // Free's €0 is the one amount shown (#129).
-    const free = await page.getByTestId("pricing-card-free").textContent();
-    const text = (await page.locator("body").textContent())?.replace(
-      free ?? "",
-      "",
-    );
-    expect(text).not.toMatch(/[$€£]\s?\d/);
-    // Without prices there is nothing to switch between.
-    await expect(page.getByRole("button", { name: /annually/i })).toHaveCount(
-      0,
-    );
-  });
+  for (const path of ["/", "/pricing"]) {
+    test(`shows no paid price amounts anywhere on ${path}`, async ({
+      page,
+    }) => {
+      await page.goto(path);
+      // Free's €0 is the one amount shown (#129), on its card and in the
+      // volume slider (#141). Read text node by text node, so "€0" never
+      // runs into the "1,000" after it.
+      const text = await page.evaluate(() => {
+        const walker = document.createTreeWalker(
+          document.body,
+          NodeFilter.SHOW_TEXT,
+        );
+        const parts: string[] = [];
+        for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+          const t = n.textContent?.trim() ?? "";
+          if (t !== "€0") parts.push(t);
+        }
+        return parts.join("\n");
+      });
+      expect(text).not.toMatch(/[$€£]\s?\d/);
+      // Without prices there is nothing to switch between.
+      await expect(page.getByRole("button", { name: /annually/i })).toHaveCount(
+        0,
+      );
+    });
+  }
 
   test("shows Upcoming for the overage rates", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/pricing");
     const row = page
       .locator("#overage-pricing tr")
       .filter({ hasText: "Cost per Additional Thumbnail" });
@@ -97,7 +106,7 @@ test.describe("index.tsx basic render", () => {
       dialogs.push(dialog.message());
       await dialog.dismiss();
     });
-    await page.goto("/");
+    await page.goto("/pricing");
     for (const tier of pricedTiers) {
       const button = page
         .getByTestId(`pricing-card-${tier.id}`)
@@ -112,7 +121,7 @@ test.describe("index.tsx basic render", () => {
   test("the Free card is €0 and Start free leads to sign-in", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto("/pricing");
     const card = page.getByTestId("pricing-card-free");
     await expect(card.getByTestId("pricing-card-price")).toHaveText("€0");
     await expect(card).not.toContainText(/soon/i);
