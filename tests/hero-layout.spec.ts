@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { widestOverflow, describeOverflow } from "./overflow-helper";
 
 // The hero's text must stay inside the viewport on a phone (#134): at 390 px
 // the headline ran off the right edge ("Effortles"). #140 added the request
@@ -41,11 +42,16 @@ for (const width of WIDTHS) {
         expect(line.left, where).toBeGreaterThanOrEqual(0);
         expect(line.right, where).toBeLessThanOrEqual(width);
       }
-      // And nothing in the hero makes it scroll sideways.
+      // And nothing in the hero makes it scroll sideways. On failure, name
+      // the widest element past the hero's own right edge.
       const overflow = await hero.evaluate(
         (section) => section.scrollWidth - section.clientWidth,
       );
-      expect(overflow).toBeLessThanOrEqual(0);
+      const heroRight = await hero.evaluate(
+        (section) => section.getBoundingClientRect().right,
+      );
+      const widest = await widestOverflow(hero, heroRight);
+      expect(overflow, describeOverflow(widest)).toBeLessThanOrEqual(0);
       // Pictures stay inside too.
       for (const box of await hero
         .locator("img")
