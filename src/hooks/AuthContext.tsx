@@ -180,89 +180,81 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // `presented` is the pair the caller meant to refresh: if another tab
   // refreshed it while this one waited for the lock, adopt the stored pair
   // instead of spending the old token on a certain 401.
-  const doRefresh = useCallback(
-    async (presented?: AuthTokens): Promise<void> => {
-      const session = await withRefreshLock(async (): Promise<AuthTokens> => {
-        const tokens = readStoredTokens();
-        if (!tokens) throw new Error("No tokens in storage");
-        if (!tokens.refreshToken) throw new Error("No refresh token");
+  const doRefresh = useCallback(async (presented?: AuthTokens): Promise<void> => {
+    const session = await withRefreshLock(async (): Promise<AuthTokens> => {
+      const tokens = readStoredTokens();
+      if (!tokens) throw new Error('No tokens in storage');
+      if (!tokens.refreshToken) throw new Error('No refresh token');
 
-        if (presented && supersedes(tokens, presented)) return tokens;
+      if (presented && supersedes(tokens, presented)) return tokens;
 
-        const response = await authApi.refresh(tokens.refreshToken);
+      const response = await authApi.refresh(tokens.refreshToken);
 
-        const rotated: AuthTokens = {
-          accessToken: response.accessToken,
-          refreshToken: response.refreshToken || tokens.refreshToken,
-          expiresAt: sessionExpiresAt(response.expiresIn),
-        };
+      const rotated: AuthTokens = {
+        accessToken: response.accessToken,
+        refreshToken: response.refreshToken || tokens.refreshToken,
+        expiresAt: sessionExpiresAt(response.expiresIn),
+      };
 
-        localStorage.setItem(TOKEN_STORAGE_KEY, JSON.stringify(rotated));
-        return rotated;
-      });
+      localStorage.setItem(TOKEN_STORAGE_KEY, JSON.stringify(rotated));
+      return rotated;
+    });
 
-      setAuthState((prev) => ({
-        ...prev,
-        tokens: session,
-        user: readStoredUser() ?? prev.user,
-        isAuthenticated: true,
-        isRoleLoading: false,
-      }));
+    setAuthState(prev => ({
+      ...prev,
+      tokens: session,
+      user: readStoredUser() ?? prev.user,
+      isAuthenticated: true,
+      isRoleLoading: false,
+    }));
 
-      // Reschedule after successful refresh — scheduleRefresh is called via ref
-      // to avoid circular dependency with useCallback deps
-      scheduleRefreshRef.current(session.expiresAt);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    },
-    [],
-  );
+    // Reschedule after successful refresh — scheduleRefresh is called via ref
+    // to avoid circular dependency with useCallback deps
+    scheduleRefreshRef.current(session.expiresAt);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const scheduleRefreshRef = useRef<(expiresAt: number) => void>(() => {});
 
-  const scheduleRefresh = useCallback(
-    (expiresAt: number) => {
-      // Clear any existing timer
-      if (refreshTimerRef.current) {
-        clearTimeout(refreshTimerRef.current);
-        refreshTimerRef.current = null;
-      }
+  const scheduleRefresh = useCallback((expiresAt: number) => {
+    // Clear any existing timer
+    if (refreshTimerRef.current) {
+      clearTimeout(refreshTimerRef.current);
+      refreshTimerRef.current = null;
+    }
 
-      const BUFFER_MS = 5 * 60 * 1000; // 5 minutes before expiry
-      const delay = Math.max(expiresAt - Date.now() - BUFFER_MS, 0);
+    const BUFFER_MS = 5 * 60 * 1000; // 5 minutes before expiry
+    const delay = Math.max(expiresAt - Date.now() - BUFFER_MS, 0);
 
-      refreshTimerRef.current = setTimeout(async () => {
-        refreshTimerRef.current = null;
-        const presented = readStoredTokens() ?? undefined;
-        try {
-          await doRefresh(presented);
-        } catch (err) {
-          console.error("Proactive token refresh failed:", err);
-          if (isSpentRefreshToken(err)) {
-            const stored = presented
-              ? await waitForNewerTokens(presented)
-              : null;
-            if (stored) {
-              // Another tab refreshed first and stored a new session: use it
-              // rather than wiping it, which would log that tab out silently.
-              setAuthState((prev) => ({
-                ...prev,
-                tokens: stored,
-                user: readStoredUser() ?? prev.user,
-              }));
-              scheduleRefreshRef.current(stored.expiresAt);
-              return;
-            }
-            // Spent for good: drop the stored session, or every reload treats
-            // it as valid, retries the dead refresh and the modal loops (#79).
-            clearStoredSession();
+    refreshTimerRef.current = setTimeout(async () => {
+      refreshTimerRef.current = null;
+      const presented = readStoredTokens() ?? undefined;
+      try {
+        await doRefresh(presented);
+      } catch (err) {
+        console.error('Proactive token refresh failed:', err);
+        if (isSpentRefreshToken(err)) {
+          const stored = presented ? await waitForNewerTokens(presented) : null;
+          if (stored) {
+            // Another tab refreshed first and stored a new session: use it
+            // rather than wiping it, which would log that tab out silently.
+            setAuthState(prev => ({
+              ...prev,
+              tokens: stored,
+              user: readStoredUser() ?? prev.user,
+            }));
+            scheduleRefreshRef.current(stored.expiresAt);
+            return;
           }
-          // Per user decision: show session expired UI, do NOT silently log out
-          setSessionExpired(true);
+          // Spent for good: drop the stored session, or every reload treats
+          // it as valid, retries the dead refresh and the modal loops (#79).
+          clearStoredSession();
         }
-      }, delay);
-    },
-    [doRefresh],
-  );
+        // Per user decision: show session expired UI, do NOT silently log out
+        setSessionExpired(true);
+      }
+    }, delay);
+  }, [doRefresh]);
 
   // Keep scheduleRefreshRef in sync so doRefresh can call scheduleRefresh
   // without a circular useCallback dependency
@@ -275,31 +267,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     await doRefresh();
   }, [doRefresh]);
 
-  const fetchMe = useCallback(
-    async (accessToken: string): Promise<void> => {
-      setAuthState((prev) => ({ ...prev, isRoleLoading: true }));
-      let lastError: Error | null = null;
-      for (let attempt = 0; attempt < 2; attempt++) {
-        try {
-          const profile = await authApi.me(accessToken);
-          setAuthState((prev) => ({
-            ...prev,
-            isRoleLoading: false,
-            user: prev.user ? { ...prev.user, roles: profile.roles } : null,
-          }));
-          return;
-        } catch (err) {
-          lastError = err as Error;
-          if (attempt < 1) await new Promise((r) => setTimeout(r, 1000));
-        }
+  const fetchMe = useCallback(async (accessToken: string): Promise<void> => {
+    setAuthState(prev => ({ ...prev, isRoleLoading: true }));
+    let lastError: Error | null = null;
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const profile = await authApi.me(accessToken);
+        setAuthState(prev => ({
+          ...prev,
+          isRoleLoading: false,
+          user: prev.user
+            ? { ...prev.user, roles: profile.roles }
+            : null,
+        }));
+        return;
+      } catch (err) {
+        lastError = err as Error;
+        if (attempt < 1) await new Promise(r => setTimeout(r, 1000));
       }
-      // All retries failed — log out per user decision
-      console.error("fetchMe failed after retries:", lastError);
-      setAuthState((prev) => ({ ...prev, isRoleLoading: false }));
-      await logout();
-    },
-    [logout],
-  );
+    }
+    // All retries failed — log out per user decision
+    console.error('fetchMe failed after retries:', lastError);
+    setAuthState(prev => ({ ...prev, isRoleLoading: false }));
+    await logout();
+  }, [logout]);
 
   // The first render already holds the stored session (readStoredSession);
   // on mount, start its refresh timer and role fetch, or drop what's left of
@@ -346,15 +337,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       try {
         const newTokens: AuthTokens = JSON.parse(event.newValue);
-        setAuthState((prev) => ({ ...prev, tokens: newTokens }));
+        setAuthState(prev => ({ ...prev, tokens: newTokens }));
         scheduleRefresh(newTokens.expiresAt);
       } catch {
         // Corrupted storage entry — ignore
       }
     };
 
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, [scheduleRefresh]);
 
   const contextValue: AuthContextType = {
