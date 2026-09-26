@@ -1,0 +1,9 @@
+curl -X POST "https://pdfthumb.com/api/thumbnail/page?page=1&width=400" -H "x-api-key: $PDFTHUMB_API_KEY" -F "file=@sample.pdf" -o page-1.jpg
+# HTTP 201, Content-Type: image/jpeg
+
+curl -X POST "https://pdfthumb.com/api/thumbnail/page?page=2&width=400" -H "x-api-key: $PDFTHUMB_API_KEY" -F "file=@sample.pdf" -o page-2.jpg
+# HTTP 201, Content-Type: image/jpeg
+
+curl -X POST "https://pdfthumb.com/api/thumbnail/page?page=3&width=400" -H "x-api-key: $PDFTHUMB_API_KEY" -F "file=@sample.pdf" -o page-3.jpg
+# HTTP 201, Content-Type: image/jpeg
+

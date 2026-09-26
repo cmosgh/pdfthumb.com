@@ -1,9 +1,9 @@
 import React from "react";
 import { HOME_LINK } from "@/constants.ts";
+import HeroProof from "./HeroProof.tsx";
 import {
   ButtonLink,
   Container,
-  FramedImage,
   Heading,
   RouterButtonLink,
   RouterTextLink,
@@ -29,9 +29,14 @@ const Hero: React.FC = () => {
           , <br className="hidden sm:block" />
           Effortlessly via API
         </Heading>
-        <Text size="lead" tone="fg-muted" className="mt-6 max-w-2xl mx-auto">
-          Focus on your application's core features. Let our robust API handle
-          fast, reliable PDF thumbnail generation at scale.
+        {/* Decided wording (#140), within BE's fact-check on #144. */}
+        <Text
+          size="lead"
+          tone="fg-muted"
+          className="mt-6 max-w-2xl mx-auto text-balance"
+          data-testid="hero-subhead"
+        >
+          Hosted in Germany · your files are never kept
         </Text>
         <div className="mt-10 flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4">
           <ButtonLink href="#pricing" variant="primary" size="lg">
@@ -56,10 +61,7 @@ const Hero: React.FC = () => {
           </RouterTextLink>
         </Text>
         <div className="mt-16">
-          <FramedImage
-            src="https://picsum.photos/seed/heroimage/800/400?grayscale&blur=1"
-            alt="Abstract representation of PDF thumbnails"
-          />
+          <HeroProof />
         </div>
       </Container>
     </Section>
