@@ -5,7 +5,7 @@ import { cx } from "./cx";
 const calloutVariant = {
   // ApiKeyGeneratedDialog notice; the text inside is warning-fg.
   warning: "bg-warning-soft border border-warning-line rounded-lg",
-  // Settings API-key error and the Danger Zone row.
+  // Settings API-key error.
   danger: "bg-danger-soft border border-danger-line rounded-lg",
   // Login error (a p with role="alert"): carries its text.
   dangerCompact: "rounded-md bg-danger-soft text-sm text-danger-fg",

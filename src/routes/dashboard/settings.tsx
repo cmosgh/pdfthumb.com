@@ -171,30 +171,6 @@ function SettingsComponent() {
           </div>
         </div>
       </Card>
-
-      <Card variant="raised" className="p-6" data-testid="danger-zone-section">
-        <Heading as="h3" size="lg" weight="semibold" tone="fg" className="mb-4">
-          Danger Zone
-        </Heading>
-        <div className="space-y-4">
-          <Callout
-            variant="danger"
-            className="flex items-center justify-between p-4"
-          >
-            <div>
-              <Heading as="h4" size="sm" weight="medium" tone="danger-fg">
-                Delete Account
-              </Heading>
-              <Text size="sm" tone="danger-fg">
-                Permanently delete your account and all associated data
-              </Text>
-            </div>
-            <Button variant="dangerSoft" data-testid="delete-account-button">
-              Delete Account
-            </Button>
-          </Callout>
-        </div>
-      </Card>
     </div>
   );
 }
