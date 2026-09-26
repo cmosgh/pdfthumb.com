@@ -60,15 +60,16 @@ for (const [width, perRow] of [
   }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/pricing");
-    // Centres, not tops: the featured card is scaled up around its centre.
-    const centres = await Promise.all(
+    // Layout tops, which the featured card's scale transform doesn't move.
+    const tops = await Promise.all(
       SELF_SERVE.map((id) =>
-        page.getByTestId(`pricing-card-${id}`).evaluate((el) => {
-          const box = el.getBoundingClientRect();
-          return Math.round(box.top + box.height / 2);
-        }),
+        page
+          .getByTestId(`pricing-card-${id}`)
+          .evaluate((el) => (el as HTMLElement).offsetTop),
       ),
     );
-    expect(new Set(centres).size).toBe(perRow === 3 ? 1 : 3);
+    expect(new Set(tops).size, `card tops: ${tops.join(", ")}`).toBe(
+      perRow === 3 ? 1 : 3,
+    );
   });
 }
