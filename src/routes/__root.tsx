@@ -2,7 +2,7 @@ import {
   createRootRouteWithContext,
   Outlet,
   HeadContent,
-  useLocation,
+  useMatches,
 } from "@tanstack/react-router";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -64,10 +64,12 @@ function SessionExpiredModal() {
 function RootComponent() {
   const [theme, toggleTheme] = useTheme();
   const { sessionExpired } = useAuth();
-  const { pathname } = useLocation();
   // Dashboard routes render their own <main> next to the sidebar nav (#166):
   // the shell wraps them in a plain container instead of a second <main>.
-  const isDashboardRoute = pathname.startsWith("/dashboard");
+  // Matched by route, so a stray /dashboardx 404 keeps the shell's <main>.
+  const isDashboardRoute = useMatches({
+    select: (matches) => matches.some((m) => m.routeId === "/dashboard"),
+  });
   const OutletWrapper = isDashboardRoute ? "div" : "main";
 
   return (
