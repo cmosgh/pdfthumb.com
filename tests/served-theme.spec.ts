@@ -1,4 +1,4 @@
-import { expect, test } from "./fixtures";
+import { allowUnmocked, expect, test } from "./fixtures";
 
 // Runs only in the image smoke (.github/workflows/image.yml), against the
 // built nginx image with PLAYWRIGHT_BASE_URL on a container and SERVED_THEME
@@ -25,6 +25,10 @@ test.describe("The page nginx serves, with its runtime theme", () => {
       );
       expect(outsideTheme).not.toContain("<!--#");
 
+      // This checks the HTML nginx serves, not the app's data: whatever the
+      // app asks /api for (e.g. /dashboard/settings' key list) stays
+      // unanswered, still aborted by the fixture.
+      allowUnmocked(page, ["/api/**"]);
       await page.goto(path);
       await expect(page.locator("footer")).toBeVisible();
       await expect(page.locator("html")).toHaveAttribute("data-theme", theme!);
