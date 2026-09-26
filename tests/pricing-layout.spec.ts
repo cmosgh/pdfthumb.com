@@ -48,11 +48,13 @@ for (const width of WIDTHS) {
   });
 }
 
-// Three cards in one row from lg, one per row below it (#141).
+// Three cards in one row from lg, one per row below it (#141). Not at
+// exactly 1024: webkit on Linux draws a classic scrollbar, so its layout
+// width there is under lg (CI saw the cards stacked).
 for (const [width, perRow] of [
   [390, 1],
   [768, 1],
-  [1024, 3],
+  [1280, 3],
   [1440, 3],
 ] as const) {
   test(`${perRow} self-serve card(s) per row at ${width}px (#141)`, async ({
