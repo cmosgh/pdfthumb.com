@@ -87,8 +87,8 @@ pixel-exact.
   no scale, 16px) and `session` (`rounded-lg`, `py-2.5`): five accent
   buttons. `google` vs a neutral/outline button.
 - Marketing sizes: `sm` was unused and dropped.
-- Card: `panel` (`shadow-sm`) vs `raised` (`shadow-lg shadow-elevation/50`)
-  for cards on the same settings page; `feature` vs `pricing` (`rounded-lg`
+- Card: `panel` (`shadow-sm`) vs `raised` (`shadow-lg shadow-elevation/50`);
+  `feature` vs `pricing` (`rounded-lg`
   vs `rounded-xl`, hover shadow); `well` vs `wellOutlined` vs `band`
   (`rounded-lg` vs `rounded-xl`, border colour); `tooltip` vs `panel`.
 - Dialog: `md` and `lg` differ only in max width; `session` differs in
@@ -104,8 +104,7 @@ pixel-exact.
 - Surface: `bar` (`shadow-sm shadow-elevation`) vs `menu` (`shadow-lg`, no
   tinted shadow) vs `sidebar`.
 - Headings: `3xl` bold (dashboard h1) vs `page` bold vs `section`
-  extrabold; `lg semibold` card titles in `fg-strong` vs `fg` (settings);
-  `xl` bold vs semibold.
+  extrabold; `xl` bold vs semibold.
 - Code: `chip` has no `font-mono`, unlike `inline` and `key`.
 - Radius: NavItem and Callout use `rounded-lg` where buttons use
   `rounded-md`.
