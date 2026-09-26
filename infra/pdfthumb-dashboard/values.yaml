@@ -21,6 +21,17 @@ fullnameOverride: ""
 
 podAnnotations: {}
 
+# The runtime theme (#138, docs/theming.md): token values and a logo, picked
+# per deployment without rebuilding the image.
+theme:
+  # A theme the image ships in public/themes: "default" or "evergreen".
+  # Production stays "default".
+  name: default
+  # A custom theme as a JSON string (see public/themes/theme.schema.json).
+  # When set it wins over `name`: the chart mounts it at
+  # /etc/pdfthumb/theme.json from a ConfigMap.
+  json: ""
+
 # Pod Security Standards "restricted". nginx:alpine's nginx user is 101:101.
 podSecurityContext:
   runAsNonRoot: true
