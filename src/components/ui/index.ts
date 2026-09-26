@@ -18,7 +18,6 @@ export * from "./Table";
 export * from "./Progress";
 export * from "./Callout";
 export * from "./Input";
-export * from "./Switch";
 export * from "./Spinner";
 export * from "./Surface";
 export * from "./Divider";

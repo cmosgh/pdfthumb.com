@@ -9,7 +9,7 @@ import { maskApiKey } from "@/utils/apiKey";
 import type { ApiKey } from "@/types.ts";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/AuthContext";
-import { Button, Callout, Card, Heading, Switch, Text } from "@/components/ui";
+import { Button, Callout, Card, Heading, Text } from "@/components/ui";
 
 export const Route = createFileRoute("/dashboard/settings")({
   head: () => ({
@@ -136,41 +136,6 @@ function SettingsComponent() {
           />
         )}
       </div>
-
-      {/* Additional Settings Sections */}
-      <Card
-        variant="raised"
-        className="p-6"
-        data-testid="notification-preferences-section"
-      >
-        <Heading as="h3" size="lg" weight="semibold" tone="fg" className="mb-4">
-          Notification Preferences
-        </Heading>
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <Heading as="h4" size="sm" weight="medium" tone="fg-strong">
-                Email Notifications
-              </Heading>
-              <Text size="sm" tone="fg-muted">
-                Receive email updates about your account activity
-              </Text>
-            </div>
-            <Switch checked data-testid="email-notifications-toggle" />
-          </div>
-          <div className="flex items-center justify-between">
-            <div>
-              <Heading as="h4" size="sm" weight="medium" tone="fg-strong">
-                API Usage Alerts
-              </Heading>
-              <Text size="sm" tone="fg-muted">
-                Get notified when you approach your usage limits
-              </Text>
-            </div>
-            <Switch checked={false} data-testid="api-usage-alerts-toggle" />
-          </div>
-        </div>
-      </Card>
     </div>
   );
 }

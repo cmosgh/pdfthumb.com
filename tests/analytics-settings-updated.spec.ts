@@ -78,6 +78,19 @@ test.describe("Detailed Analytics & Settings", () => {
       await expect(page.locator("main main")).not.toContainText(/delete/i);
     });
 
+    // #165: no email is ever sent (there's no mail provider), so nothing
+    // offers email notifications or usage alerts.
+    test("offers no notification settings", async ({ page }) => {
+      await page.goto("/dashboard/settings");
+      await expect(page.getByTestId("profile-settings-section")).toBeVisible();
+      await expect(
+        page.getByTestId("notification-preferences-section"),
+      ).toHaveCount(0);
+      await expect(page.locator("main main")).not.toContainText(
+        /notification|alert/i,
+      );
+    });
+
     test("says Not provided when Google gave no name or email", async ({
       page,
     }) => {
