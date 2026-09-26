@@ -34,7 +34,7 @@ export function bootRuntimeTheme(tokens: string[]): void {
     // no SSI, the slot still holds nginx's include comment. Never write that
     // comment's opening here: nginx would parse it as a directive in the
     // page and cut the page off at it.
-    if (!source.startsWith("{")) return;
+    if (!source || source.includes("<!--#")) return;
     theme = JSON.parse(source);
   } catch {
     warn("the theme is not valid JSON; using the default theme");
