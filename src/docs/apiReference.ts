@@ -17,8 +17,34 @@ export interface RouteField {
   maximum?: number;
 }
 
+// The stable `code` on every API error body (#149), in the spec's order.
+// tests/docs-reference.spec.ts checks this list against the spec's enum.
+export type ErrorCode =
+  | "UNAUTHORIZED"
+  | "FORBIDDEN"
+  | "NO_ACTIVE_SUBSCRIPTION"
+  | "PLAN_FEATURE_REQUIRED"
+  | "MONTHLY_LIMIT_REACHED"
+  | "RATE_LIMITED"
+  | "FILE_TOO_LARGE"
+  | "PAGE_TOO_LARGE"
+  | "ZIP_PAGE_LIMIT"
+  | "INVALID_PDF"
+  | "INVALID_REQUEST"
+  | "TIMEOUT"
+  | "SERVICE_UNAVAILABLE"
+  | "INTERNAL_ERROR";
+
+export interface ErrorCodeDoc {
+  code: ErrorCode;
+  statuses: number[];
+  meaning: string;
+  action: string;
+}
+
 export interface RouteError {
   status: number;
+  codes: ErrorCode[];
   when: string;
 }
 
@@ -52,27 +78,137 @@ const WIDTH: RouteField = {
   description: `Thumbnail width in pixels, from ${minWidthPx} to ${maxWidthPx.toLocaleString("en-US")}; the height follows the page's aspect ratio. Default: 1.33 pixels per point, about 813 px wide for US Letter.`,
 };
 
+export const ERROR_CODES: ErrorCodeDoc[] = [
+  {
+    code: "UNAUTHORIZED",
+    statuses: [401],
+    meaning: "No valid API key was sent.",
+    action: "Send an active key in the x-api-key header.",
+  },
+  {
+    code: "FORBIDDEN",
+    statuses: [403],
+    meaning: "The key may not make this request.",
+    action: "Check you're using the right key.",
+  },
+  {
+    code: "NO_ACTIVE_SUBSCRIPTION",
+    statuses: [403],
+    meaning: "Your account has no active plan.",
+    action: "Choose or renew a plan in the dashboard.",
+  },
+  {
+    code: "PLAN_FEATURE_REQUIRED",
+    statuses: [403],
+    meaning:
+      "Your plan doesn't include a feature the request needs; the feature field names it.",
+    action: "Upgrade to a plan that includes it, or leave out that option.",
+  },
+  {
+    code: "MONTHLY_LIMIT_REACHED",
+    statuses: [403],
+    meaning: "A plan with a hard monthly limit has no Thumbnails left.",
+    action:
+      "Wait for the monthly reset, on the day your plan started at 00:00 UTC, or upgrade.",
+  },
+  {
+    code: "RATE_LIMITED",
+    statuses: [429],
+    meaning: "The per-minute request limit is used up.",
+    action:
+      "Wait the seconds in the retryAfterSeconds field (or the Retry-After header), then retry.",
+  },
+  {
+    code: "FILE_TOO_LARGE",
+    statuses: [413],
+    meaning: `The PDF is over your plan's maximum size (at most ${maxUploadMB} MB), given in the limitMB field.`,
+    action: "Send a smaller file.",
+  },
+  {
+    code: "PAGE_TOO_LARGE",
+    statuses: [413],
+    meaning: "A page would render too large.",
+    action: "Ask for a smaller width.",
+  },
+  {
+    code: "ZIP_PAGE_LIMIT",
+    statuses: [413],
+    meaning: "The document has more pages than your plan allows in one ZIP.",
+    action: "Render pages one at a time with /api/thumbnail/page, or upgrade.",
+  },
+  {
+    code: "INVALID_PDF",
+    statuses: [400],
+    meaning: "The file isn't a PDF, or can't be read.",
+    action: "Check the file opens in a PDF reader.",
+  },
+  {
+    code: "INVALID_REQUEST",
+    statuses: [400, 404],
+    meaning: "A bad field, a missing file, or an unknown route.",
+    action: "Fix the request; the message field says what's wrong.",
+  },
+  {
+    code: "TIMEOUT",
+    statuses: [504],
+    meaning: "Rendering didn't finish in time.",
+    action: "Retry; for a long document, render pages one at a time.",
+  },
+  {
+    code: "SERVICE_UNAVAILABLE",
+    statuses: [503],
+    meaning: "The renderer is busy.",
+    action: "Retry shortly, waiting longer after each attempt.",
+  },
+  {
+    code: "INTERNAL_ERROR",
+    statuses: [500],
+    meaning: "Something failed on our side.",
+    action: "Retry later.",
+  },
+];
+
 // Every thumbnail route shares these; each route adds its own.
-const COMMON_ERRORS: RouteError[] = [
+const AUTH_ERRORS: RouteError[] = [
   {
     status: 401,
+    codes: ["UNAUTHORIZED"],
     when: "The x-api-key header is missing or the key is invalid.",
   },
   {
     status: 403,
-    when: 'The monthly quota is used up on a plan with a hard limit ("Monthly thumbnail limit reached.").',
-  },
-  {
-    status: 413,
-    when: `The file is larger than ${maxUploadMB} MB.`,
-  },
-  {
-    status: 429,
-    when: "Too many requests this minute. The Retry-After header says how many seconds to wait.",
+    codes: ["NO_ACTIVE_SUBSCRIPTION", "MONTHLY_LIMIT_REACHED", "FORBIDDEN"],
+    when: "No active plan, the monthly Thumbnails used up on a plan with a hard limit, or the key may not make this request.",
   },
 ];
-
-const NOT_A_PDF = "The file isn't a PDF.";
+const TOO_LARGE: RouteError = {
+  status: 413,
+  codes: ["FILE_TOO_LARGE"],
+  when: `The file is over your plan's maximum size (at most ${maxUploadMB} MB).`,
+};
+const RATE_LIMITED: RouteError = {
+  status: 429,
+  codes: ["RATE_LIMITED"],
+  when: "Too many requests this minute. Retry after retryAfterSeconds, also sent as the Retry-After header.",
+};
+const INTERNAL_ERROR: RouteError = {
+  status: 500,
+  codes: ["INTERNAL_ERROR"],
+  when: "Something failed on our side.",
+};
+const RENDER_ERRORS: RouteError[] = [
+  {
+    status: 503,
+    codes: ["SERVICE_UNAVAILABLE"],
+    when: "The renderer is busy. Retry shortly.",
+  },
+  {
+    status: 504,
+    codes: ["TIMEOUT"],
+    when: "Rendering didn't finish in time.",
+  },
+];
+const NOT_A_PDF = "The file isn't a PDF, or can't be read.";
 
 export const API_ROUTES: ApiRoute[] = [
   {
@@ -100,9 +236,18 @@ export const API_ROUTES: ApiRoute[] = [
     errors: [
       {
         status: 400,
-        when: `${NOT_A_PDF} Or page is below 1 or past the last page, or width is outside ${minWidthPx}–${maxWidthPx}.`,
+        codes: ["INVALID_PDF", "INVALID_REQUEST"],
+        when: `${NOT_A_PDF} Or no file, page is below 1 or past the last page, or width is outside ${minWidthPx}–${maxWidthPx}.`,
       },
-      ...COMMON_ERRORS,
+      ...AUTH_ERRORS,
+      {
+        ...TOO_LARGE,
+        codes: ["FILE_TOO_LARGE", "PAGE_TOO_LARGE"],
+        when: `${TOO_LARGE.when} Or the page would render too large.`,
+      },
+      RATE_LIMITED,
+      INTERNAL_ERROR,
+      ...RENDER_ERRORS,
     ],
   },
   {
@@ -120,16 +265,18 @@ export const API_ROUTES: ApiRoute[] = [
     errors: [
       {
         status: 400,
-        when: `${NOT_A_PDF} Or width is outside ${minWidthPx}–${maxWidthPx}.`,
+        codes: ["INVALID_PDF", "INVALID_REQUEST"],
+        when: `${NOT_A_PDF} Or no file, or width is outside ${minWidthPx}–${maxWidthPx}.`,
       },
-      ...COMMON_ERRORS.map((error) =>
-        error.status === 413
-          ? {
-              status: 413,
-              when: `${error.when} Or the document has more pages than your plan allows in one ZIP (error "zip_page_cap_exceeded"; the message names the cap).`,
-            }
-          : error,
-      ),
+      ...AUTH_ERRORS,
+      {
+        ...TOO_LARGE,
+        codes: ["FILE_TOO_LARGE", "PAGE_TOO_LARGE", "ZIP_PAGE_LIMIT"],
+        when: `${TOO_LARGE.when} Or a page would render too large, or the document has more pages than your plan allows in one ZIP.`,
+      },
+      RATE_LIMITED,
+      INTERNAL_ERROR,
+      ...RENDER_ERRORS,
     ],
   },
   {
@@ -144,7 +291,17 @@ export const API_ROUTES: ApiRoute[] = [
       contentType: "application/json",
       description: 'The page count, e.g. {"pageCount":12}.',
     },
-    errors: [{ status: 400, when: NOT_A_PDF }, ...COMMON_ERRORS],
+    errors: [
+      {
+        status: 400,
+        codes: ["INVALID_PDF", "INVALID_REQUEST"],
+        when: `${NOT_A_PDF} Or no file.`,
+      },
+      ...AUTH_ERRORS,
+      TOO_LARGE,
+      RATE_LIMITED,
+      INTERNAL_ERROR,
+    ],
   },
 ];
 

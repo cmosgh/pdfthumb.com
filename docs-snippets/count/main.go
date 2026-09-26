@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"mime/multipart"
 	"net/http"
 	"os"
@@ -37,13 +38,26 @@ func main() {
 		panic(err)
 	}
 	defer resp.Body.Close()
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		panic(err)
+	}
 	if resp.StatusCode != http.StatusCreated {
-		panic(fmt.Sprintf("status %d", resp.StatusCode))
+		var apiErr struct {
+			Code              string `json:"code"`
+			Message           string `json:"message"`
+			RetryAfterSeconds int    `json:"retryAfterSeconds"`
+		}
+		json.Unmarshal(data, &apiErr)
+		if apiErr.Code == "RATE_LIMITED" {
+			panic(fmt.Sprintf("rate limited: retry in %d s", apiErr.RetryAfterSeconds))
+		}
+		panic(fmt.Sprintf("%d %s: %s", resp.StatusCode, apiErr.Code, apiErr.Message))
 	}
 	var result struct {
 		PageCount int `json:"pageCount"`
 	}
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+	if err := json.Unmarshal(data, &result); err != nil {
 		panic(err)
 	}
 	fmt.Println(result.PageCount)

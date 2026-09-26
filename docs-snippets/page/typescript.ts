@@ -17,6 +17,14 @@ const response = await fetch(
   },
 );
 if (!response.ok) {
-  throw new Error(`${response.status}: ${await response.text()}`);
+  const error = (await response.json()) as {
+    code: string;
+    message: string;
+    retryAfterSeconds?: number;
+  };
+  if (error.code === "RATE_LIMITED") {
+    throw new Error(`Rate limited: retry in ${error.retryAfterSeconds} s`);
+  }
+  throw new Error(`${response.status} ${error.code}: ${error.message}`);
 }
 await writeFile("page-1.jpg", Buffer.from(await response.arrayBuffer()));

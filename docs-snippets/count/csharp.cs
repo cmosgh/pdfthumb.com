@@ -12,6 +12,15 @@ form.Add(pdf, "file", "document.pdf");
 
 using var response = await client.PostAsync(
     "https://pdfthumb.com/api/thumbnail/count", form);
-response.EnsureSuccessStatusCode();
 using var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+if (!response.IsSuccessStatusCode)
+{
+    var error = json.RootElement;
+    var code = error.GetProperty("code").GetString();
+    if (code == "RATE_LIMITED")
+    {
+        throw new Exception($"Rate limited: retry in {error.GetProperty("retryAfterSeconds").GetInt32()} s");
+    }
+    throw new Exception($"{(int)response.StatusCode} {code}: {error.GetProperty("message").GetString()}");
+}
 Console.WriteLine(json.RootElement.GetProperty("pageCount").GetInt32());

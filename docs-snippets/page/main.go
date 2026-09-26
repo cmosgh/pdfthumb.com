@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -42,7 +43,16 @@ func main() {
 		panic(err)
 	}
 	if resp.StatusCode != http.StatusCreated {
-		panic(fmt.Sprintf("%d: %s", resp.StatusCode, data))
+		var apiErr struct {
+			Code              string `json:"code"`
+			Message           string `json:"message"`
+			RetryAfterSeconds int    `json:"retryAfterSeconds"`
+		}
+		json.Unmarshal(data, &apiErr)
+		if apiErr.Code == "RATE_LIMITED" {
+			panic(fmt.Sprintf("rate limited: retry in %d s", apiErr.RetryAfterSeconds))
+		}
+		panic(fmt.Sprintf("%d %s: %s", resp.StatusCode, apiErr.Code, apiErr.Message))
 	}
 	if err := os.WriteFile("page-1.jpg", data, 0o644); err != nil {
 		panic(err)

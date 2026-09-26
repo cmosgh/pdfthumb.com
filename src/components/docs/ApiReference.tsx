@@ -141,7 +141,14 @@ const RouteReference: React.FC<RouteReferenceProps> = ({
     >
       {route.errors.map((error) => (
         <li key={error.status}>
-          <Code>{error.status}</Code>: {error.when}
+          <Code>{error.status}</Code>{" "}
+          {error.codes.map((code, i) => (
+            <React.Fragment key={code}>
+              {i > 0 && ", "}
+              <Code>{code}</Code>
+            </React.Fragment>
+          ))}
+          : {error.when}
         </li>
       ))}
     </Text>

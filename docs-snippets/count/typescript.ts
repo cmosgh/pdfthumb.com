@@ -14,7 +14,15 @@ const response = await fetch("https://pdfthumb.com/api/thumbnail/count", {
   body: form,
 });
 if (!response.ok) {
-  throw new Error(`${response.status}: ${await response.text()}`);
+  const error = (await response.json()) as {
+    code: string;
+    message: string;
+    retryAfterSeconds?: number;
+  };
+  if (error.code === "RATE_LIMITED") {
+    throw new Error(`Rate limited: retry in ${error.retryAfterSeconds} s`);
+  }
+  throw new Error(`${response.status} ${error.code}: ${error.message}`);
 }
 const { pageCount } = (await response.json()) as { pageCount: number };
 console.log(pageCount);

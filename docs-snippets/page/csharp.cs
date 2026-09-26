@@ -1,4 +1,5 @@
 using System.Net.Http.Headers;
+using System.Text.Json;
 
 using var client = new HttpClient();
 client.DefaultRequestHeaders.Add(
@@ -11,5 +12,14 @@ form.Add(pdf, "file", "document.pdf");
 
 using var response = await client.PostAsync(
     "https://pdfthumb.com/api/thumbnail/page?page=1&width=400", form);
-response.EnsureSuccessStatusCode();
+if (!response.IsSuccessStatusCode)
+{
+    var error = JsonDocument.Parse(await response.Content.ReadAsStringAsync()).RootElement;
+    var code = error.GetProperty("code").GetString();
+    if (code == "RATE_LIMITED")
+    {
+        throw new Exception($"Rate limited: retry in {error.GetProperty("retryAfterSeconds").GetInt32()} s");
+    }
+    throw new Exception($"{(int)response.StatusCode} {code}: {error.GetProperty("message").GetString()}");
+}
 await File.WriteAllBytesAsync("page-1.jpg", await response.Content.ReadAsByteArrayAsync());
