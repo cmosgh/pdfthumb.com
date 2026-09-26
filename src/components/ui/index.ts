@@ -26,3 +26,4 @@ export * from "./NavItem";
 export * from "./IconTile";
 export * from "./CheckList";
 export * from "./BarChart";
+export * from "./Frame";

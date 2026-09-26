@@ -1,6 +1,6 @@
 import React from "react";
 import { pageThumbnailCurl } from "../utils/curl";
-import { Card, CodeBlock, Text } from "./ui";
+import { Card, CodeBlock, FramedImage, Text } from "./ui";
 import page1 from "../assets/hero-proof/page-1.jpg";
 import page2 from "../assets/hero-proof/page-2.jpg";
 import page3 from "../assets/hero-proof/page-3.jpg";
@@ -21,7 +21,7 @@ const HeroProof: React.FC = () => (
   >
     <div className="min-w-0">
       <Text size="sm" weight="semibold" tone="fg-subtle" className="mb-2">
-        Request
+        Request for page 1
       </Text>
       <CodeBlock
         data-testid="hero-request"
@@ -37,12 +37,12 @@ const HeroProof: React.FC = () => (
       <ul className="grid grid-cols-3 gap-3" data-testid="hero-thumbnails">
         {THUMBNAILS.map(({ src, title }, i) => (
           <li key={src}>
-            <img
+            <FramedImage
               src={src}
               width={400}
               height={566}
               alt={`Page ${i + 1} of the sample PDF: ${title}`}
-              className="w-full h-auto rounded border border-line shadow-sm"
+              className="w-full h-auto"
             />
           </li>
         ))}
