@@ -1,9 +1,0 @@
-# The runtime theme's name (#138, docs/theming.md). The nginx image's
-# entrypoint renders this with envsubst at container start, into
-# /var/cache/nginx/theme.conf (NGINX_ENVSUBST_* in the Dockerfile): the root
-# filesystem is read-only, and /var/cache/nginx is the writable emptyDir.
-# A name that isn't lowercase letters, digits and dashes selects "default".
-map "${PDFTHUMB_THEME}" $pdfthumb_theme {
-  default default;
-  "~^[a-z0-9-]+$" "${PDFTHUMB_THEME}";
-}

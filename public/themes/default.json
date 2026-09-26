@@ -1,6 +1,0 @@
-{
-  "$schema": "./theme.schema.json",
-  "name": "default",
-  "light": {},
-  "dark": {}
-}
