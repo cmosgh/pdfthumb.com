@@ -111,7 +111,11 @@ test.describe("Runtime themes", () => {
       "background-color",
       await rgb(page, evergreen.light.page),
     );
-    await expect(body).toHaveCSS("font-family", evergreen.light["font-sans"]);
+    // WebKit drops the quotes around a family name when it serializes.
+    const unquoted = (families: string) => families.replaceAll('"', "");
+    expect(
+      unquoted(await body.evaluate((el) => getComputedStyle(el).fontFamily)),
+    ).toBe(unquoted(evergreen.light["font-sans"]));
     await expect(navLogo(page)).toHaveAttribute("src", evergreen.logo.light);
   });
 
