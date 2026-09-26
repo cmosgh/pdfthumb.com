@@ -1,7 +1,7 @@
 import React from "react";
 import { useLocation } from "@tanstack/react-router";
 import { useAuth } from "../../hooks/AuthContext";
-import { ChartBarIcon, Cog6ToothIcon } from "../icons";
+import { ChartBarIcon, Cog6ToothIcon, HomeIcon } from "../icons";
 import { Heading, NavSkeleton, RouterNavItem, Surface } from "@/components/ui";
 
 export const DashboardSidebar: React.FC = () => {
@@ -10,7 +10,8 @@ export const DashboardSidebar: React.FC = () => {
   const isAdmin = user?.roles?.includes("ADMIN") ?? false;
 
   const navItems = [
-    { path: "/dashboard/overview", label: "Overview", icon: ChartBarIcon },
+    { path: "/dashboard/overview", label: "Overview", icon: HomeIcon },
+    { path: "/dashboard/usage", label: "Usage", icon: ChartBarIcon },
     { path: "/dashboard/settings", label: "Settings", icon: Cog6ToothIcon },
   ];
 
