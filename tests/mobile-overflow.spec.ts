@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { widestOverflow, describeOverflow } from "./overflow-helper";
 
 // How far the page is wider than the viewport, in px
 const overflow = (page: Page) =>
@@ -29,10 +30,16 @@ for (const width of WIDTHS) {
         page.locator("main").getByRole("heading").first(),
       ).toBeVisible();
       // Checked in whichever font shows first (often the wider fallback),
-      // then again once the web font has loaded.
-      expect(await overflow(page)).toBeLessThanOrEqual(0);
+      // then again once the web font has loaded. On failure, name the
+      // widest element past the edge rather than just the pixel count.
+      const assertFits = async () => {
+        const amount = await overflow(page);
+        const widest = await widestOverflow(page.locator("html"), width);
+        expect(amount, describeOverflow(widest)).toBeLessThanOrEqual(0);
+      };
+      await assertFits();
       await page.evaluate(() => document.fonts.ready);
-      expect(await overflow(page)).toBeLessThanOrEqual(0);
+      await assertFits();
     });
   }
 }
