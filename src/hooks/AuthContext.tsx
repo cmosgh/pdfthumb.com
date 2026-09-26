@@ -40,6 +40,26 @@ const readStored = <T,>(key: string): T | null => {
 const readStoredTokens = () => readStored<AuthTokens>(TOKEN_STORAGE_KEY);
 const readStoredUser = () => readStored<User>(USER_STORAGE_KEY);
 
+const SIGNED_OUT: AuthState = {
+  user: null,
+  tokens: null,
+  isAuthenticated: false,
+  isLoading: false,
+  isRoleLoading: false,
+};
+
+// Read synchronously, so the first render, and the router guards' first
+// beforeLoad, see the stored session instead of a logged-out placeholder
+// (#150). An access token within a minute of expiry counts as none.
+const readStoredSession = (): AuthState => {
+  const tokens = readStoredTokens();
+  const user = readStoredUser();
+  if (!tokens || !user || !(tokens.expiresAt > Date.now() + 60000)) {
+    return SIGNED_OUT;
+  }
+  return { ...SIGNED_OUT, user, tokens, isAuthenticated: true };
+};
+
 // Another tab refreshed since `presented` was read: a rotated token, or the
 // same token with a later expiry.
 const supersedes = (stored: AuthTokens, presented: AuthTokens) =>
@@ -98,13 +118,7 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [authState, setAuthState] = useState<AuthState>({
-    user: null,
-    tokens: null,
-    isAuthenticated: false,
-    isLoading: true,
-    isRoleLoading: false,
-  });
+  const [authState, setAuthState] = useState<AuthState>(readStoredSession);
 
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [sessionExpired, setSessionExpired] = useState(false);
@@ -282,59 +296,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     await logout();
   }, [logout]);
 
-  // Load auth state from localStorage on mount
+  // The first render already holds the stored session (readStoredSession);
+  // on mount, start its refresh timer and role fetch, or drop what's left of
+  // an expired or corrupt one.
   useEffect(() => {
-    const loadAuthState = () => {
-      try {
-        const tokensJson = localStorage.getItem(TOKEN_STORAGE_KEY);
-        const userJson = localStorage.getItem(USER_STORAGE_KEY);
-
-        if (tokensJson && userJson) {
-          const tokens: AuthTokens = JSON.parse(tokensJson);
-          const user: User = JSON.parse(userJson);
-
-          // Check if access token is still valid (with 1 minute buffer)
-          if (tokens.expiresAt > Date.now() + 60000) {
-            setAuthState({
-              user,
-              tokens,
-              isAuthenticated: true,
-              isLoading: false,
-              isRoleLoading: false,
-            });
-            // Schedule proactive refresh before token expires
-            scheduleRefresh(tokens.expiresAt);
-            // Fire fetchMe async to restore roles — do not await in effect
-            fetchMe(tokens.accessToken);
-          } else {
-            // Token expired or about to expire, clear it
-            clearStoredSession();
-            setAuthState({
-              user: null,
-              tokens: null,
-              isAuthenticated: false,
-              isLoading: false,
-              isRoleLoading: false,
-            });
-          }
-        } else {
-          setAuthState((prev) => ({ ...prev, isLoading: false }));
-        }
-      } catch (error) {
-        console.error("Error loading auth state:", error);
-        // Clear potentially corrupted data
-        clearStoredSession();
-        setAuthState({
-          user: null,
-          tokens: null,
-          isAuthenticated: false,
-          isLoading: false,
-          isRoleLoading: false,
-        });
-      }
-    };
-
-    loadAuthState();
+    const { tokens } = readStoredSession();
+    if (tokens) {
+      scheduleRefresh(tokens.expiresAt);
+      // Fire fetchMe async to restore roles — do not await in effect
+      fetchMe(tokens.accessToken);
+    } else {
+      clearStoredSession();
+    }
   }, [fetchMe, scheduleRefresh]);
 
   // Cleanup timer on unmount
