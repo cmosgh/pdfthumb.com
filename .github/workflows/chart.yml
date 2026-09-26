@@ -41,5 +41,22 @@ jobs:
           --set image.tag="$GITHUB_SHA"
           --set image.digest=sha256:0000000000000000000000000000000000000000000000000000000000000000
           > /dev/null
+      # Runtime themes (#138): a shipped theme by name, or a custom one from
+      # a ConfigMap; a malformed one fails the render.
+      - name: Render with a runtime theme
+        run: |
+          set -euo pipefail
+          render() { helm template pdfthumb-dashboard "$CHART_DIR" -n "$NAMESPACE" "$@"; }
+          out="$(render --set theme.name=evergreen)"
+          grep -q 'value: "evergreen"' <<<"$out" || { echo "::error::PDFTHUMB_THEME not set"; exit 1; }
+          printf 'theme:\n  json: |\n    {"name": "acme", "light": {"accent": "#c2410c"}}\n' > "$RUNNER_TEMP/theme.yaml"
+          out="$(render -f "$RUNNER_TEMP/theme.yaml")"
+          grep -q 'mountPath: /etc/pdfthumb' <<<"$out" || { echo "::error::custom theme not mounted"; exit 1; }
+          for bad in 'theme.name=../x' 'theme.json=[1]' 'theme.json={"a": "</script>"}'; do
+            if render --set-string "$bad" > /dev/null 2>&1; then
+              echo "::error::rendered with $bad"; exit 1
+            fi
+          done
+          echo "theme values render and bad ones fail"
       - name: Assert the pod meets Pod Security "restricted"
         run: '"$CHART_DIR/assert-security-context.sh"'

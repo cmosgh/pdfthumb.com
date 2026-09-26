@@ -28,6 +28,14 @@
       })();
     </script>
 
+    <!-- The deployment's runtime theme (#138, docs/theming.md): nginx fills
+         this through SSI, and the boot script below applies it before the
+         body is parsed. -->
+    <script type="application/json" id="pt-theme">
+      <!--# include virtual="/theme.json" -->
+    </script>
+    <!-- pt-theme-boot -->
+
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body class="bg-page text-fg antialiased">
