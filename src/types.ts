@@ -33,7 +33,8 @@ export interface FeatureItem {
 }
 
 export interface ChartDataPoint {
-  [key: string]: string | number;
+  // null: no value that day (e.g. no response times without requests)
+  [key: string]: string | number | null;
   date: string;
 }
 
@@ -41,7 +42,7 @@ export interface TooltipProps {
   active?: boolean;
   payload?: Array<{
     name: string;
-    value: number;
+    value: number | null;
     color: string;
   }>;
   label?: string;

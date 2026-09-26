@@ -1,12 +1,9 @@
 import React from "react";
-import { useQuery } from "@tanstack/react-query";
-import { analyticsApi } from "@/api";
-import { useAuth } from "@/hooks/AuthContext";
-import { BarChart, Card, Heading, Text, type BarSeries } from "@/components/ui";
-import { formatDay, toDailyRequests } from "@/utils/requestsPerDay";
+import { Card, Heading, Text, type BarSeries } from "@/components/ui";
+import { useAnalyticsSummary } from "@/hooks/useUsage";
+import { rangeLabel, toDailyRequests } from "@/utils/requestsPerDay";
 import { count } from "@/utils/format";
-
-const DAYS = 30;
+import { DailyChart } from "./DailyChart";
 
 const SERIES: BarSeries[] = [
   { key: "successful", name: "Successful", color: "chart-1" },
@@ -15,19 +12,13 @@ const SERIES: BarSeries[] = [
 
 // Requests to the thumbnail routes per day, successful vs failed (#119).
 // A ZIP counts as one request, so these are requests, not Thumbnails.
-export const RequestsPerDay: React.FC = () => {
-  const { tokens } = useAuth();
-  const accessToken = tokens?.accessToken;
-  const { data, isPending, isError } = useQuery({
-    queryKey: ["analytics-summary", DAYS, accessToken],
-    queryFn: () => analyticsApi.getSummary(DAYS, accessToken),
-    enabled: !!accessToken,
-    retry: 1,
-  });
+export const RequestsPerDay: React.FC<{ days?: number }> = ({ days = 30 }) => {
+  const { data, isPending, isError } = useAnalyticsSummary(days);
 
-  const days = data ? toDailyRequests(data.dailyBuckets, DAYS) : [];
-  const successful = days.reduce((sum, d) => sum + d.successful, 0);
-  const failed = days.reduce((sum, d) => sum + d.failed, 0);
+  const perDay = data ? toDailyRequests(data.dailyBuckets, days) : [];
+  const successful = perDay.reduce((sum, d) => sum + d.successful, 0);
+  const failed = perDay.reduce((sum, d) => sum + d.failed, 0);
+  const range = rangeLabel(days);
 
   return (
     <Card
@@ -63,31 +54,15 @@ export const RequestsPerDay: React.FC = () => {
             data-testid="requests-total"
           >
             {successful + failed === 0
-              ? `No requests in the last ${DAYS} days.`
-              : `${count(successful + failed)} requests in the last ${DAYS} days: ${count(successful)} successful, ${count(failed)} failed`}
+              ? `No requests in the last ${range}.`
+              : `${count(successful + failed)} requests in the last ${range}: ${count(successful)} successful, ${count(failed)} failed`}
           </Text>
-          <div aria-hidden="true">
-            <BarChart data={days} series={SERIES} stacked />
-          </div>
-          <table className="sr-only">
-            <caption>Requests per day, last {DAYS} days (UTC)</caption>
-            <thead>
-              <tr>
-                <th scope="col">Day</th>
-                <th scope="col">Successful</th>
-                <th scope="col">Failed</th>
-              </tr>
-            </thead>
-            <tbody>
-              {days.map((d) => (
-                <tr key={d.date}>
-                  <th scope="row">{formatDay(d.date)}</th>
-                  <td>{count(d.successful)}</td>
-                  <td>{count(d.failed)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <DailyChart
+            data={perDay}
+            series={SERIES}
+            stacked
+            caption={`Requests per day, last ${range} (UTC)`}
+          />
         </>
       )}
     </Card>

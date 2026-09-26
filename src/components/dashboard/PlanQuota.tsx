@@ -1,7 +1,6 @@
 import React from "react";
-import { useQuery } from "@tanstack/react-query";
-import { subscriptionApi } from "@/api";
-import { useAuth } from "@/hooks/AuthContext";
+import type { Subscription } from "@/api";
+import { useSubscription } from "@/hooks/useUsage";
 import { count, dayMonth } from "@/utils/format";
 import { Card, Heading, Progress, RouterTextLink, Text } from "@/components/ui";
 
@@ -9,19 +8,11 @@ const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 // The plan, the Thumbnails used of its monthly quota, and when the quota
 // resets (#119). The reset is the API's currentPeriodEnd, never worked out
-// here.
-export const PlanQuota: React.FC = () => {
-  const { tokens, user } = useAuth();
-  const accessToken = tokens?.accessToken;
-  const userId = user?.id;
-  const { data, isPending, isError } = useQuery({
-    queryKey: ["subscription", userId, accessToken],
-    queryFn: () => subscriptionApi.getSubscription(userId!, accessToken),
-    enabled: !!accessToken && !!userId,
-    // On load and on focus, at most about once a minute
-    staleTime: 60_000,
-    retry: 1,
-  });
+// here. With `overage`, also the overage so far and projected (#120).
+export const PlanQuota: React.FC<{ overage?: boolean }> = ({
+  overage = false,
+}) => {
+  const { data, isPending, isError } = useSubscription();
 
   let body: React.ReactNode;
   if (isError) {
@@ -83,6 +74,17 @@ export const PlanQuota: React.FC = () => {
             ? "Hard limit: requests past the quota are refused until it resets."
             : "Past the quota, each Thumbnail is billed as overage."}
         </Text>
+        {/* A hard limit has no overage; the line above says so */}
+        {overage && !isHardLimit && (
+          <Text
+            size="sm"
+            tone="fg-caption"
+            className="mt-1"
+            data-testid="overage"
+          >
+            {overageText(data)}
+          </Text>
+        )}
       </>
     );
   }
@@ -108,3 +110,23 @@ export const PlanQuota: React.FC = () => {
     </Card>
   );
 };
+
+// Thumbnails past the quota so far, and where this period's pace would take
+// them by the reset. Billing doesn't charge overage yet.
+function overageText({
+  subscriptionType: { monthlyThumbnailLimit: limit },
+  currentMonthlyUsage: used,
+  currentPeriodStart,
+  currentPeriodEnd,
+}: Subscription) {
+  const start = new Date(currentPeriodStart).getTime();
+  const end = new Date(currentPeriodEnd);
+  const elapsed = Date.now() - start;
+  const projected =
+    elapsed > 0 ? Math.round((used * (end.getTime() - start)) / elapsed) : used;
+  const soFar = Math.max(0, used - limit);
+  const byReset = Math.max(soFar, projected - limit);
+  if (byReset === 0)
+    return `No overage so far, and none expected by ${dayMonth(end)} at this pace.`;
+  return `Overage: ${count(soFar)} Thumbnails so far, about ${count(byReset)} by ${dayMonth(end)} at this pace. Billing isn't live yet, so nothing is charged.`;
+}

@@ -247,7 +247,11 @@ function DocsPage() {
             </THead>
             <TBody>
               {ERROR_CODES.map((error) => (
-                <tr key={error.code}>
+                <tr
+                  key={error.code}
+                  id={`error-${error.code}`}
+                  className="scroll-mt-24"
+                >
                   <Td tone="fg-muted" className="align-top">
                     <Code>{error.code}</Code>
                   </Td>

@@ -106,6 +106,8 @@ export interface TdProps extends React.TdHTMLAttributes<HTMLTableCellElement> {
   text?: boolean;
   tone?: TextTone;
   weight?: "medium";
+  // A <th scope="row"> styled as a body cell: the row's name
+  rowHeader?: boolean;
 }
 
 // Body cells. whitespace-*, alignment and vertical alignment come from
@@ -114,16 +116,19 @@ export const Td: React.FC<TdProps> = ({
   text = true,
   tone,
   weight,
+  rowHeader = false,
   className,
   ...rest
 }) => {
   const density = useContext(DensityContext);
+  const Cell = rowHeader ? "th" : "td";
   return (
-    <td
+    <Cell
+      scope={rowHeader ? "row" : undefined}
       className={cx(
         tdDensity[density],
         text && "text-sm",
-        weight === "medium" && "font-medium",
+        weight === "medium" ? "font-medium" : rowHeader && "font-normal",
         tone && textTone[tone],
         className,
       )}

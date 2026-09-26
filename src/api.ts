@@ -155,24 +155,57 @@ export const apiKeysApi = {
 };
 
 // One day of the caller's requests to the thumbnail routes: the date as
-// YYYY-MM-DD (UTC) and the counts as numbers (BE #350).
+// YYYY-MM-DD (UTC) and the counts as numbers (BE #350). The percentiles come
+// only with Pro Analytics.
 export interface AnalyticsDailyBucket {
   date: string;
   call_count: number;
   error_count: number;
+  // Thumbnails rendered, by page requests and by ZIPs
+  thumbnails_page?: number;
+  thumbnails_zip?: number;
+  p50_duration_ms?: number | null;
+  p95_duration_ms?: number | null;
 }
+
+export interface AnalyticsSummary {
+  // Oldest first; days without requests are missing
+  dailyBuckets: AnalyticsDailyBucket[];
+  // Busiest first; a null key is a request sent without one
+  byApiKey?: {
+    apiKeyId: string | null;
+    requests: number;
+    failures: number;
+    lastUsedAt: string;
+  }[];
+  // Most frequent first; a null code was never recorded
+  failuresByCode?: { code: string | null; count: number }[];
+}
+
+// The plan capability behind percentiles, history past 30 days and the CSV
+export const ANALYTICS_PRO = "analytics_pro";
 
 // API functions for usage analytics
 export const analyticsApi = {
-  // Requests per day over the last `days` days; days without requests are
-  // missing
+  // Usage over the last `days` days (past 30 needs Pro Analytics)
   async getSummary(days: number, token?: string) {
     const response = await fetch(
       `${API_BASE_URL}/analytics/summary?days=${days}`,
       { headers: getHeaders(token) },
     );
     if (!response.ok) throw new Error("Failed to fetch analytics summary");
-    return response.json() as Promise<{ dailyBuckets: AnalyticsDailyBucket[] }>;
+    return response.json() as Promise<AnalyticsSummary>;
+  },
+
+  // The same usage as CSV, Pro Analytics only. It needs the bearer header,
+  // so it's fetched rather than linked.
+  async exportCsv(days: number, token?: string) {
+    const response = await fetch(
+      `${API_BASE_URL}/analytics/export.csv?days=${days}`,
+      { headers: getHeaders(token) },
+    );
+    if (!response.ok) throw new Error("Failed to export analytics");
+    return response.blob();
   },
 };
 
@@ -180,12 +213,15 @@ export const analyticsApi = {
 // returns overusageCostPerThumbnail; prices aren't public, so it's left out.
 export interface Subscription {
   currentMonthlyUsage: number;
+  // ISO, 00:00 UTC: when the period started
+  currentPeriodStart: string;
   // ISO, exclusive, 00:00 UTC: when the quota resets
   currentPeriodEnd: string;
   subscriptionType: {
     name: string;
     monthlyThumbnailLimit: number;
     isHardLimit: boolean;
+    features?: string[];
   };
 }
 

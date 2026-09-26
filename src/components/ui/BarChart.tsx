@@ -46,7 +46,7 @@ const ChartTooltip = ({ active, payload, label }: TooltipProps) => {
       {payload.map((entry, index) => (
         <Text key={index} size="sm" tone="fg-muted">
           <Dot color={entry.color} className="mr-2" />
-          {entry.name}: {entry.value.toLocaleString("en-US")}
+          {entry.name}: {entry.value?.toLocaleString("en-US") ?? "none"}
         </Text>
       ))}
     </Card>

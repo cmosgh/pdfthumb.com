@@ -82,7 +82,8 @@ test.describe("Dashboard Navigation", () => {
     // Check if sidebar navigation links are present
     await expect(page.locator('aside a:has-text("Overview")')).toBeVisible();
     await expect(page.locator('aside a:has-text("Settings")')).toBeVisible();
-    // Analytics showed invented data; it's hidden until the rework (#112).
+    await expect(page.locator('aside a:has-text("Usage")')).toBeVisible();
+    // Analytics showed invented data (#112); Usage replaced it (#120).
     await expect(page.locator('aside a:has-text("Analytics")')).toHaveCount(0);
   });
 
@@ -257,13 +258,6 @@ test.describe("Dashboard Navigation", () => {
       "Your plan couldn't be loaded. Try again later.",
     );
     await expect(page.getByTestId("plan-quota-summary")).toHaveCount(0);
-  });
-
-  test("the Analytics URL leads back to the overview", async ({ page }) => {
-    await page.goto("/dashboard/analytics");
-    await expect(page).toHaveURL(/\/dashboard\/overview$/);
-    await expect(page.locator('h1:text("Dashboard Overview")')).toBeVisible();
-    await expect(page.getByTestId("usage-by-file-type-chart")).toHaveCount(0);
   });
 
   test("should be responsive on mobile", async ({ page }) => {
