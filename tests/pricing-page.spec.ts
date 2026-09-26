@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { describeOverflow, widestOverflow } from "./overflow-helper";
 
 // Pricing on its own page (#141): Free, Basic and Pro as self-serve cards,
 // Enterprise and On-prem in a band below them, a volume slider that names
@@ -254,7 +255,10 @@ for (const width of WIDTHS) {
       const overflow = await page.evaluate(
         () => document.documentElement.scrollWidth - window.innerWidth,
       );
-      expect(overflow).toBeLessThanOrEqual(0);
+      expect(
+        overflow,
+        describeOverflow(await widestOverflow(page.locator("html"), width)),
+      ).toBeLessThanOrEqual(0);
       for (const testId of [
         "volume-slider",
         "volume-result",
