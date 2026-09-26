@@ -1,3 +1,5 @@
+> **Archived (2026-09-26).** This frontend now lives in the private monorepo `cmosgh/pdfthumb` under `apps/web`, with this repository's full history. Issue references in the imported history point back here as `cmosgh/pdfthumb.com#N`. Open issues were transferred (#89 → cmosgh/pdfthumb#417, #176 → cmosgh/pdfthumb#418).
+
 # PDFThumb.com - PDF Thumbnail API
 
 This repository contains the source code for PDFThumb.com, a web application for a PDF Thumbnail API service. It provides a simple and efficient way to generate thumbnails from your PDF documents.
