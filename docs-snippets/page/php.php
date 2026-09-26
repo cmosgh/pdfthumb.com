@@ -14,6 +14,10 @@ if ($body === false) {
 }
 $status = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
 if ($status !== 201) {
-    throw new RuntimeException("$status: $body");
+    $error = json_decode($body, true);
+    if (($error['code'] ?? null) === "RATE_LIMITED") {
+        throw new RuntimeException("Rate limited: retry in {$error['retryAfterSeconds']} s");
+    }
+    throw new RuntimeException("$status {$error['code']}: {$error['message']}");
 }
 file_put_contents('page-1.jpg', $body);

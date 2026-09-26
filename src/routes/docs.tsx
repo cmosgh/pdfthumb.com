@@ -6,6 +6,7 @@ import {
   SWAGGER_URL,
 } from "../constants";
 import ApiReference from "../components/docs/ApiReference";
+import { ERROR_CODES } from "../docs/apiReference";
 import {
   buttonClasses,
   cx,
@@ -14,8 +15,14 @@ import {
   Container,
   Heading,
   RouterTextLink,
+  Table,
+  TableFrame,
+  TBody,
+  Td,
   Text,
   TextLink,
+  Th,
+  THead,
 } from "../components/ui";
 
 export const Route = createFileRoute("/docs")({
@@ -187,38 +194,77 @@ function DocsPage() {
           Limits and errors
         </Heading>
         <Text as="ul" list="disc" tone="fg-muted" className="pl-6 space-y-3">
-          <li>
-            A missing or invalid key gets <Code>401 Unauthorized</Code>.
-          </li>
-          <li>
-            PDFs up to {maxUploadMB} MB. A larger upload gets{" "}
-            <Code>413 Payload Too Large</Code>.
-          </li>
+          <li>PDFs up to {maxUploadMB} MB, depending on your plan.</li>
           <li>
             <Code>width</Code> is a whole number of pixels from{" "}
             {minWidthPx.toLocaleString("en-US")} to{" "}
-            {maxWidthPx.toLocaleString("en-US")}. Anything else gets{" "}
-            <Code>400 Bad Request</Code>, as do a file that isn't a PDF and a
-            page number past the end of the document.
+            {maxWidthPx.toLocaleString("en-US")}.
           </li>
           <li>
             Each plan includes a monthly number of Thumbnails (see{" "}
             <TextLink href="/#pricing" tone="underline">
               pricing
             </TextLink>
-            ) and caps the pages in one ZIP: a larger document gets{" "}
-            <Code>413 Payload Too Large</Code>, with a message naming the cap.
-            When a plan with a hard monthly limit runs out, requests get{" "}
-            <Code>403 Forbidden</Code> with{" "}
-            <Code>Monthly thumbnail limit reached.</Code> The quota resets
-            monthly, on the day your plan started, at 00:00 UTC.
+            ) and caps the pages in one ZIP. The quota resets monthly, on the
+            day your plan started, at 00:00 UTC.
           </li>
           <li>
             Requests are rate-limited per minute. Past the limit you get{" "}
-            <Code>429 Too Many Requests</Code> with a <Code>Retry-After</Code>{" "}
-            header saying how many seconds to wait.
+            <Code>429</Code> with a <Code>Retry-After</Code> header saying how
+            many seconds to wait.
           </li>
         </Text>
+
+        <Heading
+          as="h3"
+          size="xl"
+          weight="bold"
+          tone="heading"
+          className="mt-8 mb-4"
+        >
+          Error codes
+        </Heading>
+        <Text tone="fg-muted" className="mb-4">
+          Every error is JSON with <Code>statusCode</Code>, a human-readable{" "}
+          <Code>message</Code> and a stable <Code>code</Code>. Branch on{" "}
+          <Code>code</Code>, not on the message, whose words may change. Some
+          codes carry an extra field: <Code>retryAfterSeconds</Code>,{" "}
+          <Code>limitMB</Code> or <Code>feature</Code>.
+        </Text>
+        <Text tone="fg-muted" className="mb-4">
+          New codes may be added. A code isn&apos;t renamed or removed without
+          notice. Treat an unknown code by its HTTP status.
+        </Text>
+        <TableFrame variant="docs">
+          <Table density="compact" data-testid="docs-error-codes">
+            <THead>
+              <tr>
+                <Th className="text-left">Code</Th>
+                <Th className="text-left">Status</Th>
+                <Th className="text-left">Meaning</Th>
+                <Th className="text-left">What to do</Th>
+              </tr>
+            </THead>
+            <TBody>
+              {ERROR_CODES.map((error) => (
+                <tr key={error.code}>
+                  <Td tone="fg-muted" className="align-top">
+                    <Code>{error.code}</Code>
+                  </Td>
+                  <Td tone="fg-muted" className="align-top">
+                    {error.statuses.join(", ")}
+                  </Td>
+                  <Td tone="fg-muted" className="align-top">
+                    {error.meaning}
+                  </Td>
+                  <Td tone="fg-muted" className="align-top">
+                    {error.action}
+                  </Td>
+                </tr>
+              ))}
+            </TBody>
+          </Table>
+        </TableFrame>
       </section>
 
       <section id="reference" className="scroll-mt-24">

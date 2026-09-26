@@ -1,7 +1,11 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test } from "@playwright/test";
-import { API_ROUTES, SNIPPET_LANGUAGES } from "@/docs/apiReference.ts";
+import {
+  API_ROUTES,
+  ERROR_CODES,
+  SNIPPET_LANGUAGES,
+} from "@/docs/apiReference.ts";
 
 // The route reference on /docs (#126, part 2). The examples live in
 // docs-snippets/ and are checked here against the live OpenAPI spec, so a
@@ -18,6 +22,7 @@ interface SpecParameter {
 }
 interface SpecOperation {
   parameters?: SpecParameter[];
+  responses: Record<string, { description?: string }>;
   security?: Record<string, string[]>[];
   requestBody?: {
     content: Record<
@@ -30,6 +35,9 @@ interface Spec {
   paths: Record<string, Record<string, SpecOperation>>;
   components: {
     securitySchemes: Record<string, { in: string; name: string }>;
+    schemas: {
+      ErrorResponse: { properties: { code: { enum: string[] } } };
+    };
   };
 }
 
@@ -39,6 +47,22 @@ test.describe("route reference against the live spec (#126)", () => {
     const response = await request.get(SPEC_URL);
     expect(response.ok()).toBe(true);
     spec = await response.json();
+  });
+
+  const specCodes = () =>
+    spec.components.schemas.ErrorResponse.properties.code.enum;
+
+  // A new backend code breaks the build until /docs lists it (#149).
+  test("the page lists exactly the spec's error codes", async ({ page }) => {
+    expect(ERROR_CODES.map((c) => c.code).sort()).toEqual(
+      [...specCodes()].sort(),
+    );
+    await page.goto("/docs");
+    const listed = await page
+      .getByTestId("docs-error-codes")
+      .locator("tbody tr td:first-child")
+      .allInnerTexts();
+    expect(listed.map((c) => c.trim()).sort()).toEqual([...specCodes()].sort());
   });
 
   for (const route of API_ROUTES) {
@@ -71,6 +95,26 @@ test.describe("route reference against the live spec (#126)", () => {
         in: "header",
         name: "x-api-key",
       });
+    });
+
+    // Each error status the spec gives the route, with the codes its
+    // description names (#149).
+    test(`${route.path}: the errors match the spec`, () => {
+      const op = operation();
+      const fromSpec = Object.entries(op.responses)
+        .filter(([status]) => Number(status) >= 400)
+        .map(([status, { description = "" }]) => ({
+          status: Number(status),
+          codes: [...description.matchAll(/`([A-Z_]+)`/g)]
+            .map((m) => m[1])
+            .filter((code) => specCodes().includes(code))
+            .sort(),
+        }))
+        .sort((a, b) => a.status - b.status);
+      const documented = route.errors
+        .map(({ status, codes }) => ({ status, codes: [...codes].sort() }))
+        .sort((a, b) => a.status - b.status);
+      expect(documented).toEqual(fromSpec);
     });
 
     for (const language of SNIPPET_LANGUAGES) {
@@ -108,6 +152,10 @@ test.describe("route reference against the live spec (#126)", () => {
             new RegExp(`["']${field}["'=]|name=\\\\"${field}\\\\"|${field}=@`),
           );
         }
+        // Error handling branches on the stable code, not the message.
+        if (language.id !== "curl") {
+          expect(source).toContain('"RATE_LIMITED"');
+        }
         if (route.id === "count" && language.id !== "curl") {
           expect(source).toContain("pageCount");
         }
@@ -132,12 +180,30 @@ test.describe("route reference on /docs (#126)", () => {
         );
       }
       await expect(section).toContainText(route.response.contentType);
-      for (const status of [400, 401, 403, 413, 429]) {
+      for (const error of route.errors) {
         await expect(section.getByTestId("docs-errors")).toContainText(
-          String(status),
+          String(error.status),
         );
+        for (const code of error.codes) {
+          await expect(section.getByTestId("docs-errors")).toContainText(code);
+        }
       }
     }
+  });
+
+  test("lists the error codes with their contract", async ({ page }) => {
+    await page.goto("/docs");
+    const codes = page.getByTestId("docs-error-codes");
+    for (const { code, statuses } of ERROR_CODES) {
+      const row = codes.getByRole("row").filter({ hasText: code });
+      for (const status of statuses) {
+        await expect(row).toContainText(String(status));
+      }
+    }
+    const limits = page.getByTestId("docs-limits");
+    await expect(limits).toContainText("New codes may be added");
+    await expect(limits).toContainText(/unknown code.*HTTP status/);
+    await expect(limits).toContainText("Retry-After");
   });
 
   test("offers the example in seven languages, curl first", async ({
