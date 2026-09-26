@@ -142,15 +142,16 @@ export const PRICING_TIERS: PricingTier[] = [
 ];
 
 // Said next to every price (#141): the price list is in EUR (Q7,
-// pdfthumbnailpro-be docs/research/on-prem-enterprise-pricing.md), and #141
-// asks for "EUR, excluding VAT". VAT handling itself is still open on
-// pdfthumbnailpro-be#185.
-export const PRICE_NOTE = "EUR, excluding VAT";
+// pdfthumbnailpro-be docs/research/on-prem-enterprise-pricing.md). No VAT
+// claim yet: VAT handling is an open driver decision (pdfthumbnailpro-be#185),
+// and the coordinator ruled "EUR" alone until then.
+export const PRICE_NOTE = "EUR";
 
-// The monthly/yearly toggle on /pricing (#141) is built but stays off: the
-// yearly price, or discount, is an undecided question for the driver. Turn
-// it on only once the coordinator relays a decision and the tiers carry
-// yearlyPriceEur. While it's off, nothing yearly renders.
+// The monthly/yearly toggle on /pricing (#141) is built but stays off. The
+// driver decided annual billing is "2 months free" (2026-09-25), but the
+// paid amounts are withheld until pdfthumbnailpro-be#185: turn it on
+// together with those amounts (yearlyPriceEur). While it's off, nothing
+// yearly renders.
 export const SHOW_YEARLY_TOGGLE: boolean = false;
 
 // Said once below the cards, not on each one (M3, M5, M9).

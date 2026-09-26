@@ -13,8 +13,8 @@ const OPTIONS: { value: BillingPeriod; label: string }[] = [
 ];
 
 // Monthly or yearly prices on /pricing (#141). Rendered only while
-// SHOW_YEARLY_TOGGLE is on, which waits for the driver's yearly price
-// decision. It carries no discount wording of its own.
+// SHOW_YEARLY_TOGGLE is on, which waits for the paid amounts
+// (pdfthumbnailpro-be#185). It carries no discount wording of its own.
 const BillingPeriodToggle: React.FC<BillingPeriodToggleProps> = ({
   value,
   onChange,

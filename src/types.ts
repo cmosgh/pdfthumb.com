@@ -11,7 +11,7 @@ export interface PricingTier {
   // The word shown while there is no amount ("Upcoming", "Custom").
   price: string;
   priceFrequency: string;
-  // The amounts, in whole EUR excluding VAT (#141). Leave one out while it
+  // The amounts, in whole EUR (#141). Leave one out while it
   // is withheld: the page then shows `price`, and shows the amount by
   // itself once it is set here. Withheld amounts must not enter the bundle.
   monthlyPriceEur?: number;

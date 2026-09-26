@@ -53,7 +53,7 @@ const PricingPage: React.FC = () => {
             size="sm"
             tone="fg-subtle"
             className="text-center mt-12 mb-10"
-            data-testid="pricing-vat-note"
+            data-testid="pricing-currency-note"
           >
             Prices in {PRICE_NOTE}.
           </Text>

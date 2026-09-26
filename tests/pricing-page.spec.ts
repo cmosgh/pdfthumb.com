@@ -79,14 +79,13 @@ test.describe("/pricing (#141)", () => {
     expect(bandTop).toBeGreaterThan(cardsBottom);
   });
 
-  test("states prices in EUR, excluding VAT", async ({ page }) => {
-    await expect(page.getByTestId("pricing-vat-note")).toHaveText(
-      /EUR, excluding VAT/,
-    );
-    await expect(page.getByTestId("pricing-vat-note")).toBeVisible();
-    await expect(page.getByTestId("volume-result")).toContainText(
-      "EUR, excluding VAT",
-    );
+  test("states prices in EUR, with no VAT claim yet", async ({ page }) => {
+    const note = page.getByTestId("pricing-currency-note");
+    await expect(note).toHaveText("Prices in EUR.");
+    await expect(note).toBeVisible();
+    await expect(page.getByTestId("volume-result")).toContainText("· EUR");
+    // VAT handling waits on pdfthumbnailpro-be#185.
+    await expect(page.locator("main")).not.toContainText("VAT");
   });
 
   test("the slider is a labelled range input", async ({ page }) => {
