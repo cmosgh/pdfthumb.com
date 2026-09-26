@@ -18,7 +18,12 @@ test.describe("The page nginx serves, with its runtime theme", () => {
       const html = await (await request.get(path)).text();
       expect(html.trimEnd()).toMatch(/<\/html>$/);
       expect(html).toMatch(/<script type="module"[^>]* src="\/assets\//);
-      expect(html).not.toContain("<!--#");
+      // nginx replaced the include; the theme itself may hold inert text.
+      const outsideTheme = html.replace(
+        /(id="pt-theme">)[\s\S]*?(<\/script>)/,
+        "$1$2",
+      );
+      expect(outsideTheme).not.toContain("<!--#");
 
       await page.goto(path);
       await expect(page.locator("footer")).toBeVisible();

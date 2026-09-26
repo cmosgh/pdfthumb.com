@@ -84,9 +84,9 @@ jobs:
           }
           # The theme <script> nginx served on port $1, for page $2.
           inlined() {
-            curl -sf "http://localhost:$1$2" | tr -d '\n' \
-              | grep -o '<script type="application/json" id="pt-theme">[^<]*</script>' \
-              || fail "port $1 $2: no inlined theme"
+            curl -sf "http://localhost:$1$2" \
+              | perl -0ne 'print $1 if m{<script type="application/json" id="pt-theme">(.*?)</script>}s' \
+              | grep . || fail "port $1 $2: no inlined theme"
           }
           # expect_theme <port> <name>
           expect_theme() {
@@ -114,7 +114,9 @@ jobs:
           expect_theme 8082 default
 
           mkdir -p "$RUNNER_TEMP/theme"
-          echo '{"name": "acme", "light": {"accent": "#c2410c"}}' > "$RUNNER_TEMP/theme/theme.json"
+          # nginx must not parse SSI in the included theme: this directive
+          # stays inert text, and the page still arrives whole.
+          echo '{"name": "acme", "note": "<!--# echo var=\"x\" -->", "light": {"accent": "#c2410c"}}' > "$RUNNER_TEMP/theme/theme.json"
           chmod -R a+rX "$RUNNER_TEMP/theme"
           hardened custom 8083 -e PDFTHUMB_THEME=evergreen -v "$RUNNER_TEMP/theme:/etc/pdfthumb:ro"
           expect_theme 8083 acme

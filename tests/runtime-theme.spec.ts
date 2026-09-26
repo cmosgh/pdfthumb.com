@@ -232,6 +232,10 @@ test.describe("Runtime themes", () => {
     for (const theme of shippedThemes) {
       expect(validate(theme), JSON.stringify(validate.errors)).toBe(true);
     }
+    // nginx inlines a theme into a <script>: a "<" could close it.
+    for (const theme of shippedThemes) {
+      expect(JSON.stringify(theme)).not.toContain("<");
+    }
     expect(defaultTheme.light).toEqual({});
     expect(defaultTheme.dark).toEqual({});
 
