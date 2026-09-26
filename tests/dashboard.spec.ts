@@ -300,7 +300,7 @@ test.describe("Dashboard Navigation", () => {
     );
     await page.goto("/dashboard/overview");
 
-    const widget = page.locator("main main").getByTestId("plan-quota");
+    const widget = page.locator("main").getByTestId("plan-quota");
     const projection = widget.getByTestId("plan-quota-projection");
     await expect(projection).toHaveText(
       "At this rate you'll use about 632 of 1,000 by 16 Oct.",
@@ -329,7 +329,7 @@ test.describe("Dashboard Navigation", () => {
     );
     await page.goto("/dashboard/overview");
 
-    const widget = page.locator("main main").getByTestId("plan-quota");
+    const widget = page.locator("main").getByTestId("plan-quota");
     await expect(widget.getByTestId("plan-quota-projection")).toHaveText(
       "At this rate you'll reach 1,000 around 9 Oct.",
     );
@@ -353,7 +353,7 @@ test.describe("Dashboard Navigation", () => {
     );
     await page.goto("/dashboard/overview");
 
-    const widget = page.locator("main main").getByTestId("plan-quota");
+    const widget = page.locator("main").getByTestId("plan-quota");
     await expect(widget.getByTestId("plan-quota-summary")).toHaveText(
       "Free · 300 of 1,000 Thumbnails used · resets 16 Oct (in 28 days)",
     );
@@ -372,7 +372,7 @@ test.describe("Dashboard Navigation", () => {
     await mockAnalyticsSummary(page, []);
     await page.goto("/dashboard/overview");
 
-    const checklist = page.locator("main main").getByTestId("first-thumbnail");
+    const checklist = page.locator("main").getByTestId("first-thumbnail");
     await expect(checklist.getByRole("heading")).toHaveText(
       "Your first thumbnail",
     );
@@ -397,7 +397,7 @@ test.describe("Dashboard Navigation", () => {
     await page.goto("/dashboard/overview");
 
     const steps = page
-      .locator("main main")
+      .locator("main")
       .getByTestId("first-thumbnail")
       .getByRole("listitem");
     await expect(steps.nth(0)).toHaveText("Done: Create an API key");
@@ -418,7 +418,7 @@ test.describe("Dashboard Navigation", () => {
       "3 requests in the last 30 days: 2 successful, 1 failed",
     );
     await expect(
-      page.locator("main main").getByTestId("first-thumbnail"),
+      page.locator("main").getByTestId("first-thumbnail"),
     ).toHaveCount(0);
   });
 

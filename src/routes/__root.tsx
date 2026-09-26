@@ -2,6 +2,7 @@ import {
   createRootRouteWithContext,
   Outlet,
   HeadContent,
+  useLocation,
 } from "@tanstack/react-router";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -63,13 +64,18 @@ function SessionExpiredModal() {
 function RootComponent() {
   const [theme, toggleTheme] = useTheme();
   const { sessionExpired } = useAuth();
+  const { pathname } = useLocation();
+  // Dashboard routes render their own <main> next to the sidebar nav (#166):
+  // the shell wraps them in a plain container instead of a second <main>.
+  const isDashboardRoute = pathname.startsWith("/dashboard");
+  const OutletWrapper = isDashboardRoute ? "div" : "main";
 
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar theme={theme} toggleTheme={toggleTheme} />
-      <main className="flex-grow">
+      <OutletWrapper className="flex-grow">
         <Outlet />
-      </main>
+      </OutletWrapper>
       <Footer />
       {sessionExpired && <SessionExpiredModal />}
     </div>

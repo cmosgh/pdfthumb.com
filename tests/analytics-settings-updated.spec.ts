@@ -74,8 +74,7 @@ test.describe("Detailed Analytics & Settings", () => {
       await expect(page.getByTestId("profile-settings-section")).toBeVisible();
       await expect(page.getByTestId("danger-zone-section")).toHaveCount(0);
       await expect(page.getByTestId("delete-account-button")).toHaveCount(0);
-      // The dashboard's own <main> sits inside the site's.
-      await expect(page.locator("main main")).not.toContainText(/delete/i);
+      await expect(page.locator("main")).not.toContainText(/delete/i);
     });
 
     // #165: no email is ever sent (there's no mail provider), so nothing
@@ -86,7 +85,7 @@ test.describe("Detailed Analytics & Settings", () => {
       await expect(
         page.getByTestId("notification-preferences-section"),
       ).toHaveCount(0);
-      await expect(page.locator("main main")).not.toContainText(
+      await expect(page.locator("main")).not.toContainText(
         /notification|alert/i,
       );
     });
