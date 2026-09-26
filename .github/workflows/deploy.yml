@@ -16,7 +16,9 @@ permissions:
   contents: read
 
 env:
-  IMAGE_REPOSITORY: ghcr.io/${{ github.repository }}
+  # Spelled out, not derived from github.repository: the image keeps this
+  # name when the code moves into the monorepo (cmosgh/pdfthumbnailpro-be#387).
+  IMAGE_REPOSITORY: ghcr.io/cmosgh/pdfthumb.com
   BUILD_SHA: ${{ github.sha }}
   CHART_DIR: infra/pdfthumb-dashboard
   RELEASE_NAME: pdfthumb-dashboard
