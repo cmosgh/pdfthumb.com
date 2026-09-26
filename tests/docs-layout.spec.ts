@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { API_ROUTES } from "@/docs/apiReference.ts";
+import { describeOverflow, widestOverflow } from "./overflow-helper";
 
 // The three-pane /docs (#142): a sidebar with scroll-spy, prose, a sticky
 // code panel, copy buttons, `/` search and Copy as Markdown.
@@ -288,7 +289,10 @@ test.describe("docs features (#142)", () => {
       const overflow = await page.evaluate(
         () => document.documentElement.scrollWidth - window.innerWidth,
       );
-      expect(overflow).toBeLessThanOrEqual(0);
+      expect(
+        overflow,
+        describeOverflow(await widestOverflow(page.locator("html"), width)),
+      ).toBeLessThanOrEqual(0);
     });
   }
 });
