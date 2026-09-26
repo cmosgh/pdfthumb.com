@@ -273,3 +273,15 @@ test.describe("Dashboard Navigation", () => {
     await expect(sidebar).not.toBeInViewport();
   });
 });
+
+// /dashboard has no router-level auth guard (unlike /dashboard/_admin): a
+// signed-out visitor is turned away by the dashboard component itself (#153).
+test.describe("Dashboard cold load, signed out", () => {
+  test("a direct load sends a signed-out visitor to /login", async ({
+    page,
+  }) => {
+    await page.goto("/dashboard");
+
+    await expect(page).toHaveURL(/\/login(\?.*)?$/);
+  });
+});
