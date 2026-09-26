@@ -7,7 +7,6 @@ interface RouterContext {
   auth:
     | {
         isAuthenticated: boolean;
-        isLoading: boolean;
         isRoleLoading: boolean;
         user: User | null;
       }
@@ -21,7 +20,6 @@ export const router = createRouter({
   context: {
     auth: {
       isAuthenticated: false,
-      isLoading: false,
       isRoleLoading: false,
       user: null,
     },
