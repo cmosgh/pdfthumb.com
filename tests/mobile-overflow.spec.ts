@@ -9,6 +9,7 @@ const overflow = (page: Page) =>
 const WIDTHS = [320, 375, 390, 414];
 const ROUTES = [
   "/",
+  "/pricing",
   "/docs",
   "/login",
   "/status",

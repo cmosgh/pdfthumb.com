@@ -111,14 +111,17 @@ test.describe("holding pages", () => {
   }
 });
 
-// #144 part 2: the landing page points at /security from the hero and the
-// pricing section.
+// #144 part 2: the landing page points at /security from the hero, and the
+// pricing page (#141) from what every plan includes.
 test.describe("links to /security", () => {
-  test("sit near the hero's calls to action and in the pricing section", async ({
+  test("sit near the hero's calls to action and on the pricing page", async ({
     page,
   }) => {
-    await page.goto("/");
-    for (const testId of ["hero-security-link", "pricing-security-link"]) {
+    for (const [path, testId] of [
+      ["/", "hero-security-link"],
+      ["/pricing", "pricing-security-link"],
+    ]) {
+      await page.goto(path);
       await expect(page.getByTestId(testId)).toHaveAttribute(
         "href",
         "/security",

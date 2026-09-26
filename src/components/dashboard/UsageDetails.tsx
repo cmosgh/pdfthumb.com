@@ -265,7 +265,7 @@ export const ProAnalyticsLocked: React.FC = () => (
       <li>CSV export</li>
     </Text>
     <Text size="sm" tone="fg-caption" className="mt-4">
-      <RouterTextLink to="/" hash="pricing" weight="medium">
+      <RouterTextLink to="/pricing" weight="medium">
         See plans
       </RouterTextLink>
     </Text>

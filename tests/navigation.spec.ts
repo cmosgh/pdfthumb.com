@@ -23,7 +23,7 @@ test.describe("Navigation", () => {
       await expect(page.locator("#features")).toBeVisible();
     });
 
-    test("should navigate to pricing section", async ({ page, isMobile }) => {
+    test("should navigate to the pricing page", async ({ page, isMobile }) => {
       if (isMobile) {
         await page.getByLabel("Toggle mobile menu").click();
         await page
@@ -36,8 +36,9 @@ test.describe("Navigation", () => {
           .getByRole("link", { name: "Pricing" })
           .click();
       }
-      await expect(page).toHaveURL("/#pricing");
-      await expect(page.locator("#pricing")).toBeVisible();
+      // Pricing has its own page (#141).
+      await expect(page).toHaveURL("/pricing");
+      await expect(page.locator("h1")).toHaveText("Pricing");
     });
   });
 
@@ -63,7 +64,7 @@ test.describe("Navigation", () => {
       await expect(page.locator("#features")).toBeVisible();
     });
 
-    test("should navigate to pricing section", async ({ page, isMobile }) => {
+    test("should navigate to the pricing page", async ({ page, isMobile }) => {
       if (isMobile) {
         await page.getByLabel("Toggle mobile menu").click();
         await page
@@ -76,8 +77,9 @@ test.describe("Navigation", () => {
           .getByRole("link", { name: "Pricing" })
           .click();
       }
-      await expect(page).toHaveURL("/#pricing");
-      await expect(page.locator("#pricing")).toBeVisible();
+      // Pricing has its own page (#141).
+      await expect(page).toHaveURL("/pricing");
+      await expect(page.locator("h1")).toHaveText("Pricing");
     });
   });
 });

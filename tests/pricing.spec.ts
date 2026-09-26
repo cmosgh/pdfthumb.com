@@ -8,7 +8,9 @@ import { CONTACT_RENDER } from "@/constants.ts";
 const SUPPORT = "support@pdfthumb.com";
 const SALES = "sales@pdfthumb.com";
 
-const pricing = (page: Page) => page.getByTestId("pricing-section");
+// The plans live on /pricing (#141): the self-serve cards, then Enterprise
+// and On-prem in a band below them.
+const pricing = (page: Page) => page.getByTestId("pricing-page");
 const card = (page: Page, id: string) =>
   pricing(page).getByTestId(`pricing-card-${id}`);
 
@@ -30,7 +32,7 @@ async function expectContact(scope: Locator, address: string) {
 
 test.describe("pricing page copy (#118)", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/pricing");
   });
 
   test("names the plans Free, Basic, Pro and Enterprise", async ({ page }) => {
@@ -141,17 +143,6 @@ test.describe("pricing page copy (#118)", () => {
     }
   });
 
-  test("keeps Privacy First, without the retention claim", async ({ page }) => {
-    const features = page.locator("#features");
-    await expect(features).not.toContainText("Zero File Retention");
-    await expect(
-      features.getByRole("heading", { name: "Privacy First", exact: true }),
-    ).toBeVisible();
-    await expect(features).toContainText(
-      "PDFs are processed in memory and never stored. ZIP archives of your thumbnails sit on local disk only while they download, deleted within an hour at most.",
-    );
-  });
-
   test("explains that overage billing waits for paid plans", async ({
     page,
   }) => {
@@ -185,4 +176,17 @@ test.describe("pricing page copy (#118)", () => {
     await expectContact(page.getByRole("contentinfo"), SUPPORT);
     await expect(page.locator('a[href="#contact"]')).toHaveCount(0);
   });
+});
+
+// The features live on the landing page.
+test("keeps Privacy First, without the retention claim", async ({ page }) => {
+  await page.goto("/");
+  const features = page.locator("#features");
+  await expect(features).not.toContainText("Zero File Retention");
+  await expect(
+    features.getByRole("heading", { name: "Privacy First", exact: true }),
+  ).toBeVisible();
+  await expect(features).toContainText(
+    "PDFs are processed in memory and never stored. ZIP archives of your thumbnails sit on local disk only while they download, deleted within an hour at most.",
+  );
 });

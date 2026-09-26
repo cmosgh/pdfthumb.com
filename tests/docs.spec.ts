@@ -50,7 +50,7 @@ test.describe("documentation page (#126)", () => {
     await expect(limits).toContainText(/MB/);
     await expect(
       limits.getByRole("link", { name: /pricing/i }),
-    ).toHaveAttribute("href", "/#pricing");
+    ).toHaveAttribute("href", "/pricing");
     // No SDKs exist: the page must not promise any.
     await expect(page.getByTestId("docs-page")).not.toContainText(
       /client librar|SDK/i,

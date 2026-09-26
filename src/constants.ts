@@ -21,7 +21,7 @@ export const NAV_LINKS = [
   },
   {
     name: "Pricing",
-    linkOptions: linkOptions({ to: "/", hash: "pricing" }),
+    linkOptions: linkOptions({ to: "/pricing" }),
   },
   {
     name: "Docs",
@@ -48,21 +48,27 @@ export const CONTACT_EMAILS = {
   sales: "sales@pdfthumb.com",
 } as const;
 
-const OVERAGE_NOT_YET =
+export const OVERAGE_NOT_YET =
   "Overage billing starts when paid plans launch. Until then, Free stops at 1,000 Thumbnails a month.";
 
 // Paid prices are withheld for now (#71): those plans show "Upcoming" and
 // their buttons start no checkout. Free is live at €0 and starts sign-up
 // (#129). The amounts are left out of the bundle too.
 // The claims follow the Plans & pricing decisions M1–M15 (#118).
+// The numbers the /pricing slider reads (#141): monthlyQuota follows
+// monthlyThumbnailLimit in pdfthumbnailpro-be
+// src/subscription/default-subscription-types.ts; a paid monthlyPriceEur
+// is added only when #185 releases the prices.
 export const PRICING_TIERS: PricingTier[] = [
   {
     id: "free",
     name: "Free",
     price: "€0",
     priceFrequency: "",
+    monthlyPriceEur: 0,
     description: "For builders and side projects.",
     quota: "1,000 Thumbnails a month",
+    monthlyQuota: 1000,
     features: [
       "PDFs up to 10 MB",
       {
@@ -82,6 +88,7 @@ export const PRICING_TIERS: PricingTier[] = [
     priceFrequency: "",
     description: "Ideal for individuals and small projects needing more calls.",
     quota: "10,000 Thumbnails a month",
+    monthlyQuota: 10000,
     features: [
       "PDFs up to 10 MB",
       {
@@ -102,6 +109,7 @@ export const PRICING_TIERS: PricingTier[] = [
     priceFrequency: "",
     description: "For growing businesses and professional use.",
     quota: "100,000 Thumbnails a month",
+    monthlyQuota: 100000,
     features: [
       "PDFs up to 10 MB",
       { text: "Email, next business day", contact: "support" },
@@ -132,6 +140,19 @@ export const PRICING_TIERS: PricingTier[] = [
     overageDescription: "Custom overage rates as per your service agreement.",
   },
 ];
+
+// Said next to every price (#141): the price list is in EUR (Q7,
+// pdfthumbnailpro-be docs/research/on-prem-enterprise-pricing.md). No VAT
+// claim yet: VAT handling is an open driver decision (pdfthumbnailpro-be#185),
+// and the coordinator ruled "EUR" alone until then.
+export const PRICE_NOTE = "EUR";
+
+// The monthly/yearly toggle on /pricing (#141) is built but stays off. The
+// driver decided annual billing is "2 months free" (2026-09-25), but the
+// paid amounts are withheld until pdfthumbnailpro-be#185: turn it on
+// together with those amounts (yearlyPriceEur). While it's off, nothing
+// yearly renders.
+export const SHOW_YEARLY_TOGGLE: boolean = false;
 
 // Said once below the cards, not on each one (M3, M5, M9).
 export const EVERY_PLAN_INCLUDES = [

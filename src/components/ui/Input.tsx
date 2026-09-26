@@ -13,3 +13,15 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ),
 );
 Input.displayName = "Input";
+
+const range = "accent-accent cursor-pointer";
+
+// A native range input (the /pricing volume slider, #141): the browser draws
+// it, in the accent colour. Width comes from className.
+export const RangeInput = React.forwardRef<
+  HTMLInputElement,
+  Omit<InputProps, "type">
+>(({ className, ...rest }, ref) => (
+  <input ref={ref} type="range" className={cx(range, className)} {...rest} />
+));
+RangeInput.displayName = "RangeInput";

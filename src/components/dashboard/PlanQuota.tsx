@@ -34,7 +34,7 @@ export const PlanQuota: React.FC<{ overage?: boolean }> = ({
     body = (
       <Text tone="fg-caption" className="mt-2" data-testid="plan-quota-empty">
         You don't have a plan yet.{" "}
-        <RouterTextLink to="/" hash="pricing" weight="medium">
+        <RouterTextLink to="/pricing" weight="medium">
           See plans
         </RouterTextLink>
       </Text>

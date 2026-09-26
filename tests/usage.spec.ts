@@ -213,7 +213,7 @@ test.describe("Usage page", () => {
     await expect(locked).toContainText("p50 and p95 response times");
     await expect(locked).toContainText("13 months");
     await expect(locked).toContainText("CSV export");
-    await expect(locked.getByRole("link")).toHaveAttribute("href", "/#pricing");
+    await expect(locked.getByRole("link")).toHaveAttribute("href", "/pricing");
     await expect(page.getByTestId("response-times")).toHaveCount(0);
     await expect(page.getByRole("button", { name: /CSV/ })).toHaveCount(0);
     await expect(page.getByRole("tab", { name: "13 months" })).toHaveCount(0);

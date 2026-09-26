@@ -8,13 +8,20 @@ export type PlanFeature = string | { text: string; contact: ContactKind };
 export interface PricingTier {
   id: string;
   name: string;
+  // The word shown while there is no amount ("Upcoming", "Custom").
   price: string;
   priceFrequency: string;
-  priceYearly?: string;
-  priceFrequencyYearly?: string;
-  annualDiscountText?: string;
+  // The amounts, in whole EUR (#141). Leave one out while it
+  // is withheld: the page then shows `price`, and shows the amount by
+  // itself once it is set here. Withheld amounts must not enter the bundle.
+  monthlyPriceEur?: number;
+  // Shown only with the yearly toggle (SHOW_YEARLY_TOGGLE).
+  yearlyPriceEur?: number;
   description: string;
   quota: string;
+  // Thumbnails a month, as a number: the volume slider (#141) reads it.
+  // A self-serve plan has one; Enterprise, sized by contract, has none.
+  monthlyQuota?: number;
   features: PlanFeature[];
   ctaText: string;
   ctaLink: string;
