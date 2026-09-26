@@ -1,0 +1,18 @@
+{{- with .Values.theme.json }}
+{{- $theme := fromJson . }}
+{{- if or (not (kindIs "map" $theme)) (hasKey $theme "Error") }}
+{{- fail "theme.json must be a JSON object (see public/themes/theme.schema.json)" }}
+{{- end }}
+{{- if contains "<" . }}
+{{- fail "theme.json must not contain \"<\": nginx inlines it into index.html" }}
+{{- end }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "pdfthumb-dashboard.fullname" $ }}-theme
+  namespace: {{ include "pdfthumb-dashboard.namespace" $ }}
+  labels:
+    {{- include "pdfthumb-dashboard.labels" $ | nindent 4 }}
+data:
+  theme.json: {{ . | quote }}
+{{- end }}

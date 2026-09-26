@@ -1,5 +1,5 @@
 import React from "react";
-import { DocumentIcon } from "./icons.tsx";
+import BrandMark from "./BrandMark.tsx";
 import { APP_NAME } from "../constants.ts";
 import ContactEmail from "./ContactEmail.tsx";
 import {
@@ -25,7 +25,7 @@ const Footer: React.FC = () => {
               tone="link"
               className="flex items-center space-x-2 mb-4"
             >
-              <DocumentIcon className="h-8 w-8" />
+              <BrandMark />
               <Text as="span" weight="bold" size="xl" tone="fg-2">
                 {APP_NAME}
               </Text>

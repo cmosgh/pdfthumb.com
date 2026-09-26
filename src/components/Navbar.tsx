@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { APP_NAME, HOME_LINK, NAV_LINKS } from "@/constants.ts";
-import { DocumentIcon, MoonIcon, SunIcon } from "./icons.tsx";
+import { MoonIcon, SunIcon } from "./icons.tsx";
+import BrandMark from "./BrandMark.tsx";
 import type { Theme } from "../hooks/useTheme.ts";
 import { useAuth } from "../hooks/AuthContext";
 import {
@@ -43,7 +44,7 @@ const Navbar: React.FC<NavbarProps> = ({ theme, toggleTheme }) => {
               tone="link"
               className="flex items-center space-x-2"
             >
-              <DocumentIcon className="h-8 w-8" />
+              <BrandMark />
               <Text
                 as="span"
                 weight="bold"

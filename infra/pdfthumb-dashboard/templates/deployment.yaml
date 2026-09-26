@@ -1,3 +1,6 @@
+{{- if not (regexMatch "^[a-z0-9-]+$" (toString .Values.theme.name)) }}
+{{- fail "theme.name must be lowercase letters, digits and dashes" }}
+{{- end }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -17,10 +20,12 @@ spec:
       {{- include "pdfthumb-dashboard.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
       annotations:
+        # A changed custom theme rolls the pods, which read it at start.
+        checksum/theme: {{ .Values.theme | toJson | sha256sum }}
+        {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- end }}
       labels:
         {{- include "pdfthumb-dashboard.selectorLabels" . | nindent 8 }}
     spec:
@@ -41,12 +46,22 @@ spec:
         - name: nginx-run
           emptyDir:
             sizeLimit: 1Mi
+        {{- if .Values.theme.json }}
+        - name: theme
+          configMap:
+            name: {{ include "pdfthumb-dashboard.fullname" . }}-theme
+        {{- end }}
       containers:
         - name: nginx
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: {{ include "pdfthumb-dashboard.image" . | quote }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            # nginx/theme.conf.template; the image falls back to "default"
+            # for a name that isn't [a-z0-9-]+.
+            - name: PDFTHUMB_THEME
+              value: {{ .Values.theme.name | quote }}
           ports:
             - name: http
               # nginx/default.conf listens here.
@@ -57,6 +72,11 @@ spec:
               mountPath: /var/cache/nginx
             - name: nginx-run
               mountPath: /var/run
+            {{- if .Values.theme.json }}
+            - name: theme
+              mountPath: /etc/pdfthumb
+              readOnly: true
+            {{- end }}
           readinessProbe:
             httpGet:
               path: /
