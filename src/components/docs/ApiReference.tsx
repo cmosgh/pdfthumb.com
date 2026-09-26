@@ -18,6 +18,7 @@ import {
 import { snippet } from "@/docs/snippets.ts";
 import {
   CodeSample,
+  cx,
   Heading,
   Table,
   TableFrame,
@@ -79,7 +80,7 @@ const SubHeading: React.FC<{ id: string; children: React.ReactNode }> = ({
     id={id}
     weight="semibold"
     tone="heading"
-    className={`mb-2 ${ANCHOR_OFFSET}`}
+    className={cx("mb-2", ANCHOR_OFFSET)}
   >
     {children}
   </Heading>

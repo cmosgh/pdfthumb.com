@@ -52,7 +52,9 @@ const blocks = (list: Block[], origin: string) =>
 const fence = (sample: CodeSampleDoc) =>
   `\`\`\`${sample.lang}\n${sample.code.replace(/\n$/, "")}\n\`\`\``;
 
-const cell = (text: string) => text.replace(/\|/g, "\\|");
+// A cell holds one line: escape pipes, fold line breaks into spaces.
+const cell = (text: string) =>
+  text.replace(/\|/g, "\\|").replace(/\s*\n\s*/g, " ");
 const table = (columns: string[], rows: string[][]) =>
   [
     `| ${columns.join(" | ")} |`,
