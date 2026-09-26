@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { FirstThumbnail } from "../../components/dashboard/FirstThumbnail";
 import { PlanQuota } from "../../components/dashboard/PlanQuota";
 import { RequestsPerDay } from "../../components/dashboard/RequestsPerDay";
 import { APP_NAME } from "../../constants";
@@ -11,13 +12,14 @@ export const Route = createFileRoute("/dashboard/overview")({
   component: OverviewComponent,
 });
 
-// Only numbers the API reports (#112, #119).
+// Only numbers the API reports (#112, #119, #143).
 function OverviewComponent() {
   return (
     <div className="space-y-6">
       <Heading as="h1" size="3xl" weight="bold" tone="fg">
         Dashboard Overview
       </Heading>
+      <FirstThumbnail />
       <PlanQuota />
       <RequestsPerDay />
     </div>
