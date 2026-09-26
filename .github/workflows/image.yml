@@ -64,57 +64,6 @@ jobs:
 
           [ "$(docker exec dashboard id -u)" = 101 ] || fail "nginx does not run as uid 101"
 
-      # Runtime themes (#138): nginx inlines the selected theme into the page
-      # through SSI. The same image serves default, a shipped theme named by
-      # PDFTHUMB_THEME, and a custom theme.json mounted at /etc/pdfthumb.
-      - name: Check runtime theme selection
-        run: |
-          set -euo pipefail
-          fail() { echo "::error::$*"; exit 1; }
-          hardened() {
-            docker run -d --name "$1" --read-only --user 101:101 --cap-drop ALL \
-              --security-opt no-new-privileges \
-              --tmpfs /var/cache/nginx:uid=101,gid=101 --tmpfs /var/run:uid=101,gid=101 \
-              -p "$2:8080" "${@:3}" pdfthumb-dashboard:ci > /dev/null
-            for _ in $(seq 30); do
-              curl -sf -o /dev/null "http://localhost:$2/" && return
-              sleep 1
-            done
-            docker logs "$1"; fail "$1 did not start"
-          }
-          # The theme <script> nginx served on port $1, for page $2.
-          inlined() {
-            curl -sf "http://localhost:$1$2" | tr -d '\n' \
-              | grep -o '<script type="application/json" id="pt-theme">[^<]*</script>' \
-              || fail "port $1 $2: no inlined theme"
-          }
-          # expect_theme <port> <name>
-          expect_theme() {
-            for path in / /dashboard/settings; do
-              grep -q "\"name\": \"$2\"" <<<"$(inlined "$1" "$path")" \
-                || fail "port $1 $path: expected theme $2, got: $(inlined "$1" "$path")"
-            done
-            curl -sfD - -o /dev/null "http://localhost:$1/theme.json" | grep -qi '^cache-control: no-cache' \
-              || fail "port $1: /theme.json is not no-cache"
-            echo "ok port $1 serves theme $2"
-          }
-
-          expect_theme 8080 default
-          curl -sf http://localhost:8080/themes/missing.json | grep -q '"name": "default"' \
-            || fail "an unknown theme file does not fall back to default"
-
-          hardened evergreen 8081 -e PDFTHUMB_THEME=evergreen
-          expect_theme 8081 evergreen
-
-          hardened traversal 8082 -e PDFTHUMB_THEME=../../../etc/passwd
-          expect_theme 8082 default
-
-          mkdir -p "$RUNNER_TEMP/theme"
-          echo '{"name": "acme", "light": {"accent": "#c2410c"}}' > "$RUNNER_TEMP/theme/theme.json"
-          chmod -R a+rX "$RUNNER_TEMP/theme"
-          hardened custom 8083 -e PDFTHUMB_THEME=evergreen -v "$RUNNER_TEMP/theme:/etc/pdfthumb:ro"
-          expect_theme 8083 acme
-
       # The package is public. The served tree must be exactly the built
       # bundle, and nothing else the build added may be left in the image.
       - name: Check the image holds only the bundle
@@ -122,7 +71,7 @@ jobs:
           set -euo pipefail
           docker cp dashboard:/usr/share/nginx/dashboard "$RUNNER_TEMP/html"
           scripts/check-public-bundle.sh "$RUNNER_TEMP/html"
-          unexpected="$(cd "$RUNNER_TEMP/html" && find . -type f | grep -vE '^\./(index\.html|assets/[^/]+\.(js|css|svg|png|jpg|webp|woff2?)|themes/[^/]+\.(json|svg))$' || true)"
+          unexpected="$(cd "$RUNNER_TEMP/html" && find . -type f | grep -vE '^\./(index\.html|assets/[^/]+\.(js|css|svg|png|jpg|webp|woff2?))$' || true)"
           if [ -n "$unexpected" ]; then
             echo "::error::unexpected files in the served tree: $unexpected"
             exit 1
@@ -137,7 +86,4 @@ jobs:
           echo "the image holds only the built bundle"
       - name: Show nginx logs
         if: always()
-        run: |
-          for c in dashboard evergreen traversal custom; do
-            echo "::group::$c"; docker logs "$c" || true; echo "::endgroup::"
-          done
+        run: docker logs dashboard || true

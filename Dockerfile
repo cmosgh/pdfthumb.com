@@ -24,14 +24,6 @@ FROM nginx:stable-alpine@sha256:985220252f3863977e468f611ef118ebd01421289dd86ee1
 
 # Replaces the stock server block, which listens on :80.
 COPY nginx/default.conf /etc/nginx/conf.d/default.conf
-# The runtime theme (#138, docs/theming.md). At start, the image's entrypoint
-# renders the template into the writable /var/cache/nginx, substituting only
-# PDFTHUMB_* variables. PDFTHUMB_THEME names a theme in /themes/; a custom
-# theme.json mounted at /etc/pdfthumb overrides it.
-COPY nginx/theme.conf.template /etc/nginx/templates/theme.conf.template
-ENV PDFTHUMB_THEME=default \
-    NGINX_ENVSUBST_OUTPUT_DIR=/var/cache/nginx \
-    NGINX_ENVSUBST_FILTER=^PDFTHUMB_
 # Its own directory, so nothing the base image ships in /usr/share/nginx/html
 # (its stock index.html and 50x.html) is served.
 COPY --from=build /app/dist /usr/share/nginx/dashboard

@@ -21,12 +21,7 @@ import ts from "typescript";
 
 const root = process.argv[2] ?? ".";
 const UI = join("src", "components", "ui") + sep;
-// boot.ts names CSS properties (font-family, border-radius) to validate a
-// runtime theme's values; it renders nothing.
-const SKIP = new Set([
-  join("src", "routeTree.gen.ts"),
-  join("src", "theme", "boot.ts"),
-]);
+const SKIP = new Set([join("src", "routeTree.gen.ts")]);
 
 const STYLE = new RegExp(
   "^(?:" +
