@@ -125,7 +125,8 @@ function DocsPage() {
         </CodeBlock>
       </section>
 
-      <section className="mb-12">
+      {/* The dashboard's first-thumbnail checklist links here (#143) */}
+      <section id="first-request" className="mb-12 scroll-mt-24">
         <Heading
           as="h2"
           size="2xl"

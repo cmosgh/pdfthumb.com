@@ -5,6 +5,8 @@ import { count, dayMonth } from "@/utils/format";
 import { Card, Heading, Progress, RouterTextLink, Text } from "@/components/ui";
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
+// Before this many days into a period the rate says too little (#143)
+const MIN_PROJECTION_DAYS = 3;
 
 // The plan, the Thumbnails used of its monthly quota, and when the quota
 // resets (#119). The reset is the API's currentPeriodEnd, never worked out
@@ -13,6 +15,7 @@ export const PlanQuota: React.FC<{ overage?: boolean }> = ({
   overage = false,
 }) => {
   const { data, isPending, isError } = useSubscription();
+  const projectionId = React.useId();
 
   let body: React.ReactNode;
   if (isError) {
@@ -49,6 +52,7 @@ export const PlanQuota: React.FC<{ overage?: boolean }> = ({
       Math.ceil((end.getTime() - Date.now()) / MS_PER_DAY),
     );
     const shown = Math.min(used, limit);
+    const projection = projectUsage(data, Date.now());
     body = (
       <>
         <Text tone="fg-2" className="mt-1" data-testid="plan-quota-summary">
@@ -62,8 +66,22 @@ export const PlanQuota: React.FC<{ overage?: boolean }> = ({
           aria-valuemin={0}
           aria-valuemax={limit}
           aria-valuenow={shown}
+          aria-describedby={projection ? projectionId : undefined}
+          marker={projection?.markerPercent}
+          markerTestId="plan-quota-projection-marker"
           className="mt-4"
         />
+        {projection && (
+          <Text
+            id={projectionId}
+            size="sm"
+            tone="fg-caption"
+            className="mt-2"
+            data-testid="plan-quota-projection"
+          >
+            {projection.text}
+          </Text>
+        )}
         <Text
           size="sm"
           tone="fg-caption"
@@ -110,6 +128,44 @@ export const PlanQuota: React.FC<{ overage?: boolean }> = ({
     </Card>
   );
 };
+
+// Where this period's rate takes usage by the reset (#143): Thumbnails
+// used so far over the time elapsed, times the whole period. If that
+// crosses the limit, the day it's reached (UTC). None in the first days
+// of a period, after it ended, before the first Thumbnail, or once the
+// limit is reached (the limit line says what happens then, and Usage
+// projects the overage).
+function projectUsage(
+  {
+    subscriptionType: { monthlyThumbnailLimit: limit },
+    currentMonthlyUsage: used,
+    currentPeriodStart,
+    currentPeriodEnd,
+  }: Subscription,
+  now: number,
+) {
+  const start = new Date(currentPeriodStart).getTime();
+  const end = new Date(currentPeriodEnd);
+  const elapsed = now - start;
+  if (
+    elapsed < MIN_PROJECTION_DAYS * MS_PER_DAY ||
+    now >= end.getTime() ||
+    used <= 0 ||
+    limit <= 0 ||
+    used >= limit
+  )
+    return null;
+
+  const projected = Math.round((used * (end.getTime() - start)) / elapsed);
+  const markerPercent = (Math.min(projected, limit) * 100) / limit;
+  // At `used / elapsed` a Thumbnail, the limit falls at start + limit / rate
+  const reachedAt = start + (limit * elapsed) / used;
+  const text =
+    reachedAt < end.getTime()
+      ? `At this rate you'll reach ${count(limit)} around ${dayMonth(new Date(reachedAt))}.`
+      : `At this rate you'll use about ${count(projected)} of ${count(limit)} by ${dayMonth(end)}.`;
+  return { markerPercent, text };
+}
 
 // Thumbnails past the quota so far, and where this period's pace would take
 // them by the reset. Billing doesn't charge overage yet.
