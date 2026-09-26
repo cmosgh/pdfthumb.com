@@ -60,9 +60,10 @@ export const CodeSample: React.FC<CodeSampleProps> = ({
   ...rest
 }) => (
   <div className={cx("relative", className)} {...rest}>
-    {/* pr-12 keeps the first line clear of the button (it follows p-4 in
-        the built CSS). */}
-    <CodeBlock {...preProps} className={cx("pr-12", preProps?.className)}>
+    {/* pt-10 starts the code below the button (#178): the block scrolls
+        sideways, so right padding wouldn't keep a long first line clear.
+        It follows p-4 in the built CSS. */}
+    <CodeBlock {...preProps} className={cx("pt-10", preProps?.className)}>
       {code}
     </CodeBlock>
     <CopyButton
