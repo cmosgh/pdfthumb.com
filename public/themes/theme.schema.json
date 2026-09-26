@@ -1,0 +1,347 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pdfthumb.com/themes/theme.schema.json",
+  "title": "PDFThumb dashboard theme",
+  "description": "A runtime theme for the dashboard (docs/theming.md). Every field is optional: an invalid or missing value falls back to the default theme, token by token.",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$"
+    },
+    "logo": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "The brand mark shown in the navbar and footer. Dark falls back to light.",
+      "properties": {
+        "light": {
+          "type": "string",
+          "description": "A same-origin path (/...) or an https:// URL.",
+          "pattern": "^(/(?!/)|https://)"
+        },
+        "dark": {
+          "type": "string",
+          "description": "A same-origin path (/...) or an https:// URL.",
+          "pattern": "^(/(?!/)|https://)"
+        }
+      }
+    },
+    "light": {
+      "$ref": "#/$defs/tokens",
+      "description": "Values for light mode. They also apply in dark mode to tokens the default dark theme does not set."
+    },
+    "dark": {
+      "$ref": "#/$defs/tokens",
+      "description": "Values for dark mode."
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "tokens": {
+      "type": "object",
+      "description": "Token values, keyed by the token name without its --pt- prefix. A token left out keeps the default theme value.",
+      "additionalProperties": false,
+      "properties": {
+        "font-sans": {
+          "type": "string",
+          "description": "A CSS font-family list."
+        },
+        "font-mono": {
+          "type": "string",
+          "description": "A CSS font-family list."
+        },
+        "radius-sm": {
+          "type": "string",
+          "description": "A CSS length."
+        },
+        "radius-md": {
+          "type": "string",
+          "description": "A CSS length."
+        },
+        "radius-lg": {
+          "type": "string",
+          "description": "A CSS length."
+        },
+        "radius-xl": {
+          "type": "string",
+          "description": "A CSS length."
+        },
+        "page": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "surface": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "surface-raised": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "band": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "muted": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "muted-hover": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "neutral": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "neutral-hover": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "chip": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "code": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "code-fg": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "code-line": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "overlay": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "frame": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "heading": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "fg-strong": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "fg": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "fg-2": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "fg-muted": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "fg-caption": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "fg-subtle": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "fg-label": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "fg-faint": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "accent": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "accent-hover": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "on-accent": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "on-accent-muted": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "link": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "link-hover": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "accent-soft": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "accent-soft-hover": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "accent-soft-fg": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "accent-tint": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "selected": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "focus": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "line": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "line-strong": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "line-input": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "danger": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "danger-hover": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "danger-fg": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "danger-soft": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "danger-line": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "danger-muted": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "danger-muted-hover": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "danger-muted-fg": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "success": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "success-hover": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "success-fg": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "success-muted": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "success-muted-fg": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "warning": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "warning-fg": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "warning-soft": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "warning-line": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "hero-start": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "hero-end": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "cta-start": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "cta-end": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "chart-1": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "chart-2": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "chart-grid": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "chart-axis": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "scrollbar-track": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "scrollbar-thumb": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "scrollbar-thumb-hover": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "elevation": {
+          "type": "string",
+          "description": "A CSS colour."
+        },
+        "elevation-deep": {
+          "type": "string",
+          "description": "A CSS colour."
+        }
+      }
+    }
+  }
+}

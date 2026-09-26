@@ -62,6 +62,10 @@ npm run build
 
 This will create a `dist` directory with the optimized and minified assets.
 
+## Theming
+
+A deployment can pick its own colours, fonts and logo at runtime, without rebuilding the image. See [docs/theming.md](docs/theming.md).
+
 ## Testing
 
 This project uses Playwright for end-to-end testing. To run the tests, use either of the following commands:
