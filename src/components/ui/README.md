@@ -20,7 +20,7 @@ feature components pick a primitive and a named variant
   `density`), Dialog (backdrop and panel), Progress, NavItem,
   NavSkeleton, IconTile, Spinner (`mx-auto`), Input (`px-3 py-2`),
   CodeBlock (`p-4 overflow-x-auto`), CodeSample (the copy button's
-  corner, `pr-12` on the block).
+  corner, `pt-10` on the block, so the code starts below the button).
 - **Keep typography on the block.** Don't move a text size from a block
   onto an inner `<span>`: the block's strut keeps the line box at the
   inherited size. That's why Card `field` carries `text-sm text-fg-strong`

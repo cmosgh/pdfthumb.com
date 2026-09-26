@@ -189,6 +189,37 @@ test.describe("docs features (#142)", () => {
     }
   });
 
+  // The code scrolls sideways, so right padding doesn't keep a long first
+  // line clear of the button: the code has to start below it (#178).
+  for (const width of [390, 1280]) {
+    test(`copy buttons don't cover the code at ${width}px (#178)`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto("/docs");
+      const samples = page.getByTestId("docs-page").getByTestId("docs-code");
+      await expect(samples.first()).toBeVisible();
+      const overlaps = await samples.evaluateAll((els) =>
+        els.flatMap((el, i) => {
+          const pre = el.querySelector("pre");
+          const button = el.querySelector("button");
+          if (!pre || !button) return [`sample ${i}: no pre or button`];
+          const preBox = pre.getBoundingClientRect();
+          if (preBox.width === 0) return [`sample ${i}: not laid out`];
+          const codeTop =
+            preBox.top + parseFloat(getComputedStyle(pre).paddingTop);
+          const buttonBottom = button.getBoundingClientRect().bottom;
+          return codeTop < buttonBottom - 0.5
+            ? [
+                `sample ${i}: code starts at ${codeTop}, button ends at ${buttonBottom}`,
+              ]
+            : [];
+        }),
+      );
+      expect(overlaps).toEqual([]);
+    });
+  }
+
   test("/ opens search, and a result jumps to its anchor", async ({ page }) => {
     await page.goto("/docs");
     await expect(page.getByTestId("docs-page")).toBeVisible();
