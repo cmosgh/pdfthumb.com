@@ -4,7 +4,14 @@ import { mockAuthentication } from "./auth-helper";
 // #166: dashboard routes rendered the dashboard layout's <main> inside the
 // site shell's <main>, so every dashboard page had two main landmarks.
 // /dashboardx is a 404 whose path merely starts with "/dashboard".
-const PUBLIC_ROUTES = ["/", "/docs", "/login", "/security", "/dashboardx"];
+const PUBLIC_ROUTES = [
+  "/",
+  "/docs",
+  "/pricing",
+  "/login",
+  "/security",
+  "/dashboardx",
+];
 const DASHBOARD_ROUTES = [
   "/dashboard/overview",
   "/dashboard/usage",
