@@ -205,7 +205,7 @@ test.describe("docs features (#142)", () => {
           const button = el.querySelector("button");
           if (!pre || !button) return [`sample ${i}: no pre or button`];
           const preBox = pre.getBoundingClientRect();
-          if (preBox.width === 0) return []; // an inactive tab's panel
+          if (preBox.width === 0) return [`sample ${i}: not laid out`];
           const codeTop =
             preBox.top + parseFloat(getComputedStyle(pre).paddingTop);
           const buttonBottom = button.getBoundingClientRect().bottom;
