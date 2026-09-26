@@ -1,31 +1,35 @@
 import React from "react";
-import Button from "./Button.tsx"; // Added .tsx
+import { ButtonLink, Container, Heading, Section, Text } from "./ui";
 
 const CTASection: React.FC = () => {
   return (
-    <section className="bg-gradient-to-r from-cta-start to-cta-end py-16 sm:py-24">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 className="text-3xl sm:text-4xl font-extrabold text-on-accent">
+    <Section tone="cta" className="py-16 sm:py-24">
+      <Container className="text-center">
+        <Heading as="h2" size="section" weight="extrabold" tone="on-accent">
           Ready to Supercharge Your PDF Workflows?
-        </h2>
-        <p className="mt-4 text-lg text-on-accent-muted max-w-2xl mx-auto">
+        </Heading>
+        <Text
+          size="lg"
+          tone="on-accent-muted"
+          className="mt-4 max-w-2xl mx-auto"
+        >
           Integrate our PDFThumb API in minutes and elevate your application.
           Get your API key today and start building!
-        </p>
+        </Text>
         <div className="mt-10">
           {/* API keys live in the dashboard, behind sign-in; new users get
               the Free plan. No checkout while pricing is upcoming (#71). */}
-          <Button
+          <ButtonLink
             href="/login"
             variant="outlineWhite"
             size="lg"
             data-testid="cta-api-key"
           >
             Get Your Free API Key Now
-          </Button>
+          </ButtonLink>
         </div>
-      </div>
-    </section>
+      </Container>
+    </Section>
   );
 };
 

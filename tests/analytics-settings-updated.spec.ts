@@ -91,6 +91,10 @@ test.describe("Detailed Analytics & Settings", () => {
 
     test("should generate and revoke an API key", async ({ page }) => {
       await page.goto("/dashboard/settings");
+      // goto returns at the load event, which can come before the lazy route
+      // chunks finish; a reload that aborts them makes TanStack reload the
+      // page itself, and in Firefox that cancels the test's reload.
+      await expect(page.locator('h1:text("Settings")')).toBeVisible();
 
       // Mock initial API key listing
       await page.route("**/api/api-key", async (route) => {

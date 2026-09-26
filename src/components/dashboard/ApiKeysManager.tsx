@@ -3,6 +3,25 @@ import type { ApiKey } from "@/types.ts";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog.tsx";
 import { ApiKeyGeneratedDialog } from "@/components/dashboard/ApiKeyGeneratedDialog.tsx";
 import { maskApiKey } from "@/utils/apiKey";
+import {
+  Badge,
+  Button,
+  Card,
+  Code,
+  CopyButton,
+  Heading,
+  Icon,
+  Input,
+  KeyIcon,
+  Table,
+  TableFrame,
+  TBody,
+  Td,
+  Text,
+  TextButton,
+  Th,
+  THead,
+} from "@/components/ui";
 
 interface ApiKeysManagerProps {
   apiKeys: ApiKey[];
@@ -20,7 +39,6 @@ export const ApiKeysManager: React.FC<ApiKeysManagerProps> = ({
 }) => {
   const [showGenerateForm, setShowGenerateForm] = useState(false);
   const [newKeyName, setNewKeyName] = useState("");
-  const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [showRevokeDialog, setShowRevokeDialog] = useState(false);
   const [pendingRevokeKeyId, setPendingRevokeKeyId] = useState<string | null>(
     null,
@@ -73,12 +91,6 @@ export const ApiKeysManager: React.FC<ApiKeysManagerProps> = ({
     setGeneratedKeyName("");
   };
 
-  const copyToClipboard = (key: string) => {
-    navigator.clipboard.writeText(key);
-    setCopiedKey(key);
-    setTimeout(() => setCopiedKey(null), 2000);
-  };
-
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
@@ -90,199 +102,148 @@ export const ApiKeysManager: React.FC<ApiKeysManagerProps> = ({
   };
 
   return (
-    <div
-      className="bg-surface rounded-lg shadow-sm border border-line p-6"
-      data-testid="api-keys-section"
-    >
+    <Card variant="panel" className="p-6" data-testid="api-keys-section">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold text-fg-strong">API Keys</h3>
-        <button
+        <Heading as="h3" size="lg" weight="semibold" tone="fg-strong">
+          API Keys
+        </Heading>
+        <Button
+          variant="accent"
           onClick={() => setShowGenerateForm(true)}
-          className="px-4 py-2 text-sm font-medium text-on-accent bg-accent rounded-md hover:bg-accent-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-focus"
           data-testid="generate-api-key-button"
         >
           Generate New Key
-        </button>
+        </Button>
       </div>
 
       {showGenerateForm && (
-        <div className="mb-6 p-4 bg-muted rounded-lg">
-          <h4 className="text-sm font-medium text-fg-strong mb-3">
+        <Card variant="well" className="mb-6 p-4">
+          <Heading
+            as="h4"
+            size="sm"
+            weight="medium"
+            tone="fg-strong"
+            className="mb-3"
+          >
             Generate New API Key
-          </h4>
+          </Heading>
           <div className="flex gap-3">
-            <input
+            <Input
               type="text"
               value={newKeyName}
               onChange={(e) => setNewKeyName(e.target.value)}
               placeholder="Enter key name (e.g., Production API Key)"
-              className="flex-1 px-3 py-2 border border-line-input rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-focus bg-neutral text-fg"
+              className="flex-1"
               data-testid="api-key-name-input"
             />
-            <button
+            <Button
+              variant="success"
               onClick={handleGenerateKey}
               disabled={!newKeyName.trim()}
-              className="px-4 py-2 text-sm font-medium text-on-accent bg-success rounded-md hover:bg-success-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-success disabled:opacity-50 disabled:cursor-not-allowed"
               data-testid="generate-api-key-submit"
             >
               Generate
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="neutral"
               onClick={() => {
                 setShowGenerateForm(false);
                 setNewKeyName("");
               }}
-              className="px-4 py-2 text-sm font-medium text-fg-2 bg-neutral rounded-md hover:bg-neutral-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-focus"
               data-testid="generate-api-key-cancel"
             >
               Cancel
-            </button>
+            </Button>
           </div>
-        </div>
+        </Card>
       )}
 
-      <div className="overflow-x-auto">
-        <table
-          className="min-w-full divide-y divide-line"
-          data-testid="api-keys-table"
-        >
-          <thead className="bg-muted">
+      <TableFrame variant="plain">
+        <Table density="comfortable" data-testid="api-keys-table">
+          <THead>
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-fg-label uppercase tracking-wider">
-                Name
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-fg-label uppercase tracking-wider">
-                Key
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-fg-label uppercase tracking-wider">
-                Status
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-fg-label uppercase tracking-wider">
-                Created
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-fg-label uppercase tracking-wider">
-                Last Used
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-fg-label uppercase tracking-wider">
-                Actions
-              </th>
+              <Th className="text-left">Name</Th>
+              <Th className="text-left">Key</Th>
+              <Th className="text-left">Status</Th>
+              <Th className="text-left">Created</Th>
+              <Th className="text-left">Last Used</Th>
+              <Th className="text-left">Actions</Th>
             </tr>
-          </thead>
-          <tbody className="bg-surface divide-y divide-line">
+          </THead>
+          <TBody surface>
             {apiKeys.map((key) => (
               <tr key={key.id}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-fg-strong">
+                <Td
+                  weight="medium"
+                  tone="fg-strong"
+                  className="whitespace-nowrap"
+                >
                   {key.name}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-fg-label">
+                </Td>
+                <Td tone="fg-label" className="whitespace-nowrap">
                   <div className="flex items-center space-x-2">
-                    <code className="text-xs bg-muted px-2 py-1 rounded">
+                    <Code variant="chip">
                       {isDevelopment
                         ? key.identifier
                         : maskApiKey(key.identifier)}
-                    </code>
+                    </Code>
                     {isDevelopment && (
-                      <button
-                        onClick={() => copyToClipboard(key.identifier)}
-                        className="text-link hover:text-link-hover"
+                      <CopyButton
+                        variant="icon"
+                        text={key.identifier}
                         title="Copy to clipboard"
                         data-testid="copy-api-key-button"
-                      >
-                        {copiedKey === key.identifier ? (
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M5 13l4 4L19 7"
-                            />
-                          </svg>
-                        ) : (
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                            />
-                          </svg>
-                        )}
-                      </button>
+                      />
                     )}
                   </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      key.enabled
-                        ? "bg-success-muted text-success-muted-fg"
-                        : "bg-danger-muted text-danger-muted-fg"
-                    }`}
-                  >
+                </Td>
+                <Td text={false} className="whitespace-nowrap">
+                  <Badge variant={key.enabled ? "success" : "danger"}>
                     {key.enabled ? "Active" : "Revoked"}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-fg-label">
+                  </Badge>
+                </Td>
+                <Td tone="fg-label" className="whitespace-nowrap">
                   {formatDate(key.createdAt)}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-fg-label">
+                </Td>
+                <Td tone="fg-label" className="whitespace-nowrap">
                   {key.lastUsedAt ? formatDate(key.lastUsedAt) : "Never"}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                </Td>
+                <Td weight="medium" className="whitespace-nowrap">
                   {key.enabled ? (
-                    <button
+                    <TextButton
+                      tone="danger"
                       onClick={() => handleRevokeKey(key.id)}
-                      className="text-danger-fg hover:text-danger-muted-fg"
                       data-testid="revoke-api-key-button"
                     >
                       Revoke
-                    </button>
+                    </TextButton>
                   ) : (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-danger-muted text-danger-muted-fg">
-                      Revoked
-                    </span>
+                    <Badge variant="danger">Revoked</Badge>
                   )}
-                </td>
+                </Td>
               </tr>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </TBody>
+        </Table>
+      </TableFrame>
 
       {apiKeys.length === 0 && (
         <div className="text-center py-8">
-          <svg
-            className="mx-auto h-12 w-12 text-fg-faint"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+          <Icon as={KeyIcon} tone="fg-faint" className="mx-auto h-12 w-12" />
+          <Heading
+            as="h3"
+            size="sm"
+            weight="medium"
+            tone="fg-strong"
+            className="mt-2"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
-            />
-          </svg>
-          <h3 className="mt-2 text-sm font-medium text-fg-strong">
             No API keys
-          </h3>
-          <p className="mt-1 text-sm text-fg-subtle">
+          </Heading>
+          <Text size="sm" tone="fg-subtle" className="mt-1">
             Get started by creating a new API key.
-          </p>
+          </Text>
         </div>
       )}
-
       <ConfirmationDialog
         isOpen={showRevokeDialog}
         title="Revoke API Key"
@@ -300,6 +261,6 @@ export const ApiKeysManager: React.FC<ApiKeysManagerProps> = ({
         keyName={generatedKeyName}
         onClose={handleCloseGeneratedKeyDialog}
       />
-    </div>
+    </Card>
   );
 };

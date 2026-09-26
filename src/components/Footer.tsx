@@ -1,85 +1,98 @@
 import React from "react";
-import { Link } from "@tanstack/react-router";
 import { DocumentIcon } from "./icons.tsx";
 import { APP_NAME } from "../constants.ts";
 import ContactEmail from "./ContactEmail.tsx";
+import {
+  Container,
+  Divider,
+  Heading,
+  RouterTextLink,
+  Surface,
+  Text,
+  TextLink,
+} from "./ui";
 
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
-  const linkClasses = "text-fg-subtle hover:text-link text-sm";
 
   return (
-    <footer className="bg-band border-t border-line">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <Surface as="footer" tone="footer">
+      <Container className="py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
-            <Link
+            <RouterTextLink
               to="/"
-              className="flex items-center space-x-2 text-link hover:text-link-hover mb-4"
+              tone="link"
+              className="flex items-center space-x-2 mb-4"
             >
               <DocumentIcon className="h-8 w-8" />
-              <span className="font-bold text-xl text-fg-2">{APP_NAME}</span>
-            </Link>
-            <p className="text-fg-subtle text-sm">
+              <Text as="span" weight="bold" size="xl" tone="fg-2">
+                {APP_NAME}
+              </Text>
+            </RouterTextLink>
+            <Text tone="fg-subtle" size="sm">
               Making PDF thumbnail generation simple and fast for developers.
-            </p>
+            </Text>
           </div>
           <div>
-            <h5 className="text-fg-2 font-semibold mb-3">Quick Links</h5>
+            <Heading as="h5" tone="fg-2" weight="semibold" className="mb-3">
+              Quick Links
+            </Heading>
             <ul className="space-y-2">
               <li>
-                <a href="/#features" className={linkClasses}>
+                <TextLink href="/#features" tone="footer">
                   Features
-                </a>
+                </TextLink>
               </li>
               <li>
-                <a href="/#pricing" className={linkClasses}>
+                <TextLink href="/#pricing" tone="footer">
                   Pricing
-                </a>
+                </TextLink>
               </li>
               <li>
-                <Link
+                <RouterTextLink
                   to="/docs"
-                  className={linkClasses}
+                  tone="footer"
                   data-testid="footer-docs-link"
                 >
                   Documentation
-                </Link>
+                </RouterTextLink>
               </li>
               <li>
-                <Link to="/status" className={linkClasses}>
+                <RouterTextLink to="/status" tone="footer">
                   API Status
-                </Link>
+                </RouterTextLink>
               </li>
             </ul>
           </div>
           <div>
-            <h5 className="text-fg-2 font-semibold mb-3">Legal</h5>
+            <Heading as="h5" tone="fg-2" weight="semibold" className="mb-3">
+              Legal
+            </Heading>
             <ul className="space-y-2">
               <li>
-                <Link to="/terms" className={linkClasses}>
+                <RouterTextLink to="/terms" tone="footer">
                   Terms of Service
-                </Link>
+                </RouterTextLink>
               </li>
               <li>
-                <Link to="/privacy" className={linkClasses}>
+                <RouterTextLink to="/privacy" tone="footer">
                   Privacy Policy
-                </Link>
+                </RouterTextLink>
               </li>
-              <li className="text-fg-subtle text-sm">
-                Contact Us:{" "}
-                <ContactEmail kind="support" className={linkClasses} />
-              </li>
+              <Text as="li" tone="fg-subtle" size="sm">
+                Contact Us: <ContactEmail kind="support" tone="footer" />
+              </Text>
             </ul>
           </div>
         </div>
-        <div className="mt-12 border-t border-line pt-8 text-center">
-          <p className="text-sm text-fg-subtle">
+        <Divider className="mt-12 pt-8 text-center">
+          <Text size="sm" tone="fg-subtle">
             &copy; {currentYear} {APP_NAME}. All rights reserved.
-          </p>
-        </div>
-      </div>
-    </footer>
+          </Text>
+        </Divider>
+      </Container>
+    </Surface>
   );
 };
 

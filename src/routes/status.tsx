@@ -4,6 +4,7 @@ import { APP_NAME } from "../constants";
 import { healthApi } from "../api";
 import { dayMonth } from "../utils/format";
 import TrustPage from "../components/trust/TrustPage";
+import { DividedList, Dot, Text, TextButton } from "../components/ui";
 
 export const Route = createFileRoute("/status")({
   head: () => ({
@@ -39,13 +40,9 @@ function StatusPage() {
   const row = (label: string, ok: boolean, testId: string) => (
     <li className="flex justify-between gap-4 py-2" data-testid={testId}>
       <span>{label}</span>
-      <span
-        className={
-          ok ? "font-medium text-success-fg" : "font-medium text-danger-fg"
-        }
-      >
+      <Text as="span" weight="medium" tone={ok ? "success-fg" : "danger-fg"}>
         {ok ? "Yes" : "No"}
-      </span>
+      </Text>
     </li>
   );
 
@@ -55,30 +52,35 @@ function StatusPage() {
         <p>Checking…</p>
       ) : (
         <>
-          <p className="flex items-center gap-3 text-2xl font-semibold text-fg">
-            <span
+          <Text
+            size="2xl"
+            weight="semibold"
+            tone="fg"
+            className="flex items-center gap-3"
+          >
+            <Dot
               aria-hidden="true"
-              className={`inline-block h-3 w-3 rounded-full ${operational ? "bg-success" : "bg-warning"}`}
+              tone={operational ? "success" : "warning"}
             />
             <span data-testid="status-overall">
               {operational ? "Operational" : "Degraded"}
             </span>
-          </p>
-          <ul className="divide-y divide-line">
+          </Text>
+          <DividedList>
             {row("API is running", data.live, "status-live")}
             {row("API is ready to serve requests", data.ready, "status-ready")}
-          </ul>
-          <p className="text-sm" data-testid="status-checked-at">
+          </DividedList>
+          <Text size="sm" data-testid="status-checked-at">
             Checked {formatCheckedAt(data.checkedAt)}
-          </p>
-          <button
+          </Text>
+          <TextButton
             type="button"
+            tone="status"
             onClick={() => refetch()}
             disabled={isFetching}
-            className="text-sm font-medium text-link hover:text-link-hover disabled:opacity-60"
           >
             {isFetching ? "Checking…" : "Check again"}
-          </button>
+          </TextButton>
         </>
       )}
     </TrustPage>

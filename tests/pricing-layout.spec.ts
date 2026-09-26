@@ -10,6 +10,8 @@ for (const width of WIDTHS) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/");
     await page.getByTestId("pricing-section").scrollIntoViewIfNeeded();
+    // Measure with the web font in place: the fallback font is wider.
+    await page.evaluate(() => document.fonts.ready);
     for (const tier of PRICING_TIERS) {
       const card = page.getByTestId(`pricing-card-${tier.id}`);
       const box = await card.evaluate((el) => {

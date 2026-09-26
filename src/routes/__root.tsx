@@ -2,7 +2,6 @@ import {
   createRootRouteWithContext,
   Outlet,
   HeadContent,
-  Link,
 } from "@tanstack/react-router";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -11,6 +10,15 @@ import { useTheme } from "../hooks/useTheme";
 import { APP_NAME } from "../constants";
 import { useAuth } from "../hooks/AuthContext";
 import type { User } from "../types";
+import {
+  buttonClasses,
+  Container,
+  Dialog,
+  Heading,
+  Icon,
+  RouterTextLink,
+  Text,
+} from "../components/ui";
 
 interface RouterContext {
   auth:
@@ -25,35 +33,31 @@ interface RouterContext {
 
 function SessionExpiredModal() {
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="session-expired-title"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-overlay backdrop-blur-sm"
-    >
-      <div className="bg-surface rounded-xl shadow-2xl p-8 max-w-sm w-full mx-4 text-center">
-        <LockClosedIcon
-          className="mx-auto mb-4 h-10 w-10 text-fg-subtle"
-          aria-hidden="true"
-        />
-        <h2
-          id="session-expired-title"
-          className="text-xl font-bold text-fg mb-2"
-        >
-          Your session expired
-        </h2>
-        <p className="text-fg-caption mb-6 text-sm">
-          We couldn't renew your session automatically. Please log in again to
-          continue.
-        </p>
-        <a
-          href="/login"
-          className="inline-block bg-accent hover:bg-accent-hover text-on-accent font-semibold px-6 py-2.5 rounded-lg transition-colors"
-        >
-          Log in again
-        </a>
-      </div>
-    </div>
+    <Dialog open variant="session" aria-labelledby="session-expired-title">
+      <Icon
+        as={LockClosedIcon}
+        tone="fg-subtle"
+        className="mx-auto mb-4 h-10 w-10"
+        aria-hidden="true"
+      />
+      <Heading
+        as="h2"
+        id="session-expired-title"
+        size="xl"
+        weight="bold"
+        tone="fg"
+        className="mb-2"
+      >
+        Your session expired
+      </Heading>
+      <Text size="sm" tone="fg-caption" className="mb-6">
+        We couldn't renew your session automatically. Please log in again to
+        continue.
+      </Text>
+      <a href="/login" className={buttonClasses({ variant: "session" })}>
+        Log in again
+      </a>
+    </Dialog>
   );
 }
 
@@ -76,19 +80,18 @@ function RootComponent() {
 // An unknown path gets a page that says so, inside the usual frame (#144).
 function NotFound() {
   return (
-    <div
-      className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 max-w-3xl"
-      data-testid="not-found"
-    >
-      <h1 className="text-3xl md:text-4xl font-bold text-fg">Page not found</h1>
-      <p className="mt-6 text-fg-muted">
+    <Container className="py-16 max-w-3xl" data-testid="not-found">
+      <Heading as="h1" size="page" weight="bold" tone="fg">
+        Page not found
+      </Heading>
+      <Text tone="fg-muted" className="mt-6">
         This page doesn't exist. Go to the{" "}
-        <Link to="/" className="font-medium text-link hover:text-link-hover">
+        <RouterTextLink to="/" weight="medium">
           home page
-        </Link>
+        </RouterTextLink>
         .
-      </p>
-    </div>
+      </Text>
+    </Container>
   );
 }
 
