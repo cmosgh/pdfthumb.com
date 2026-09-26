@@ -24,7 +24,6 @@ interface RouterContext {
   auth:
     | {
         isAuthenticated: boolean;
-        isLoading: boolean;
         isRoleLoading: boolean;
         user: User | null;
       }

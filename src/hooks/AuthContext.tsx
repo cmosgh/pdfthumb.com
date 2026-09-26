@@ -44,7 +44,6 @@ const SIGNED_OUT: AuthState = {
   user: null,
   tokens: null,
   isAuthenticated: false,
-  isLoading: false,
   isRoleLoading: false,
 };
 
@@ -131,7 +130,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       user,
       tokens,
       isAuthenticated: true,
-      isLoading: false,
       isRoleLoading: true, // Role fetch is about to start via fetchMe
     });
   }, []);
@@ -171,7 +169,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       user: null,
       tokens: null,
       isAuthenticated: false,
-      isLoading: false,
       isRoleLoading: false,
     });
 
@@ -208,7 +205,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       tokens: session,
       user: readStoredUser() ?? prev.user,
       isAuthenticated: true,
-      isLoading: false,
       isRoleLoading: false,
     }));
 
@@ -334,7 +330,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           user: null,
           tokens: null,
           isAuthenticated: false,
-          isLoading: false,
           isRoleLoading: false,
         });
         return;
