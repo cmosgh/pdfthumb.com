@@ -14,7 +14,8 @@ export interface Overflow {
  * past `limit` (a viewport-relative px coordinate, e.g. the viewport width
  * or a container's own right edge). Used to name the offending element in a
  * fit assertion's failure message, since "overflow is 7px" alone doesn't say
- * which element to fix. Returns null when nothing overflows.
+ * which element to fix. Content inside a sideways-scrolling or clipping
+ * container is skipped. Returns null when nothing overflows.
  */
 export async function widestOverflow(
   container: Locator,
@@ -30,9 +31,19 @@ export async function widestOverflow(
       return `${tag}${id}${cls}`;
     };
 
+    // Inside a container that scrolls or clips sideways (a code block or
+    // table with overflow-x-auto), wide content is intended: the container
+    // itself is what has to fit, and it's checked on its own.
+    const clipped = (el: Element): boolean => {
+      for (let a = el.parentElement; a && a !== root; a = a.parentElement)
+        if (getComputedStyle(a).overflowX !== "visible") return true;
+      return false;
+    };
+
     let widest: { selector: string; right: number; width: number } | null =
       null;
     for (const el of root.querySelectorAll("*")) {
+      if (clipped(el)) continue;
       const rect = el.getBoundingClientRect();
       if (rect.width === 0 && rect.height === 0) continue;
       if (rect.right > limit && (!widest || rect.right > widest.right)) {
