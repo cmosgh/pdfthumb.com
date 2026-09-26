@@ -3,7 +3,7 @@ import { APP_NAME } from "../constants";
 import TrustPage from "../components/trust/TrustPage";
 import {
   SECURITY_SECTIONS,
-  SECURITY_UPDATED,
+  TRUST_FACTS_UPDATED,
 } from "../components/trust/securityFacts";
 import { Heading, Text, TextLink } from "../components/ui";
 
@@ -21,7 +21,7 @@ function SecurityPage() {
     <TrustPage title="Security">
       <p>
         What happens to the files you send us, and how we protect your account.
-        Last updated {SECURITY_UPDATED}.
+        Last updated {TRUST_FACTS_UPDATED}.
       </p>
       <nav aria-label="On this page" data-testid="security-toc">
         <Text as="ul" list="disc" className="pl-5 space-y-1">

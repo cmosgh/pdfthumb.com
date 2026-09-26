@@ -4,7 +4,7 @@ import TrustPage from "../components/trust/TrustPage";
 import {
   SUBPROCESSORS,
   SUBPROCESSORS_NOT_USED,
-  SUBPROCESSORS_UPDATED,
+  TRUST_FACTS_UPDATED,
 } from "../components/trust/securityFacts";
 import ContactEmail from "../components/ContactEmail";
 import {
@@ -30,7 +30,7 @@ function SubprocessorsPage() {
     <TrustPage title="Subprocessors">
       <p>
         The companies that handle data on our behalf, and what each one sees.
-        Last updated {SUBPROCESSORS_UPDATED}.
+        Last updated {TRUST_FACTS_UPDATED}.
       </p>
       <TableFrame variant="docs">
         <Table density="compact">

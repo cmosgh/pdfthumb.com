@@ -136,11 +136,12 @@ const OVERCLAIMS = [
   /encrypted at rest/i,
   /is encrypted at rest/i,
   /plaintext/i,
+  /older than 14 days/i,
   /GitHub/i,
   /expiry date/i,
   /delete your account/i,
   /SOC ?2 (certified|compliant)/i,
-  /ISO ?27001 (certified|compliant)/i,
+  /ISO ?(27001 )?(certified|compliant)/i,
   /GDPR[- ]compliant/i,
 ];
 

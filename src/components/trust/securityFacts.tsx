@@ -15,7 +15,8 @@ export interface TrustSection {
   points: React.ReactNode[];
 }
 
-export const SECURITY_UPDATED = "26 September 2026";
+// When either page last changed; both come from the same fact-checks.
+export const TRUST_FACTS_UPDATED = "26 September 2026";
 
 export const SECURITY_SECTIONS: TrustSection[] = [
   {
@@ -33,7 +34,7 @@ export const SECURITY_SECTIONS: TrustSection[] = [
       "While rendering, our image library may use the server's scratch disk.",
       // storage: no object storage for content; the DB holds no PDFs or
       // thumbnails.
-      "We keep no copies. PDFs and thumbnails aren't stored in our database, our backups or any file storage.",
+      "We keep no lasting copies. PDFs and thumbnails aren't stored in our database, our backups or any object storage.",
     ],
   },
   {
@@ -100,7 +101,7 @@ export const SECURITY_SECTIONS: TrustSection[] = [
     heading: "What we don't have yet",
     points: [
       // part 2: say so plainly.
-      "We don't have SOC 2 or ISO 27001 certification.",
+      "We don't have SOC 2 or ISO certification.",
       // part 2: database safe wording.
       "We don't currently add our own encryption at rest to the database or its backups.",
     ],
@@ -121,8 +122,6 @@ export interface Subprocessor {
   purpose: string;
   data: string;
 }
-
-export const SUBPROCESSORS_UPDATED = "26 September 2026";
 
 // part 2: the list; storage: what Hetzner holds.
 export const SUBPROCESSORS: Subprocessor[] = [
