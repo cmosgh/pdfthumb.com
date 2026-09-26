@@ -132,11 +132,12 @@ export const PlanQuota: React.FC<{ overage?: boolean }> = ({
 // Where this period's rate takes usage by the reset (#143): Thumbnails
 // used so far over the time elapsed, times the whole period. If that
 // crosses the limit, the day it's reached (UTC). None in the first days
-// of a period, after it ended, before the first Thumbnail, or once a hard
-// limit is reached (nothing more gets through).
+// of a period, after it ended, before the first Thumbnail, or once the
+// limit is reached (the limit line says what happens then, and Usage
+// projects the overage).
 function projectUsage(
   {
-    subscriptionType: { monthlyThumbnailLimit: limit, isHardLimit },
+    subscriptionType: { monthlyThumbnailLimit: limit },
     currentMonthlyUsage: used,
     currentPeriodStart,
     currentPeriodEnd,
@@ -151,7 +152,7 @@ function projectUsage(
     now >= end.getTime() ||
     used <= 0 ||
     limit <= 0 ||
-    (isHardLimit && used >= limit)
+    used >= limit
   )
     return null;
 
@@ -160,11 +161,9 @@ function projectUsage(
   // At `used / elapsed` a Thumbnail, the limit falls at start + limit / rate
   const reachedAt = start + (limit * elapsed) / used;
   const text =
-    used < limit && reachedAt < end.getTime()
+    reachedAt < end.getTime()
       ? `At this rate you'll reach ${count(limit)} around ${dayMonth(new Date(reachedAt))}.`
-      : used < limit
-        ? `At this rate you'll use about ${count(projected)} of ${count(limit)} by ${dayMonth(end)}.`
-        : `At this rate you'll use about ${count(projected)} by ${dayMonth(end)}.`;
+      : `At this rate you'll use about ${count(projected)} of ${count(limit)} by ${dayMonth(end)}.`;
   return { markerPercent, text };
 }
 

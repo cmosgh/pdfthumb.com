@@ -258,6 +258,8 @@ test.describe("Dashboard Navigation", () => {
       "aria-valuenow",
       "10000",
     );
+    // Past the limit there's nothing left to project to (#143).
+    await expect(widget.getByTestId("plan-quota-projection")).toHaveCount(0);
   });
 
   test("overview says so when there is no plan", async ({ page }) => {
