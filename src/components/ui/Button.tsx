@@ -42,8 +42,6 @@ const actionVariant = {
   success:
     "text-on-accent bg-success hover:bg-success-hover focus:ring-success",
   danger: "text-on-accent bg-danger hover:bg-danger-hover focus:ring-danger",
-  dangerSoft:
-    "text-danger-fg bg-danger-muted hover:bg-danger-muted-hover focus:ring-danger",
 } as const;
 
 // One-offs, each exactly as it looks today (merge candidates).

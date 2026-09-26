@@ -7,7 +7,7 @@ const cardVariant = {
   // Dashboard cards: PlanQuota, RequestsPerDay, ProfileSettings,
   // ApiKeysManager, the settings loading box.
   panel: "bg-surface rounded-lg shadow-sm border border-line",
-  // Settings: Notification Preferences, Danger Zone.
+  // Settings: Notification Preferences.
   raised:
     "bg-surface rounded-lg shadow-lg shadow-elevation/50 border border-line",
   // FeaturesSection cards.

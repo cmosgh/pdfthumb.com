@@ -67,6 +67,17 @@ test.describe("Detailed Analytics & Settings", () => {
       await expect(page.getByTestId("save-profile-button")).toHaveCount(0);
     });
 
+    // #163: no backend endpoint deletes an account, so nothing offers to,
+    // and nothing is written in its place.
+    test("offers no account deletion", async ({ page }) => {
+      await page.goto("/dashboard/settings");
+      await expect(page.getByTestId("profile-settings-section")).toBeVisible();
+      await expect(page.getByTestId("danger-zone-section")).toHaveCount(0);
+      await expect(page.getByTestId("delete-account-button")).toHaveCount(0);
+      // The dashboard's own <main> sits inside the site's.
+      await expect(page.locator("main main")).not.toContainText(/delete/i);
+    });
+
     test("says Not provided when Google gave no name or email", async ({
       page,
     }) => {
